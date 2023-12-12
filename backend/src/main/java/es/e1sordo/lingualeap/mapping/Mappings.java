@@ -1,12 +1,10 @@
 package es.e1sordo.lingualeap.mapping;
 
-import es.e1sordo.lingualeap.dto.AppSettingDto;
 import es.e1sordo.lingualeap.dto.word.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.word.VocabularyListDetailDto;
 import es.e1sordo.lingualeap.dto.word.VocabularyListDto;
 import es.e1sordo.lingualeap.dto.word.WordMeaningContextDto;
 import es.e1sordo.lingualeap.dto.word.WordMeaningDto;
-import es.e1sordo.lingualeap.models.AppSettingEntity;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.models.WordMeaning;
@@ -59,13 +57,5 @@ public final class Mappings {
 
     public static VocabularyListDto mapToDto(final VocabularyList entity) {
         return new VocabularyListDto(entity.getId(), entity.getName());
-    }
-
-
-    public static AppSettingDto mapToDto(final AppSettingEntity entity) {
-        return new AppSettingDto(
-                entity.getKey(),
-                entity.getValue()
-        );
     }
 }
