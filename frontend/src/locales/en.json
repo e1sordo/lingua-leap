@@ -1,0 +1,15 @@
+{
+    "navbar": {
+        "home": "Home",
+        "add": "New word",
+        "study": "Study",
+        "lists": "My Lists",
+        "settings": "Settings",
+        "logout": "Log out"
+    },
+    "settings": {
+        "language": {
+            "title": "Language preferences"
+        }
+    }
+}

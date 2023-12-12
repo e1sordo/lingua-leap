@@ -1,0 +1,173 @@
+<template>
+    <nav class="navbar navbar-expand-lg" style="background-color: #3daeff28;">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
+                aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <router-link to="/" class="navbar-brand">
+                    <div spellcheck="false" class="brand fw-bolder">
+                        Lingua Leap {{ totalWords }}
+                    </div>
+                </router-link>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <router-link to="/add" class="nav-link">{{ $t("navbar.add") }}</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/study" class="nav-link">
+                            {{ $t("navbar.study") }} <span v-if="totalWordsToRepeatToday > 0"
+                                class="badge text-bg-danger position-relative" style="bottom: 8px;">
+                                {{ totalWordsToRepeatToday }}
+                            </span>
+                        </router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/lists" class="nav-link">{{ $t("navbar.lists") }}</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/settings" class="nav-link">{{ $t("navbar.settings") }}</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/logout" class="nav-link link-secondary">{{ $t("navbar.logout") }}</router-link>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="my-3">
+        <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">
+            <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
+                data-bs-placement="bottom">
+                {{ partOfSpeechMeta[meaningStatistics.pos].labelEsp }}:
+            </span>
+            <span class="badge text-bg-secondary pl-2">{{ meaningStatistics.count }}</span>
+        </div>
+    </div>
+
+    <div style="height: 40px;"></div>
+
+    <router-view @updateTotalWords="updateTotalWords" />
+
+    <div style="height: 100px;"></div>
+</template>
+
+<script setup lang="ts">
+import api, { PartOfSpeechStatisticsDto } from "@/api/backend-api";
+import { onMounted, provide, ref } from 'vue';
+import { partOfSpeechMeta } from '@/constants';
+import { Tooltip } from 'bootstrap';
+
+const totalWords = ref(0);
+const totalWordsToRepeatToday = ref(0);
+const meaningsStatistics = ref([] as PartOfSpeechStatisticsDto[]);
+
+const fetchTotalAddedWordsNumber = async () => {
+    try {
+        totalWords.value = await api.getTotalAddedWords();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const fetchTotalWordsToRepeatToday = async () => {
+    try {
+        totalWordsToRepeatToday.value = await api.getTotalWordsToRepeatToday();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const fetchMeaningsStatistics = async () => {
+    try {
+        const response = await api.getMeaningsStatistics();
+        meaningsStatistics.value = response.data.sort((a, b) => b.count - a.count);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+onMounted(() => {
+    fetchTotalAddedWordsNumber();
+    fetchTotalWordsToRepeatToday();
+    fetchMeaningsStatistics();
+
+    new Tooltip(document.body, {
+        selector: "[data-bs-toggle='tooltip']",
+    });
+});
+
+const updateTotalWords = (updateFunction: (currentValue: number) => number) => {
+    totalWords.value = updateFunction(totalWords.value);
+    totalWordsToRepeatToday.value = updateFunction(totalWordsToRepeatToday.value);
+};
+
+const decreaseTotalWordsToRepeatToday = () => {
+    totalWordsToRepeatToday.value = totalWordsToRepeatToday.value - 1;
+};
+
+provide('decreaseTotalWordsToRepeatToday', decreaseTotalWordsToRepeatToday);
+</script>
+
+<style>
+#app {
+    /* font-family: Avenir, Helvetica, Arial, sans-serif; */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: rgba(30, 32, 32, 0.03) !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: rgb(1, 36, 49) !important;
+    }
+}
+
+.brand {
+    font-weight: 800;
+    font-size: 32px;
+    outline: none;
+    background: linear-gradient(135deg, #cf3535 0%, #de7e00 25%, rgb(215, 208, 12) 50%, #de7e00 75%, #cf3535 100%);
+    background-size: 400%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: animate 20s linear infinite;
+}
+
+@keyframes animate {
+    to {
+        background-position: 400%;
+    }
+}
+
+nav {
+    padding: 30px;
+}
+
+nav a {
+    font-weight: bold;
+    color: #777;
+}
+
+nav a.router-link-exact-active {
+    color: #42b983;
+}
+
+.spoiler {
+    filter: blur(4px);
+    cursor: pointer;
+}
+</style>

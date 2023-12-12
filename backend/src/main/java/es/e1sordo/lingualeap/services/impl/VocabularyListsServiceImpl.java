@@ -1,0 +1,45 @@
+package es.e1sordo.lingualeap.services.impl;
+
+import es.e1sordo.lingualeap.dto.word.UpsertVocabularyListRequestDto;
+import es.e1sordo.lingualeap.models.VocabularyList;
+import es.e1sordo.lingualeap.repositories.VocabularyListsRepository;
+import es.e1sordo.lingualeap.services.VocabularyListsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class VocabularyListsServiceImpl implements VocabularyListsService {
+
+    private final VocabularyListsRepository repository;
+
+    @Override
+    public List<VocabularyList> getAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public VocabularyList getBy(final Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("VocabularyList not found"));
+    }
+
+    @Override
+    public VocabularyList upsertList(final UpsertVocabularyListRequestDto request) {
+        final var list = (request.id() != null && request.id() > 0)
+                ? repository.findById(request.id()).get()
+                : new VocabularyList();
+
+        if (request.name().isBlank()) throw new RuntimeException("Name of List cannot be null!");
+        list.setName(request.name());
+
+        if (list.getId() == null) {
+            list.setAdded(LocalDate.now());
+        }
+
+        return repository.save(list);
+    }
+}

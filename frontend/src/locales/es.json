@@ -1,0 +1,15 @@
+{
+    "navbar": {
+        "home": "Inicio",
+        "add": "Añadir",
+        "study": "Estudiar",
+        "lists": "My Lists",
+        "settings": "Configuración",
+        "logout": "Cerrar sesión"
+    },
+    "settings": {
+        "language": {
+            "title": "Configuración de idioma"
+        }
+    }
+}

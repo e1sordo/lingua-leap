@@ -1,0 +1,21 @@
+server.port: 8098
+
+spring:
+  datasource:
+    url: jdbc:sqlite:${DB_PATH}
+  #  sql.init.mode: always
+  jpa:
+    #    defer-datasource-initialization: true
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate.ddl-auto: update
+  security:
+    user:
+      name: ${USER_NAME}
+      password: ${USER_SECRET}
+  jackson:
+    deserialization:
+      read-unknown-enum-values-as-null: true
+
+logging:
+  level:
+    root: INFO
