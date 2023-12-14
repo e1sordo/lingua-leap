@@ -38,7 +38,7 @@
         </div>
     </nav>
 
-    <div class="py-3" style="background-color: rgba(52, 129, 185, 0.11);">
+    <div class="py-3" style="background-color: rgba(52, 129, 185, 0.06);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">
             <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
                 data-bs-placement="bottom">
