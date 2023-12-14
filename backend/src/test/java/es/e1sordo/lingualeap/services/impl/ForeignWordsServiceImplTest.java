@@ -9,6 +9,7 @@ import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.repositories.ForeignWordsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningContextsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningsRepository;
+import es.e1sordo.lingualeap.repositories.WordsToAddLaterRepository;
 import es.e1sordo.lingualeap.services.ForeignWordsService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,8 @@ class ForeignWordsServiceImplTest {
     @Autowired
     private WordMeaningContextsRepository meaningContextsRepository;
     @Autowired
+    private WordsToAddLaterRepository wordsToAddLaterRepository;
+    @Autowired
     private ForeignWordsService service;
 
     @BeforeEach
@@ -42,13 +45,14 @@ class ForeignWordsServiceImplTest {
         List.of(
                 wordsRepository,
                 meaningsRepository,
-                meaningContextsRepository
+                meaningContextsRepository,
+                wordsToAddLaterRepository
         ).forEach(CrudRepository::deleteAll);
     }
 
     @Test
     @Transactional
-    public void createEntity() {
+    void createEntity() {
         // given
         final var countBeforeUpsert = wordsRepository.count();
 
@@ -96,5 +100,21 @@ class ForeignWordsServiceImplTest {
 
         assertEquals(1, meaningsRepository.count());
         assertEquals(2, meaningContextsRepository.count());
+    }
+
+    @Test
+    void createWordToAddLater() {
+        // create
+        service.createWordToAddLater("justo");
+        service.createWordToAddLater("todo");
+
+        // delete
+        service.deleteWordsToAddLater("justo");
+
+        // getALl
+        var actualResult = service.getAllWordsToAddLater();
+
+        assertEquals(1, actualResult.size());
+        assertEquals("todo", actualResult.get(0).getWord());
     }
 }

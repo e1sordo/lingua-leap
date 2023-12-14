@@ -118,6 +118,14 @@ export default {
         return response.data.total;
     },
 
+    getAllAddLaterWords(): Promise<AxiosResponse<string[]>> {
+        return axiosApi.get('/words/later');
+    },
+
+    deleteWordFromAddLaterList(word: string): Promise<AxiosResponse<void>> {
+        return axiosApi.delete('/words/later/' + word);
+    },
+
 
     // meanings
     linkContext(meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {

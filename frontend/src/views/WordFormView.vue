@@ -195,6 +195,7 @@ export default defineComponent({
     return { partOfSpeechList, genderList };
   },
   mounted() {
+    this.form.word = this.$route.query.word as string || '';
     this.fetchAllVocabularyLists();
   },
   methods: {

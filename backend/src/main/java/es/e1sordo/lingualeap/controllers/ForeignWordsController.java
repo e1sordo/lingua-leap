@@ -5,10 +5,12 @@ import es.e1sordo.lingualeap.dto.word.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.word.ForeignWordDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.ForeignWord;
+import es.e1sordo.lingualeap.models.WordToAddLater;
 import es.e1sordo.lingualeap.services.ForeignWordsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -91,5 +93,25 @@ public class ForeignWordsController {
     public Map<String, Boolean> checkIfExist(@RequestParam String word) {
         log.info("Check if word '{}' exists in DB", word);
         return Map.of("exist", service.checkIfExist(word));
+    }
+
+    @PostMapping(value = "/later/{word}")
+    public void createWordToAddLater(@PathVariable String word) {
+        log.info("Create new Word To Add Later Request");
+        service.createWordToAddLater(word);
+    }
+
+    @GetMapping(value = "/later")
+    public List<String> getAllWordsToAddLater() {
+        log.info("Get all words to add later");
+        return service.getAllWordsToAddLater().stream()
+                .map(WordToAddLater::getWord)
+                .toList();
+    }
+
+    @DeleteMapping(value = "/later/{word}")
+    public void deleteWordToAddLater(@PathVariable String word) {
+        log.info("Delete word to add later");
+        service.deleteWordsToAddLater(word);
     }
 }

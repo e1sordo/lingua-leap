@@ -29,9 +29,6 @@
                     <li class="nav-item">
                         <router-link to="/settings" class="nav-link">{{ $t("navbar.settings") }}</router-link>
                     </li>
-                    <li class="nav-item">
-                        <router-link to="/logout" class="nav-link link-secondary">{{ $t("navbar.logout") }}</router-link>
-                    </li>
                 </ul>
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -41,7 +38,7 @@
         </div>
     </nav>
 
-    <div class="my-3">
+    <div class="py-3" style="background-color: rgba(52, 129, 185, 0.11);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">
             <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
                 data-bs-placement="bottom">
