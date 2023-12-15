@@ -28,7 +28,7 @@
 
             <template v-else>
                 <div class="card-body">
-                    <h1 class="card-title">
+                    <h1 class="card-title" @click="speak(meaning.word)">
                         <small v-if="meaning.gender">
                             <i v-if="meaning.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
                             <i v-if="meaning.gender == 'FEMININE'" class="bi bi-gender-female"></i>
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import api, { WordMeaningDto } from "@/api/backend-api";
+import { speak } from '@/utils/voice';
 import { PropType, inject, ref } from 'vue';
 
 const props = defineProps({
@@ -120,6 +121,7 @@ const toggleSpoilers = () => {
 
 const toggleCardAndShowAnswer = () => {
     showAnswer.value = true;
+    speak(props.meaning.word);
 };
 
 const submitAnswer = (score: number) => {
