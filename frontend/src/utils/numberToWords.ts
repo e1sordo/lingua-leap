@@ -41,7 +41,7 @@ function tripletEnd(triplet: number, idx: number, words: string[]): string[] {
 
 export function numberToWords(input: number): string {
     // Log the input
-    console.log("Input:", input);
+    // console.log("Input:", input);
     let words = [];
 
     if (input < 0) {
@@ -52,7 +52,7 @@ export function numberToWords(input: number): string {
     // Split integer into triplets
     const triplets = integerToTriplets(input);
     // Log the triplets
-    console.log("Triplets:", triplets);
+    // console.log("Triplets:", triplets);
 
     // Special cases
     switch (true) {
@@ -70,7 +70,7 @@ export function numberToWords(input: number): string {
     for (let idx = triplets.length - 1; idx >= 0; idx--) {
         const triplet = triplets[idx];
         // Log the triplet
-        console.log(`Triplet: ${triplet}, (idx=${idx})`);
+        // console.log(`Triplet: ${triplet}, (idx=${idx})`);
 
         // Nothing to do for an empty triplet
         if (triplet === 0) {
@@ -82,7 +82,7 @@ export function numberToWords(input: number): string {
         const tens = Math.floor(triplet / 10) % 10;
         const units = triplet % 10;
         // Log the hundreds, tens, and units
-        console.log(`Hundreds: ${hundreds}, Tens: ${tens}, Units: ${units}`);
+        // console.log(`Hundreds: ${hundreds}, Tens: ${tens}, Units: ${units}`);
 
         if (hundreds > 0) {
             words.push(spanishHundreds[hundreds]);
@@ -122,6 +122,6 @@ export function numberToWords(input: number): string {
     }
 
     // Log the words length
-    console.log("Words length:", words.length);
+    // console.log("Words length:", words.length);
     return words.join(" ").replace("uno mil", "un mil");
 }
