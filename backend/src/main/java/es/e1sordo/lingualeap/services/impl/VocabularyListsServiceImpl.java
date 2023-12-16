@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -25,6 +26,21 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
     public VocabularyList getBy(final Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("VocabularyList not found"));
+    }
+
+    @Override
+    public VocabularyList getSmartListOfRecentlyAdded() {
+        return getSmartListByName("New words");
+    }
+
+    @Override
+    public VocabularyList getSmartListOfProblemWords() {
+        return getSmartListByName("Problem words");
+    }
+
+    private VocabularyList getSmartListByName(String name) {
+        return repository.findByNameAndSmartIsTrue(name).orElseGet(
+                () -> repository.save(new VocabularyList(null, name, true, Collections.emptySet(), LocalDate.now())));
     }
 
     @Override

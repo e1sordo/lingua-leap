@@ -5,6 +5,7 @@ import es.e1sordo.lingualeap.models.SM2WordMeaningMeta;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.repositories.SM2WordMeaningMetaRepository;
 import es.e1sordo.lingualeap.services.SpacedRepetitionService;
+import es.e1sordo.lingualeap.services.VocabularyListsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
 
     private final SM2WordMeaningMetaRepository repository;
+    private final VocabularyListsService vocabularyListsService;
 
     @Override
     public int getTodayCount() {
@@ -36,8 +38,10 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         log.info("Looking for meta by wordMeaningId {}", wordMeaningId);
         final SM2WordMeaningMeta meta = repository.findByWordId(wordMeaningId).get();
 
+        final String textWord = meta.getWord().getWord().getWord();
+
         if (meta.getPlannedReview().isAfter(LocalDate.now())) {
-            log.info("Word '{}' is scheduled for a later date and should not be scored now. {}", meta.getWord().getWord().getWord(), meta.textState());
+            log.info("Word '{}' is scheduled for a later date and should not be scored now. {}", textWord, meta.textState());
             return;
         }
 
@@ -47,7 +51,10 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         log.info("Updated state of word: Previous userGrade: {}, {}", previousGrade, meta.textState());
         updateLearningStatusOfWord(meta);
 
-        // todo если слово дважды подряд приходит с score = 0 или 1, то отправлять его в список СЛОЖНЫЕ СЛОВА
+        if (userGrade <= 3 && previousGrade <= 3 || userGrade <= 2) {
+            log.info("Word '{}' was rated less than 4 points two times in a row. Adding it to list of problem words", textWord);
+            meta.getWord().addList(vocabularyListsService.getSmartListOfProblemWords());
+        }
 
         repository.save(meta);
     }

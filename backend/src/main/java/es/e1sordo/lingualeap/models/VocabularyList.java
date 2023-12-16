@@ -34,7 +34,6 @@ public class VocabularyList {
 
     private String name;
 
-    @Column(columnDefinition = "boolean default false")
     private boolean smart;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "listsContaining")

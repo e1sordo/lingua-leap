@@ -56,6 +56,6 @@ public final class Mappings {
     }
 
     public static VocabularyListDto mapToDto(final VocabularyList entity) {
-        return new VocabularyListDto(entity.getId(), entity.getName());
+        return new VocabularyListDto(entity.getId(), entity.getName(), entity.isSmart());
     }
 }

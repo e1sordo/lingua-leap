@@ -10,5 +10,9 @@ public interface VocabularyListsService {
 
     VocabularyList getBy(Long id);
 
+    VocabularyList getSmartListOfRecentlyAdded();
+
+    VocabularyList getSmartListOfProblemWords();
+
     VocabularyList upsertList(UpsertVocabularyListRequestDto request);
 }

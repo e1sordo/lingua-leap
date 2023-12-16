@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -25,8 +26,6 @@ public class VocabularyListsController {
 
     private final VocabularyListsService service;
 
-    // TODO add smart list for Latest words, тогда мы сможем работать над обучением в терминах Списков и только в них
-
     @PostMapping
     public VocabularyListDto create(@RequestBody UpsertVocabularyListRequestDto request) {
         log.info("Upsert List Request");
@@ -34,10 +33,11 @@ public class VocabularyListsController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<VocabularyListDto> getAll() {
-        log.info("Get all added lists");
+    public List<VocabularyListDto> getAll(@RequestParam(required = false) Boolean excludeSmart) {
+        log.info("Get all added lists (exclude smart: {})", excludeSmart);
         return service.getAll().stream()
-                .map(entity -> new VocabularyListDto(entity.getId(), entity.getName()))
+                .filter(list -> excludeSmart == null || !list.isSmart())
+                .map(Mappings::mapToDto)
                 .toList();
     }
 

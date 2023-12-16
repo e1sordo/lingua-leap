@@ -86,6 +86,7 @@ export interface WordMeaningContextDto {
 export interface VocabularyListDto {
     id: number;
     name: string;
+    smart: boolean;
 }
 
 export interface VocabularyListDetailDto {
@@ -138,8 +139,9 @@ export default {
 
 
     // lists
-    getAllLists(): Promise<AxiosResponse<VocabularyListDto[]>> {
-        return axiosApi.get('/lists');
+    getAllLists(excludeSmart: boolean = false): Promise<AxiosResponse<VocabularyListDto[]>> {
+        const smartParamString = excludeSmart ? '?excludeSmart=true' : '';
+        return axiosApi.get('/lists' + smartParamString);
     },
 
     addNewList(name: string): Promise<AxiosResponse<VocabularyListDto>> {

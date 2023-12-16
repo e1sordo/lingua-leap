@@ -51,6 +51,8 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
                 }
             }
 
+            addMeaningToSmartListOfRecentlyAdded(meaning);
+
             if (meaningDto.contexts() != null) {
                 for (final var contextDto : meaningDto.contexts()) {
                     final var context = new WordMeaningContext();
@@ -70,6 +72,11 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
         addMeaningToSpacedRepetition(persistedWord.getMeanings());
         wordsToAddLaterRepository.deleteById(persistedWord.getWord());
+    }
+
+    private void addMeaningToSmartListOfRecentlyAdded(final WordMeaning meaning) {
+        final VocabularyList smartList = vocabularyListsService.getSmartListOfRecentlyAdded();
+        meaning.addList(smartList);
     }
 
     private static WordMeaning getWordMeaning(final WordMeaningDto meaningDto, final ForeignWord word) {
