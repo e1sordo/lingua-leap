@@ -170,22 +170,29 @@ const generateRandomNumber = (previousResult: number) => {
     const min = rangeStart.value;
     const max = rangeEnd.value;
 
-    const sectorSize = Math.ceil((max - min + 1) / 10); // Разбиваем диапазон на 10 секторов
+    const totalSectors = 10;
+    const sectorSize = Math.ceil((max - min) / totalSectors);
 
-    const previousSector = Math.floor((previousResult - min) / sectorSize);
+    const previousSectorIndex = Math.floor(previousResult / sectorSize);
 
-    // Определяем текущий сектор
-    let newSector = Math.floor((currentNumber.value - min) / sectorSize);
+    let newRandomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    let newSectorIndex = Math.floor(newRandomNumber / sectorSize);
 
-    // Генерируем новый сектор, исключая текущий
-    while (newSector === previousSector) {
-        newSector = Math.floor(Math.random() * 10);
+    // prevent infinite loop
+    const maxAttemptsToGenerateNewNumber = 100;
+
+    let attempts = 0;
+    while (newSectorIndex === previousSectorIndex || newRandomNumber % 10 === previousResult % 10) {
+        newRandomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        newSectorIndex = Math.floor(newRandomNumber / sectorSize);
+
+        attempts++;
+        if (attempts < maxAttemptsToGenerateNewNumber) {
+            break;
+        }
     }
 
-    // Генерируем случайное число в выбранном секторе
-    return Math.floor(Math.random() * sectorSize) + newSector * sectorSize + min;
-
-    // return Math.floor(Math.random() * (max - min + 1)) + min;
+    return newRandomNumber;
 };
 
 const checkAnswerAndNextNumber = () => {

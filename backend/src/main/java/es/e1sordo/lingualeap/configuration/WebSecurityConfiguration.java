@@ -20,7 +20,7 @@ public class WebSecurityConfiguration {
                 .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/login", "/favicon.ico").permitAll()
                         .requestMatchers("/**").authenticated())
                 .formLogin(login ->
                         login.defaultSuccessUrl("/", true))

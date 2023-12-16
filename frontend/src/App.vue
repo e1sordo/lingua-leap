@@ -31,8 +31,11 @@
                     </li>
                 </ul>
                 <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <input class="form-control me-2" v-model="searchQuery" type="search" placeholder="Search"
+                        aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit" @click="$router.push(`/words/${searchQuery}`)">
+                        Search
+                    </button>
                 </form>
             </div>
         </div>
@@ -60,6 +63,8 @@ import api, { PartOfSpeechStatisticsDto } from "@/api/backend-api";
 import { onMounted, provide, ref } from 'vue';
 import { partOfSpeechMeta } from '@/constants';
 import { Tooltip } from 'bootstrap';
+
+const searchQuery = ref('');
 
 const totalWords = ref(0);
 const totalWordsToRepeatToday = ref(0);

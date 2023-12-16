@@ -13,6 +13,6 @@ export const speak = (num: number | string, selectedVoice: number = -1) => {
         speech.voice = paulinaVoice;
     }
     speech.pitch = Math.random() * (1.5 - 0.7) + 0.7;
-    speech.rate = Math.random() * (1.4 - 0.9) + 0.9;
+    speech.rate = Math.random() * (1.3 - 0.9) + 0.9;
     synth.speak(speech);
 };

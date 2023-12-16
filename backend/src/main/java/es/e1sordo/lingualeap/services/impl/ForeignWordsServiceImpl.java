@@ -119,7 +119,7 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
     @Override
     public void createWordToAddLater(final String word) {
-        wordsToAddLaterRepository.save(new WordToAddLater(word));
+        wordsToAddLaterRepository.save(new WordToAddLater(word.trim()));
     }
 
     @Override
@@ -129,7 +129,7 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
     @Override
     public void deleteWordsToAddLater(final String word) {
-        wordsToAddLaterRepository.deleteById(word);
+        wordsToAddLaterRepository.deleteById(word.toLowerCase().trim());
     }
 
     private void addMeaningToSpacedRepetition(List<WordMeaning> meanings) {

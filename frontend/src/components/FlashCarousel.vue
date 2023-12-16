@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <h1 class="card-title">{{ meaning.russianVariant }}</h1>
                     <h3 class="card-title" :class="{ 'spoiler': !showContexts }" @click="toggleSpoilers">
-                        {{ meaning.englishVariant }}
+                        {{ showContexts ? meaning.englishVariant : meaning.russianVariant }}
                     </h3>
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
@@ -28,13 +28,15 @@
 
             <template v-else>
                 <div class="card-body">
-                    <h1 class="card-title" @click="speak(meaning.word)">
-                        <small v-if="meaning.gender">
-                            <i v-if="meaning.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
-                            <i v-if="meaning.gender == 'FEMININE'" class="bi bi-gender-female"></i>
-                        </small>
-                        {{ meaning.word }}
-                    </h1>
+                    <word-context-menu :word="meaning.word">
+                        <h1 class="card-title" @click="speak(meaning.word)">
+                            <small v-if="meaning.gender">
+                                <i v-if="meaning.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
+                                <i v-if="meaning.gender == 'FEMININE'" class="bi bi-gender-female"></i>
+                            </small>
+                            {{ meaning.word }}
+                        </h1>
+                    </word-context-menu>
                     <h3 class="card-title py-2">{{ meaning.englishVariant }} ({{ meaning.russianVariant }})</h3>
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
@@ -86,6 +88,7 @@
 
 <script setup lang="ts">
 import api, { WordMeaningDto } from "@/api/backend-api";
+import WordContextMenu from '@/components/WordContextMenu.vue';
 import { speak } from '@/utils/voice';
 import { PropType, inject, ref } from 'vue';
 
