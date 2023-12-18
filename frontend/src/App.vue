@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar navbar-expand-lg" style="background-color: #3daeff28;">
+    <nav class="navbar navbar-expand-lg" style="background-color: rgba(255, 216, 10, 0.27)">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                 aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,18 +30,12 @@
                         <router-link to="/settings" class="nav-link">{{ $t("navbar.settings") }}</router-link>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" v-model="searchQuery" type="search" placeholder="Search"
-                        aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit" @click="$router.push(`/words/${searchQuery}`)">
-                        Search
-                    </button>
-                </form>
+                <word-search-form />
             </div>
         </div>
     </nav>
 
-    <div class="py-3" style="background-color: rgba(52, 129, 185, 0.06);">
+    <div class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">
             <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
                 data-bs-placement="bottom">
@@ -53,18 +47,17 @@
 
     <div style="height: 40px;"></div>
 
-    <router-view @updateTotalWords="updateTotalWords" />
+    <router-view :key="$route.fullPath" @updateTotalWords="updateTotalWords" />
 
     <div style="height: 100px;"></div>
 </template>
 
 <script setup lang="ts">
 import api, { PartOfSpeechStatisticsDto } from "@/api/backend-api";
-import { onMounted, provide, ref } from 'vue';
+import WordSearchForm from '@/components/WordSearchForm.vue';
 import { partOfSpeechMeta } from '@/constants';
 import { Tooltip } from 'bootstrap';
-
-const searchQuery = ref('');
+import { onMounted, provide, ref } from 'vue';
 
 const totalWords = ref(0);
 const totalWordsToRepeatToday = ref(0);

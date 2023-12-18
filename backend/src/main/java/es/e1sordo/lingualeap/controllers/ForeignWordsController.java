@@ -3,12 +3,14 @@ package es.e1sordo.lingualeap.controllers;
 import es.e1sordo.lingualeap.dto.word.CreateWordRequestDto;
 import es.e1sordo.lingualeap.dto.word.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.word.ForeignWordDto;
+import es.e1sordo.lingualeap.dto.word.RecentlyAddedForeignWordsPageDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.WordToAddLater;
 import es.e1sordo.lingualeap.services.ForeignWordsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,11 +41,22 @@ public class ForeignWordsController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ForeignWordDto> getRecentlyAdded(@RequestParam(defaultValue = "false") boolean rollOut) {
-        log.info("Get all recently added words");
-        final Stream<ForeignWord> entities = service.getRecentlyAdded().stream();
+    public RecentlyAddedForeignWordsPageDto getRecentlyAdded(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "100") int pageSize,
+            @RequestParam(defaultValue = "-1") long startsFromId,
+            @RequestParam(defaultValue = "false") boolean rollOut
+    ) {
+        log.info("Get all recently added words. Page: {}, pageSize: {}, rollOut: {}", page, pageSize, rollOut);
+        final Page<ForeignWord> pageOfWords = service.getRecentlyAdded(page, pageSize);
+        if (pageOfWords.isLast()) {
+            log.info("No more words -- last page");
+        }
+        final Stream<ForeignWord> entities = pageOfWords.getContent().stream();
+
+        final List<ForeignWordDto> data;
         if (rollOut) {
-            return entities.flatMap(entity -> {
+            data = entities.flatMap(entity -> {
                 final String word = entity.getWord();
                 final LocalDate added = entity.getAdded();
                 return entity.getMeanings().stream()
@@ -60,7 +73,7 @@ public class ForeignWordsController {
                         ));
             }).toList();
         } else {
-            return entities.map(entity -> {
+            data = entities.map(entity -> {
                 var firstMeaning = entity.getMeanings().get(0);
                 return new ForeignWordDto(
                         entity.getId(),
@@ -75,6 +88,21 @@ public class ForeignWordsController {
                 );
             }).toList();
         }
+
+        if (page != 0) {
+            final List<ForeignWordDto> filteredData = data.stream().dropWhile(entity -> entity.id() != startsFromId).toList();
+            if (!filteredData.isEmpty()) {
+                return new RecentlyAddedForeignWordsPageDto(pageOfWords.isLast(), filteredData);
+            }
+        }
+
+        return new RecentlyAddedForeignWordsPageDto(pageOfWords.isLast(), data);
+    }
+
+    @GetMapping(value = "/autosuggestions", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> getAutoSuggestions(@RequestParam String word) {
+        log.info("Get auto suggestions for '{}'", word);
+        return service.getAutoSuggestions(word).stream().map(ForeignWord::getWord).toList();
     }
 
     @GetMapping(value = "/{word}", produces = MediaType.APPLICATION_JSON_VALUE)

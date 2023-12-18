@@ -1,15 +1,18 @@
 <template>
     <div>
-        <div class="container-sm">
+        <div class="container-sm" ref="scrollComponent">
 
-            <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 m-md-3 d-inline-flex btn-group"
-                role="group">
-                <button @click="$router.push('/add?word=' + word)" type="button" class="btn btn-success">
-                    {{ word }}
-                </button>
-                <button @click="deleteWordFromAddLater(word)" type="button" class="btn btn-success">
-                    <i class="bi bi-x-circle"></i>
-                </button>
+            <div v-if="addLaterWords.length > 0" class="text-center">
+                <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 m-md-3 d-inline-flex btn-group"
+                    role="group">
+                    <button @click="$router.push('/add?word=' + word)" type="button" class="btn btn-success">
+                        {{ word }}
+                    </button>
+                    <button @click="deleteWordFromAddLater(word)" type="button" class="btn btn-success">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
+                <hr />
             </div>
 
             <div v-for="(dateStatistics, index) in datesStatistics" :key="index">
@@ -22,12 +25,11 @@
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import api, { ForeignWordDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
-import { partOfSpeechMeta } from '@/constants';
 import { convertDateToSinceString } from '@/utils/convertDateToSinceString';
-import { defineComponent } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 class DateStatistics {
     date: Date;
@@ -42,66 +44,98 @@ class DateStatistics {
     }
 }
 
-export default defineComponent({
-    name: 'FeedView',
-    components: {
-        RecentlyAddedWords
-    },
-    setup() {
-        return { partOfSpeechMeta, convertDateToSinceString };
-    },
-    data() {
-        return {
-            latestWords: [] as ForeignWordDto[],
-            addLaterWords: [] as string[]
-        };
-    },
-    mounted() {
-        this.fetchLatestWords();
-        this.fetchWordsToAddLater();
-    },
-    computed: {
-        datesStatistics(): DateStatistics[] {
-            const datesStatistics = new Map<Date, DateStatistics>();
-            this.latestWords.forEach(word => {
-                const addedDate = word.addedDate!!;
-                if (datesStatistics.has(addedDate)) {
-                    const statistics = datesStatistics.get(addedDate)!!;
-                    statistics.incCounter();
-                    datesStatistics.set(addedDate, statistics);
-                } else {
-                    datesStatistics.set(addedDate, new DateStatistics(addedDate));
-                }
-            });
-            return Array.from(datesStatistics.values());
+const stopLoading = ref(false);
+const isLoading = ref(false);
+const currentPage = ref(0);
+const batchSize = ref(100);
+const scrollComponent = ref<HTMLDivElement>();
+
+const latestWords = ref(new Set<ForeignWordDto>());
+const lastLoadedWordId = ref(-1);
+const addLaterWords = ref([] as string[]);
+
+const fetchLatestWords = async () => {
+    if (isLoading.value) {
+        return;
+    }
+
+    isLoading.value = true;
+    try {
+        const page = currentPage.value;
+        const response = await api.getAllRecentlyAddedWords(page, batchSize.value, lastLoadedWordId.value);
+        const responseDto = response.data;
+        const newList = responseDto.data;
+        if (newList.length === 0) {
+            stopLoading.value = true;
+            window.removeEventListener("scroll", handleScroll);
+        } else {
+            lastLoadedWordId.value = newList[newList.length - 1].id;
+            newList.forEach(item => latestWords.value.add(item));
+
+            if (responseDto.isLast) {
+                stopLoading.value = true;
+                window.removeEventListener("scroll", handleScroll);
+            } else {
+                currentPage.value++;
+            }
         }
-    },
-    methods: {
-        async fetchLatestWords() {
-            try {
-                const response = await api.getAllRecentlyAddedWords();
-                this.latestWords = response.data;
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        async fetchWordsToAddLater() {
-            try {
-                const response = await api.getAllAddLaterWords();
-                this.addLaterWords = response.data;
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        deleteWordFromAddLater(word: string) {
-            api.deleteWordFromAddLaterList(word).then(() => {
-                this.addLaterWords = this.addLaterWords.filter(w => w !== word);
-            });
-        },
-        wordsByDate(date: Date) {
-            return this.latestWords
-                .filter(word => word.addedDate === date);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const fetchWordsToAddLater = async () => {
+    try {
+        const response = await api.getAllAddLaterWords();
+        addLaterWords.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const handleScroll = () => {
+    let element = scrollComponent.value;
+    if (element && element.getBoundingClientRect().bottom < window.innerHeight) {
+        if (!stopLoading.value) {
+            fetchLatestWords();
         }
     }
+};
+
+onMounted(() => {
+    window.addEventListener("scroll", handleScroll);
+    fetchLatestWords();
+    fetchWordsToAddLater();
 });
+
+onUnmounted(() => {
+    window.removeEventListener("scroll", handleScroll);
+});
+
+const datesStatistics = computed(() => {
+    const datesStatistics = new Map<Date, DateStatistics>();
+    latestWords.value.forEach(word => {
+        const addedDate = word.addedDate!!;
+        if (datesStatistics.has(addedDate)) {
+            const statistics = datesStatistics.get(addedDate)!!;
+            statistics.incCounter();
+            datesStatistics.set(addedDate, statistics);
+        } else {
+            datesStatistics.set(addedDate, new DateStatistics(addedDate));
+        }
+    });
+    return Array.from(datesStatistics.values());
+});
+
+const deleteWordFromAddLater = (word: string) => {
+    api.deleteWordFromAddLaterList(word).then(() => {
+        addLaterWords.value = addLaterWords.value.filter(w => w !== word);
+    });
+};
+
+const wordsByDate = (date: Date) => {
+    return [...latestWords.value].filter(word => word.addedDate === date);
+};
 </script>

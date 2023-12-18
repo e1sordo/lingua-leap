@@ -44,6 +44,11 @@ export enum LearningStatus {
     KNOWN
 }
 
+export interface RecentlyAddedForeignWordsPageDto {
+    isLast: boolean;
+    data: ForeignWordDto[];
+}
+
 export interface ForeignWordDto {
     id: number;
     word: string;
@@ -102,8 +107,19 @@ export default {
 
 
     // words
-    getAllRecentlyAddedWords(rollOut: boolean = false): Promise<AxiosResponse<ForeignWordDto[]>> {
-        return axiosApi.get(`/words?rollOut=${rollOut}`);
+    getAllRecentlyAddedWords(
+        page: number,
+        pageSize: number,
+        lastLoadedWordId: number = -1,
+        rollOut: boolean = false
+    ): Promise<AxiosResponse<RecentlyAddedForeignWordsPageDto>> {
+        return axiosApi.get(
+            `/words?rollOut=${rollOut}&page=${page}&pageSize=${pageSize}&startsFromId=${lastLoadedWordId}`
+        );
+    },
+
+    getAutocompleteSuggestions(term: string): Promise<AxiosResponse<string[]>> {
+        return axiosApi.get('/words/autosuggestions?word=' + term);
     },
 
     addNewWord(body: AddNewWordRequestDto): Promise<AxiosResponse<void>> {

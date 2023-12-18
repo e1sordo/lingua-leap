@@ -15,6 +15,8 @@ import es.e1sordo.lingualeap.services.ForeignWordsService;
 import es.e1sordo.lingualeap.services.SpacedRepetitionService;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -98,8 +100,14 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
     }
 
     @Override
-    public List<ForeignWord> getRecentlyAdded() {
-        return repository.findFirst100ByOrderByAddedDesc();
+    public Page<ForeignWord> getRecentlyAdded(final int page, final int pageSize) {
+        final Pageable pageable = Pageable.ofSize(pageSize).withPage(page);
+        return repository.findByOrderByAddedDesc(pageable);
+    }
+
+    @Override
+    public List<ForeignWord> getAutoSuggestions(final String query) {
+        return repository.findFirst10ByWordContaining(query);
     }
 
     @Override
@@ -129,7 +137,8 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
     @Override
     public void deleteWordsToAddLater(final String word) {
-        wordsToAddLaterRepository.deleteById(word.toLowerCase().trim());
+        final String trimmedWord = word.trim();
+        wordsToAddLaterRepository.deleteAllById(List.of(trimmedWord, trimmedWord.toLowerCase()));
     }
 
     private void addMeaningToSpacedRepetition(List<WordMeaning> meanings) {

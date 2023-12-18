@@ -1,5 +1,5 @@
 # Just using the build artifact and then removing the build-container
-FROM openjdk:19-alpine
+FROM openjdk:21-jdk
 
 MAINTAINER e1sordo
 

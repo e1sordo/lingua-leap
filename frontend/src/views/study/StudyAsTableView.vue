@@ -1,49 +1,40 @@
 <template>
-  <div>
-    <div class="container-sm">
+    <div>
+        <div class="container-sm">
 
-      <div class="row justify-content-center">
-        <div class="col-lg-7">
-          <WordsTable :data="latestWords" :refresh="shuffleRefreshingBit" />
-          <button class="btn btn-sm btn-outline-primary" @click="toggleShuffleBit()">Shuffle</button>
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <WordsTable :data="latestWords" :refresh="shuffleRefreshingBit" />
+                    <button class="btn btn-sm btn-outline-primary" @click="toggleShuffleBit()">Shuffle</button>
+                </div>
+            </div>
+
         </div>
-      </div>
-
     </div>
-  </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import api, { ForeignWordDto } from "@/api/backend-api";
 import WordsTable from '@/components/WordsTable.vue';
-import { defineComponent } from 'vue';
+import { onMounted, ref } from 'vue';
 
-export default defineComponent({
-  name: 'StudyAsTableView',
-  components: {
-    WordsTable
-  },
-  data() {
-    return {
-      shuffleRefreshingBit: true,
-      latestWords: [] as ForeignWordDto[]
-    };
-  },
-  mounted() {
-    this.fetchLatestWords();
-  },
-  methods: {
-    async fetchLatestWords() {
-      try {
-        const response = await api.getAllRecentlyAddedWords(true);
-        this.latestWords = response.data;
-      } catch (error) {
+const shuffleRefreshingBit = ref(true);
+const latestWords = ref([] as ForeignWordDto[]);
+
+const fetchLatestWords = async () => {
+    try {
+        const response = await api.getAllRecentlyAddedWords(0, 100, -1, true);
+        latestWords.value = response.data.data;
+    } catch (error) {
         console.error(error);
-      }
-    },
-    toggleShuffleBit() {
-      this.shuffleRefreshingBit = !this.shuffleRefreshingBit;
     }
-  }
+};
+
+onMounted(() => {
+    fetchLatestWords();
 });
+
+const toggleShuffleBit = () => {
+    shuffleRefreshingBit.value = !shuffleRefreshingBit.value;
+};
 </script>
