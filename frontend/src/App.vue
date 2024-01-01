@@ -1,5 +1,6 @@
 <template>
-    <nav class="navbar navbar-expand-lg" style="background-color: rgba(255, 216, 10, 0.27)">
+    <LightRope v-if="isWinter" />
+    <nav class="navbar navbar-expand-lg" style="background-color: rgba(10, 107, 255, 0.27)">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                 aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +56,7 @@
 <script setup lang="ts">
 import api, { PartOfSpeechStatisticsDto } from "@/api/backend-api";
 import WordSearchForm from '@/components/WordSearchForm.vue';
+import LightRope from "./components/LightRope.vue";
 import { partOfSpeechMeta } from '@/constants';
 import { Tooltip } from 'bootstrap';
 import { onMounted, provide, ref } from 'vue';
@@ -62,6 +64,7 @@ import { onMounted, provide, ref } from 'vue';
 const totalWords = ref(0);
 const totalWordsToRepeatToday = ref(0);
 const meaningsStatistics = ref([] as PartOfSpeechStatisticsDto[]);
+const isWinter = ref(false);
 
 const fetchTotalAddedWordsNumber = async () => {
     try {
@@ -88,10 +91,31 @@ const fetchMeaningsStatistics = async () => {
     }
 };
 
+const isWinterDay = () => {
+    const date = new Date();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    // Winter months: December (11), January (0), February (1)
+    if (month === 11 || month === 0 || month === 1) {
+        // Check if day falls within winter season
+        if (month === 11 && day >= 10) { // December 10 or later
+            return true;
+        } else if (month === 1 && day <= 19) { // February 19 or earlier
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 onMounted(() => {
     fetchTotalAddedWordsNumber();
     fetchTotalWordsToRepeatToday();
     fetchMeaningsStatistics();
+    isWinter.value = isWinterDay();
 
     new Tooltip(document.body, {
         selector: "[data-bs-toggle='tooltip']",
