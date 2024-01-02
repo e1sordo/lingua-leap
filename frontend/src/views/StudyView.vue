@@ -1,5 +1,12 @@
 <template>
     <div>
+        <div class="z-1 position-fixed top-0 start-0 w-100">
+            <div class="progress" role="progressbar" style="border-radius: 0;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                    :style="{ width: progressPercentage + '%' }"></div>
+            </div>
+        </div>
+
         <div class="container-sm">
 
             <ul class="nav justify-content-center mt-2">
@@ -17,8 +24,13 @@
             <hr class="my-5" />
 
             <div class="row justify-content-center">
-                <div class="col-lg-7g">
-                    <WordsTable :data="todayWords" :refresh="shuffleRefreshingBit" />
+                <div class="col-lg-7">
+                    <div class="words-table-content" :style="{ maxHeight: wordsTableMaxHeight + 'px' }">
+                        <WordsTable :data="todayWords" :refresh="shuffleRefreshingBit" />
+                    </div>
+                    <button class="btn btn-primary mt-2" @click="toggleSpoiler">
+                        {{ isSpoilerVisible ? 'Скрыть' : 'Показать' }} всю таблицу
+                    </button>
 
                     <hr class="my-5" />
                 </div>
@@ -54,7 +66,16 @@ const todayWords = ref<WordMeaningDto[]>([]);
 const shuffledTodayWords = ref<WordMeaningDto[]>([]);
 const wordsCount = computed(() => Object.keys(todayWords.value).length);
 const currentWordIndex = ref(0);
+const progressPercentage = ref(0);
 const shuffleRefreshingBit = ref(true);
+
+const isSpoilerVisible = ref(false);
+const wordsTableMaxHeight = ref(500);
+
+const toggleSpoiler = () => {
+    isSpoilerVisible.value = !isSpoilerVisible.value;
+    wordsTableMaxHeight.value = isSpoilerVisible.value ? 10000 : 500;
+};
 
 const shuffleArray = (array: WordMeaningDto[]) => array
     .map((value) => ({ ...value, sort: Math.random() }))
@@ -83,5 +104,13 @@ onMounted(async () => {
 const nextWord = () => {
     currentWordIndex.value++;
     updateCurrentWord();
+    progressPercentage.value = Math.floor((currentWordIndex.value / wordsCount.value) * 100);
 };
 </script>
+
+<style scoped>
+.words-table-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+</style>

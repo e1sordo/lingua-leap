@@ -6,8 +6,8 @@
                     <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
                     <span class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
                         <small v-if="word.gender">
-                            <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
-                            <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female"></i>
+                            <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
+                            <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
                         </small>
                         {{ word.word }}
                     </span>
@@ -73,7 +73,7 @@ export default defineComponent({
 }
 
 .pos-noun {
-    background-color: rgba(0, 104, 228, var(--word-pos-bg-opacity));
+    background-color: rgba(11, 87, 177, var(--word-pos-bg-opacity));
 }
 
 .pos-verb {
@@ -110,5 +110,12 @@ export default defineComponent({
 
 .pos-phrase {
     background-color: rgba(28, 155, 166, var(--word-pos-bg-opacity));
+}
+
+.male-gender {
+    color: rgb(10, 255, 76);
+}
+.female-gender {
+    color: rgb(255, 133, 247);
 }
 </style>

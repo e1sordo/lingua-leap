@@ -1,40 +1,50 @@
 <template>
-    <LightRope v-if="isWinter" />
-    <nav class="navbar navbar-expand-lg" style="background-color: rgba(10, 107, 255, 0.27)">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
-                aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarToggler">
-                <router-link to="/" class="navbar-brand">
-                    <div spellcheck="false" class="brand fw-bolder">
-                        Lingua Leap {{ totalWords }}
-                    </div>
-                </router-link>
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <router-link to="/add" class="nav-link">{{ $t("navbar.add") }}</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/study" class="nav-link">
-                            {{ $t("navbar.study") }} <span v-if="totalWordsToRepeatToday > 0"
-                                class="badge text-bg-danger position-relative" style="bottom: 8px;">
-                                {{ totalWordsToRepeatToday }}
-                            </span>
-                        </router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/lists" class="nav-link">{{ $t("navbar.lists") }}</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/settings" class="nav-link">{{ $t("navbar.settings") }}</router-link>
-                    </li>
-                </ul>
-                <word-search-form />
+    <div class="position-relative z-2">
+        <template v-if="isWinter">
+            <LightRope />
+        </template>
+        <nav class="navbar navbar-expand-lg" style="background-color: rgb(0, 93, 235)">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
+                    aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarToggler">
+                    <router-link to="/" class="navbar-brand">
+                        <div spellcheck="false" class="brand fw-bolder">
+                            Lingua Leap {{ totalWords }}
+                        </div>
+                    </router-link>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <router-link to="/add" class="nav-link link-light">
+                                {{ $t("navbar.add") }}
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/study" class="nav-link link-light">
+                                {{ $t("navbar.study") }} <span v-if="totalWordsToRepeatToday > 0"
+                                    class="badge text-bg-danger position-relative" style="bottom: 8px;">
+                                    {{ totalWordsToRepeatToday }}
+                                </span>
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/lists" class="nav-link link-light">
+                                {{ $t("navbar.lists") }}
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/settings" class="nav-link link-light">
+                                {{ $t("navbar.settings") }}
+                            </router-link>
+                        </li>
+                    </ul>
+                    <word-search-form />
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </div>
 
     <div class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">

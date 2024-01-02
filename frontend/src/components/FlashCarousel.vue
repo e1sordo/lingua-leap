@@ -1,6 +1,6 @@
 <template>
-    <div>
-
+    <div class="position-relative">
+        <div ref="hiddenCardTopElement" style="height: 30px; position: absolute; top: -30px; pointer-events: none;"></div>
         <div class="card text-center">
             <a @click="toggleCardAndShowAnswer" type="button">
                 <img v-if="meaning.imageUrl" :src="meaning.imageUrl" class="card-img-top" alt="...">
@@ -118,6 +118,8 @@ const showContexts = ref(false);
 const showAnswer = ref(false);
 const buttonsDisabled = ref(false);
 
+const hiddenCardTopElement = ref<HTMLDivElement>();
+
 const toggleSpoilers = () => {
     showContexts.value = !showContexts.value;
 };
@@ -138,6 +140,8 @@ const submitAnswer = (score: number) => {
         buttonsDisabled.value = false;
 
         props.onSubmit();
+
+        hiddenCardTopElement.value?.scrollIntoView({ behavior: 'smooth' });
     });
 };
 </script>

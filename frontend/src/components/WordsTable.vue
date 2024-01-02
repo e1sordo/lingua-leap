@@ -5,12 +5,12 @@
             <label class="form-check-label" for="flexSwitchCheckDefault">Invert spoilers</label>
         </div>
 
-        <table class="table table-hover align-middle fs-4">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col" style="width: 45%;">Word</th>
-                    <th scope="col" @click="toggleMeaningLang()" style="cursor: pointer; width: 45%;">
+                    <th scope="col" style="width: 45%; max-width: 45%;">Word</th>
+                    <th scope="col" @click="toggleMeaningLang()" style="cursor: pointer; width: 45%; max-width: 45%;">
                         Meaning
                     </th>
                     <th scope="col">(i)</th>
@@ -18,14 +18,14 @@
             </thead>
             <tbody class="table-group-divider">
                 <tr v-for="(word, index) in shuffledWords" :key="word.id">
-                    <th scope="row" class="fs-6">{{ index + 1 }}</th>
-                    <th class="fw-normal" @click="toggleSpoiler(index)">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <th class="fw-normal text-break" @click="toggleSpoiler(index)">
                         <span v-if="!invertSpoilers && spoilers[index]" class="spoiler pe-auto">
                             {{ word.fakeWord }}
                         </span>
                         <span v-else>{{ word.word }}</span>
                     </th>
-                    <th class="fw-normal" @click="toggleSpoiler(index)">
+                    <th class="fw-normal text-break" @click="toggleSpoiler(index)">
                         <span v-if="invertSpoilers && spoilers[index]" class="spoiler pe-auto">
                             {{ word.fakeWord }}
                         </span>
