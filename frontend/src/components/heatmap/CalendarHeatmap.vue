@@ -33,14 +33,16 @@
                 </text>
             </g>
 
-            <g class="vch__year__wrapper" :transform="yearWrapperTransform" @mouseover="initTippyLazy">
+            <g class="vch__year__wrapper" :transform="yearWrapperTransform">
                 <g class="vch__month__wrapper" v-for="(week, weekIndex) in heatmap.calendar" :key="weekIndex"
                     :transform="getWeekPosition(weekIndex)">
                     <template v-for="(day, dayIndex) in week" :key="dayIndex">
                         <rect class="vch__day__square" v-if="allowFutureDays || day.date < now" :rx="round" :ry="round"
                             :transform="getDayPosition(dayIndex)" :width="SQUARE_SIZE - SQUARE_BORDER_SIZE"
                             :height="SQUARE_SIZE - SQUARE_BORDER_SIZE" :style="{ fill: curRangeColor[day.colorIndex] }"
-                            :data-week-index="weekIndex" :data-day-index="dayIndex" @click="$emit('dayClick', day)" />
+                            :data-week-index="weekIndex" :data-day-index="dayIndex" @click="$emit('dayClick', day)"
+                            data-bs-toggle="tooltip" :data-bs-html="true" :data-bs-title="tooltipOptions(day)"
+                            data-bs-placement="bottom" />
                     </template>
                 </g>
             </g>
@@ -72,11 +74,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, toRef, toRefs, watch } from 'vue';
+import { defineComponent, onMounted, PropType, ref, toRef, toRefs, watch } from 'vue';
+import { Tooltip } from 'bootstrap';
 import { CalendarItem, Heatmap, Locale, Month, TooltipFormatter, Value } from '@/components/heatmap/Heatmap';
-import tippy, { createSingleton, CreateSingletonInstance, Instance } from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/svg-arrow.css';
 
 export default /*#__PURE__*/defineComponent({
     name: 'CalendarHeatmap',
@@ -150,24 +150,7 @@ export default /*#__PURE__*/defineComponent({
             lo = ref<Locale>({} as any),
             rangeColor = ref<string[]>(props.rangeColor || (props.darkMode ? Heatmap.DEFAULT_RANGE_COLOR_DARK : Heatmap.DEFAULT_RANGE_COLOR_LIGHT));
 
-        const { values, tooltipUnit, tooltipFormatter, noDataText, max, vertical, locale } = toRefs(props),
-            tippyInstances = new Map<HTMLElement, Instance>();
-
-        let tippySingleton: CreateSingletonInstance;
-
-
-        function initTippy() {
-            tippyInstances.clear();
-            if (tippySingleton) {
-                tippySingleton.setInstances(Array.from(tippyInstances.values()));
-            } else {
-                tippySingleton = createSingleton(Array.from(tippyInstances.values()), {
-                    overrides: [],
-                    moveTransition: 'transform 0.1s ease-out',
-                    allowHTML: true
-                });
-            }
-        }
+        const { values, tooltipUnit, tooltipFormatter, noDataText, max, vertical, locale } = toRefs(props);
 
         function tooltipOptions(day: CalendarItem) {
             if (props.tooltip) {
@@ -238,55 +221,20 @@ export default /*#__PURE__*/defineComponent({
             [values, tooltipUnit, tooltipFormatter, noDataText, max, rangeColor],
             () => {
                 heatmap.value = new Heatmap(props.endDate as Date, props.values, props.max);
-                tippyInstances.forEach((item) => item.destroy());
-                nextTick(initTippy);
             }
         );
 
-        onMounted(initTippy);
-        onBeforeUnmount(() => {
-            tippySingleton?.destroy();
-            tippyInstances.forEach((item) => item.destroy());
+        onMounted(() => {
+            new Tooltip(document.body, {
+                selector: "[data-bs-toggle='tooltip']",
+            });
         });
-
-        function initTippyLazy(e: MouseEvent) {
-
-            if (tippySingleton
-                && e.target
-                && (e.target as HTMLElement).classList.contains('vch__day__square')
-                && (e.target as HTMLElement).dataset.weekIndex !== undefined
-                && (e.target as HTMLElement).dataset.dayIndex !== undefined
-            ) {
-
-                const weekIndex = Number((e.target as HTMLElement).dataset.weekIndex),
-                    dayIndex = Number((e.target as HTMLElement).dataset.dayIndex);
-
-                if (!isNaN(weekIndex) && !isNaN(dayIndex)) {
-
-                    const tooltip = tooltipOptions(heatmap.value.calendar[weekIndex][dayIndex]);
-                    if (tooltip) {
-
-                        const instance = tippyInstances.get(e.target as HTMLElement);
-
-                        if (instance) {
-                            instance.setContent(tooltip);
-                        } else if (!instance) {
-                            tippyInstances.set(e.target as HTMLElement, tippy(e.target as HTMLElement, { content: tooltip } as any));
-                            tippySingleton.setInstances(Array.from(tippyInstances.values()));
-                        }
-
-                    }
-                }
-
-            }
-
-        }
 
         return {
             SQUARE_BORDER_SIZE, SQUARE_SIZE, LEFT_SECTION_WIDTH, RIGHT_SECTION_WIDTH, TOP_SECTION_HEIGHT, BOTTOM_SECTION_HEIGHT,
             svg, heatmap, now, width, height, viewbox, daysLabelWrapperTransform, monthsLabelWrapperTransform, yearWrapperTransform, legendWrapperTransform,
             lo, legendViewbox, curRangeColor: rangeColor,
-            getWeekPosition, getDayPosition, getMonthLabelPosition, initTippyLazy
+            getWeekPosition, getDayPosition, getMonthLabelPosition, tooltipOptions
         };
     }
 });
