@@ -1,10 +1,9 @@
-package es.e1sordo.lingualeap.dto.word;
+package es.e1sordo.lingualeap.dto;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public record ForeignWordDetailDto(long id,
+public record CreateWordRequestDto(LocalDate addedDate,
                                    String word,
-                                   LocalDate addedDate,
                                    List<WordMeaningDto> meanings) {
 }

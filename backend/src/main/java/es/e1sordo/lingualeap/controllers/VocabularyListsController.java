@@ -1,8 +1,8 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.word.UpsertVocabularyListRequestDto;
-import es.e1sordo.lingualeap.dto.word.VocabularyListDetailDto;
-import es.e1sordo.lingualeap.dto.word.VocabularyListDto;
+import es.e1sordo.lingualeap.dto.UpsertVocabularyListRequestDto;
+import es.e1sordo.lingualeap.dto.VocabularyListDetailDto;
+import es.e1sordo.lingualeap.dto.VocabularyListDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
 import lombok.RequiredArgsConstructor;

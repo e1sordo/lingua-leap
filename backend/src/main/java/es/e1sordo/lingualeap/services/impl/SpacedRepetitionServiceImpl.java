@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -31,6 +33,23 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         return repository.findByPlannedReviewLessThanEqual(LocalDate.now()).stream()
                 .map(SM2WordMeaningMeta::getWord)
                 .toList();
+    }
+
+    @Override
+    public Map<LocalDate, Integer> getSummaryGraph() {
+        final LocalDate today = LocalDate.now();
+        final Map<LocalDate, Integer> summary = new HashMap<>();
+
+        final var repositoryResult = repository.getPlannedWordsStatistics(today.plusYears(1));
+        for (var result : repositoryResult) {
+            if (result.date().isEqual(today)) {
+                summary.put(today, getTodayCount());
+            } else if (result.date().isAfter(today)) {
+                summary.put(result.date(), result.count().intValue());
+            }
+        }
+
+        return summary;
     }
 
     @Override

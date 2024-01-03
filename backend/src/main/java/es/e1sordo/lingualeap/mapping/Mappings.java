@@ -1,14 +1,18 @@
 package es.e1sordo.lingualeap.mapping;
 
-import es.e1sordo.lingualeap.dto.word.ForeignWordDetailDto;
-import es.e1sordo.lingualeap.dto.word.VocabularyListDetailDto;
-import es.e1sordo.lingualeap.dto.word.VocabularyListDto;
-import es.e1sordo.lingualeap.dto.word.WordMeaningContextDto;
-import es.e1sordo.lingualeap.dto.word.WordMeaningDto;
+import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
+import es.e1sordo.lingualeap.dto.SpacedRepetitionDayCountDto;
+import es.e1sordo.lingualeap.dto.VocabularyListDetailDto;
+import es.e1sordo.lingualeap.dto.VocabularyListDto;
+import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
+import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 public final class Mappings {
 
@@ -57,5 +61,9 @@ public final class Mappings {
 
     public static VocabularyListDto mapToDto(final VocabularyList entity) {
         return new VocabularyListDto(entity.getId(), entity.getName(), entity.isSmart());
+    }
+
+    public static SpacedRepetitionDayCountDto mapToDto(Map.Entry<LocalDate, Integer> localDateIntegerEntry) {
+        return new SpacedRepetitionDayCountDto(localDateIntegerEntry.getValue(), localDateIntegerEntry.getKey());
     }
 }

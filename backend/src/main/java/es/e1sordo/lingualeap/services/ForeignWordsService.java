@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.services;
 
-import es.e1sordo.lingualeap.dto.word.CreateWordRequestDto;
+import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.WordToAddLater;
 import org.springframework.data.domain.Page;

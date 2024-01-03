@@ -23,6 +23,11 @@
 
             <hr class="my-5" />
 
+            <calendar-heatmap allowFutureDays :end-date="datePlusYear" :values="summaryGraph"
+                :max="50" :round="3" no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
+
+            <hr class="my-5" />
+
             <div class="row justify-content-center">
                 <div class="col-lg-7">
                     <div class="words-table-content" :style="{ maxHeight: wordsTableMaxHeight + 'px' }">
@@ -56,12 +61,16 @@
 </template>
 
 <script setup lang="ts">
-import api, { WordMeaningDto } from "@/api/backend-api";
+import api, { WordMeaningDto, SpacedRepetitionDayCountDto } from "@/api/backend-api";
 import FlashCarousel from '@/components/FlashCarousel.vue';
+import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
 import WordsTable from '@/components/WordsTable.vue';
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
 import { computed, onMounted, ref } from 'vue';
 
+const prefersDarkScheme = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+const summaryGraph = ref<SpacedRepetitionDayCountDto[]>([]);
 const todayWords = ref<WordMeaningDto[]>([]);
 const shuffledTodayWords = ref<WordMeaningDto[]>([]);
 const wordsCount = computed(() => Object.keys(todayWords.value).length);
@@ -71,6 +80,9 @@ const shuffleRefreshingBit = ref(true);
 
 const isSpoilerVisible = ref(false);
 const wordsTableMaxHeight = ref(500);
+
+const todayDate = new Date();
+const datePlusYear = new Date(todayDate.getFullYear() + 1, todayDate.getMonth(), todayDate.getDate());
 
 const toggleSpoiler = () => {
     isSpoilerVisible.value = !isSpoilerVisible.value;
@@ -92,9 +104,12 @@ const updateCurrentWord = () => {
 
 onMounted(async () => {
     try {
-        const response = await api.getWordsToRepeatToday();
-        todayWords.value = response.data;
-        shuffledTodayWords.value = shuffleArray(response.data);
+        const summaryResponse = await api.getSummaryGraph();
+        summaryGraph.value = summaryResponse.data;
+
+        const wordsResponse = await api.getWordsToRepeatToday();
+        todayWords.value = wordsResponse.data;
+        shuffledTodayWords.value = shuffleArray(wordsResponse.data);
         updateCurrentWord();
     } catch (error) {
         console.error('Error fetching words:', error);

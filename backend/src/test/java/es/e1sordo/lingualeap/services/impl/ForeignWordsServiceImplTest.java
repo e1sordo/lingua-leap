@@ -1,8 +1,8 @@
 package es.e1sordo.lingualeap.services.impl;
 
-import es.e1sordo.lingualeap.dto.word.CreateWordRequestDto;
-import es.e1sordo.lingualeap.dto.word.WordMeaningContextDto;
-import es.e1sordo.lingualeap.dto.word.WordMeaningDto;
+import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
+import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
+import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.enums.LearningStatus;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.ForeignWord;

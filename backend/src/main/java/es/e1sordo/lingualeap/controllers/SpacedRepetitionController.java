@@ -1,6 +1,7 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.word.WordMeaningDto;
+import es.e1sordo.lingualeap.dto.SpacedRepetitionDayCountDto;
+import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.services.SpacedRepetitionService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,11 @@ public class SpacedRepetitionController {
     @GetMapping("/today")
     public List<WordMeaningDto> getWordsToRepeatToday() {
         return service.getTodayWords().stream().map(Mappings::mapToDto).toList();
+    }
+
+    @GetMapping("/summary/graph")
+    public List<SpacedRepetitionDayCountDto> getSummaryGraph() {
+        return service.getSummaryGraph().entrySet().stream().map(Mappings::mapToDto).toList();
     }
 
     @PutMapping("/meanings/{meaningId}")

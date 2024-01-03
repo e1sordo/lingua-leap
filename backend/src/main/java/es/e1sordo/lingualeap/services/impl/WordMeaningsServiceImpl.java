@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.services.impl;
 
-import es.e1sordo.lingualeap.dto.word.WordMeaningContextDto;
+import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;

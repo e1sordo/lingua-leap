@@ -14,7 +14,7 @@
             </ul>
         </div>
 
-        <button class="btn btn-secondary" type="button" @click="$router.push(`/words/${searchQuery}`)">
+        <button class="btn btn-primary" type="button" @click="$router.push(`/words/${searchQuery}`)">
             Search
         </button>
     </form>

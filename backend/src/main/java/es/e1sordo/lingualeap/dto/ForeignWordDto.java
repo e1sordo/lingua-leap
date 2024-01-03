@@ -1,4 +1,4 @@
-package es.e1sordo.lingualeap.dto.word;
+package es.e1sordo.lingualeap.dto;
 
 import es.e1sordo.lingualeap.enums.GrammaticalGender;
 import es.e1sordo.lingualeap.enums.LearningStatus;

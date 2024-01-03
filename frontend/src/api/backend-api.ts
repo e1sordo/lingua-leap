@@ -100,6 +100,11 @@ export interface VocabularyListDetailDto {
     words: WordMeaningDto[];
 }
 
+export interface SpacedRepetitionDayCountDto {
+    date: Date;
+    count: number;
+}
+
 export default {
     heartbeat(): Promise<AxiosResponse<void>> {
         return axiosApi.get('/heartbeat');
@@ -173,6 +178,10 @@ export default {
     async getTotalWordsToRepeatToday(): Promise<number> {
         const response = await axiosApi.get(`/repetition/today/total`);
         return response.data.total;
+    },
+
+    getSummaryGraph(): Promise<AxiosResponse<SpacedRepetitionDayCountDto[]>> {
+        return axiosApi.get('/repetition/summary/graph');
     },
 
     getWordsToRepeatToday(): Promise<AxiosResponse<WordMeaningDto[]>> {

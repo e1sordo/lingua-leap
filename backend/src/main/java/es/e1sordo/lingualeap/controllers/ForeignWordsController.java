@@ -1,9 +1,9 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.word.CreateWordRequestDto;
-import es.e1sordo.lingualeap.dto.word.ForeignWordDetailDto;
-import es.e1sordo.lingualeap.dto.word.ForeignWordDto;
-import es.e1sordo.lingualeap.dto.word.RecentlyAddedForeignWordsPageDto;
+import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
+import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
+import es.e1sordo.lingualeap.dto.ForeignWordDto;
+import es.e1sordo.lingualeap.dto.RecentlyAddedForeignWordsPageDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.WordToAddLater;

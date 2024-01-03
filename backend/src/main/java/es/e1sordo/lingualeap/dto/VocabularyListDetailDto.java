@@ -1,4 +1,4 @@
-package es.e1sordo.lingualeap.dto.word;
+package es.e1sordo.lingualeap.dto;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.services.impl;
 
-import es.e1sordo.lingualeap.dto.word.UpsertVocabularyListRequestDto;
+import es.e1sordo.lingualeap.dto.UpsertVocabularyListRequestDto;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.repositories.VocabularyListsRepository;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
