@@ -173,6 +173,10 @@ export default {
         return axiosApi.get(`/lists/${id}`);
     },
 
+    deleteList(id: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`/lists/${id}`);
+    },
+
 
     // repetition
     async getTotalWordsToRepeatToday(): Promise<number> {

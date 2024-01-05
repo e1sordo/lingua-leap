@@ -58,4 +58,11 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
 
         return repository.save(list);
     }
+
+    @Override
+    public void delete(final Long id) {
+        final var list = repository.findById(id).orElseThrow(() -> new RuntimeException("VocabularyList not found"));
+        if (list.isSmart()) throw new RuntimeException("Cannot delete smart list!");
+        repository.deleteById(id);
+    }
 }

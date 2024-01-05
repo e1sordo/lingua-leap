@@ -81,4 +81,8 @@ public class WordMeaning {
     public void addList(VocabularyList list) {
         this.listsContaining.add(list);
     }
+
+    public void removeList(VocabularyList list) {
+        this.listsContaining.remove(list);
+    }
 }

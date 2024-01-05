@@ -15,4 +15,6 @@ public interface VocabularyListsService {
     VocabularyList getSmartListOfProblemWords();
 
     VocabularyList upsertList(UpsertVocabularyListRequestDto request);
+
+    void delete(Long id);
 }

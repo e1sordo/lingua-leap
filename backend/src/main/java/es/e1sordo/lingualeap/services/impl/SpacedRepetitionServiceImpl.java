@@ -1,6 +1,7 @@
 package es.e1sordo.lingualeap.services.impl;
 
 import es.e1sordo.lingualeap.enums.LearningStatus;
+import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.SM2WordMeaningMeta;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.repositories.SM2WordMeaningMetaRepository;
@@ -57,7 +58,8 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         log.info("Looking for meta by wordMeaningId {}", wordMeaningId);
         final SM2WordMeaningMeta meta = repository.findByWordId(wordMeaningId).get();
 
-        final String textWord = meta.getWord().getWord().getWord();
+        final ForeignWord word = meta.getWord().getWord();
+        final String textWord = word.getWord();
 
         if (meta.getPlannedReview().isAfter(LocalDate.now())) {
             log.info("Word '{}' is scheduled for a later date and should not be scored now. {}", textWord, meta.textState());
@@ -65,7 +67,7 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         }
 
         final var previousGrade = meta.getPreviousUserGrade();
-        log.info("Word '{}' was rated {} points at latest knowledge test", meta.getWord().getWord().getWord(), userGrade);
+        log.info("Word '{}' was rated {} points at latest knowledge test", word.getWord(), userGrade);
         meta.updateWithNewGrade(userGrade);
         log.info("Updated state of word: Previous userGrade: {}, {}", previousGrade, meta.textState());
         updateLearningStatusOfWord(meta);
@@ -73,6 +75,11 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         if (userGrade <= 3 && previousGrade <= 3 || userGrade <= 2) {
             log.info("Word '{}' was rated less than 4 points two times in a row. Adding it to list of problem words", textWord);
             meta.getWord().addList(vocabularyListsService.getSmartListOfProblemWords());
+        }
+
+        if (word.getAdded().isBefore(LocalDate.now().minusDays(14)) && meta.getTotalRepetitions() >= 2) {
+            log.info("Word '{}' was added more than 14 days ago. Removing it from list of recently added words", textWord);
+            meta.getWord().removeList(vocabularyListsService.getSmartListOfRecentlyAdded());
         }
 
         repository.save(meta);
