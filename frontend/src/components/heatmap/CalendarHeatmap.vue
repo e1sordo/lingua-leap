@@ -38,6 +38,7 @@
                     :transform="getWeekPosition(weekIndex)">
                     <template v-for="(day, dayIndex) in week" :key="dayIndex">
                         <rect class="vch__day__square" v-if="allowFutureDays || day.date < now" :rx="round" :ry="round"
+                            :class="{ 'today': day.date.toDateString() === now.toDateString() }"
                             :transform="getDayPosition(dayIndex)" :width="SQUARE_SIZE - SQUARE_BORDER_SIZE"
                             :height="SQUARE_SIZE - SQUARE_BORDER_SIZE" :style="{ fill: curRangeColor[day.colorIndex] }"
                             :data-week-index="weekIndex" :data-day-index="dayIndex" @click="$emit('dayClick', day)"
@@ -271,6 +272,12 @@ svg.vch__wrapper {
     text.vch__day__label,
     .vch__legend__wrapper text {
         fill: #767676;
+    }
+
+    rect.vch__day__square.today {
+        stroke: #ffc3c3;
+        stroke-width: 2px;
+        paint-order: stroke;
     }
 
     rect.vch__day__square:hover {

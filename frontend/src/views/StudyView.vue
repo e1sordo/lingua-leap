@@ -82,7 +82,7 @@ const isSpoilerVisible = ref(false);
 const wordsTableMaxHeight = ref(500);
 
 const todayDate = new Date();
-const datePlusYear = new Date(todayDate.getFullYear() + 1, todayDate.getMonth(), todayDate.getDate());
+const datePlusYear = new Date(todayDate.getFullYear() + 1, todayDate.getMonth(), todayDate.getDate() - 1);
 
 const toggleSpoiler = () => {
     isSpoilerVisible.value = !isSpoilerVisible.value;
