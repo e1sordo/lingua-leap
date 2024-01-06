@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.SpacedRepetitionDayCountDto;
+import es.e1sordo.lingualeap.dto.CountDateDto;
 import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.services.SpacedRepetitionService;
@@ -33,7 +33,7 @@ public class SpacedRepetitionController {
     }
 
     @GetMapping("/summary/graph")
-    public List<SpacedRepetitionDayCountDto> getSummaryGraph() {
+    public List<CountDateDto> getSummaryGraph() {
         return service.getSummaryGraph().entrySet().stream().map(Mappings::mapToDto).toList();
     }
 

@@ -100,7 +100,7 @@ export interface VocabularyListDetailDto {
     words: WordMeaningDto[];
 }
 
-export interface SpacedRepetitionDayCountDto {
+export interface DateCountDto {
     date: Date;
     count: number;
 }
@@ -148,6 +148,10 @@ export default {
         return axiosApi.delete('/words/later/' + word);
     },
 
+    getWordsSummaryGraph(): Promise<AxiosResponse<DateCountDto[]>> {
+        return axiosApi.get('/words/summary/graph');
+    },
+
 
     // meanings
     linkContext(meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {
@@ -184,7 +188,7 @@ export default {
         return response.data.total;
     },
 
-    getSummaryGraph(): Promise<AxiosResponse<SpacedRepetitionDayCountDto[]>> {
+    getPlannedRepetitionsSummaryGraph(): Promise<AxiosResponse<DateCountDto[]>> {
         return axiosApi.get('/repetition/summary/graph');
     },
 

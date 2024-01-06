@@ -275,7 +275,7 @@ svg.vch__wrapper {
     }
 
     rect.vch__day__square.today {
-        stroke: #ffc3c3;
+        stroke: #ff6c6ca8;
         stroke-width: 2px;
         paint-order: stroke;
     }

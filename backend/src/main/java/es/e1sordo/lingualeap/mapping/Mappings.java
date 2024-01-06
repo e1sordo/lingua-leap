@@ -1,7 +1,7 @@
 package es.e1sordo.lingualeap.mapping;
 
 import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
-import es.e1sordo.lingualeap.dto.SpacedRepetitionDayCountDto;
+import es.e1sordo.lingualeap.dto.CountDateDto;
 import es.e1sordo.lingualeap.dto.VocabularyListDetailDto;
 import es.e1sordo.lingualeap.dto.VocabularyListDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
@@ -63,7 +63,7 @@ public final class Mappings {
         return new VocabularyListDto(entity.getId(), entity.getName(), entity.isSmart());
     }
 
-    public static SpacedRepetitionDayCountDto mapToDto(Map.Entry<LocalDate, Integer> localDateIntegerEntry) {
-        return new SpacedRepetitionDayCountDto(localDateIntegerEntry.getValue(), localDateIntegerEntry.getKey());
+    public static CountDateDto mapToDto(Map.Entry<LocalDate, Integer> localDateIntegerEntry) {
+        return new CountDateDto(localDateIntegerEntry.getValue(), localDateIntegerEntry.getKey());
     }
 }

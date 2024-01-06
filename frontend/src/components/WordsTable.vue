@@ -114,6 +114,7 @@ export default defineComponent({
 .male-gender {
     color: rgba(5, 187, 54, 0.8);
 }
+
 .female-gender {
     color: rgba(234, 64, 223, 0.8);
 }

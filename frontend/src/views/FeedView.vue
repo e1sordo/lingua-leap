@@ -2,6 +2,11 @@
     <div>
         <div class="container-sm" ref="scrollComponent">
 
+            <calendar-heatmap :end-date="todayDate" :values="summaryGraph" :max="21" :round="3"
+                no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
+
+            <hr class="my-4" />
+
             <div v-if="addLaterWords.length > 0" class="text-center">
                 <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 m-md-3 d-inline-flex btn-group"
                     role="group">
@@ -26,8 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import api, { ForeignWordDto } from "@/api/backend-api";
+import api, { DateCountDto, ForeignWordDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
+import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
 import { convertDateToSinceString } from '@/utils/convertDateToSinceString';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -43,6 +49,11 @@ class DateStatistics {
         this.totalWords += 1;
     }
 }
+
+const prefersDarkScheme = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+const summaryGraph = ref<DateCountDto[]>([]);
+const todayDate = new Date();
 
 const stopLoading = ref(false);
 const isLoading = ref(false);
@@ -86,6 +97,15 @@ const fetchLatestWords = async () => {
     }
 };
 
+const fetchSummaryGraph = async () => {
+    try {
+        const response = await api.getWordsSummaryGraph();
+        summaryGraph.value = response.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 const fetchWordsToAddLater = async () => {
     try {
         const response = await api.getAllAddLaterWords();
@@ -106,6 +126,7 @@ const handleScroll = () => {
 
 onMounted(() => {
     window.addEventListener("scroll", handleScroll);
+    fetchSummaryGraph();
     fetchLatestWords();
     fetchWordsToAddLater();
 });

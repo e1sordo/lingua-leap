@@ -5,7 +5,9 @@ import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.WordToAddLater;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ForeignWordsService {
     void createWord(CreateWordRequestDto upsertWordRequestDto);
@@ -25,4 +27,6 @@ public interface ForeignWordsService {
     List<WordToAddLater> getAllWordsToAddLater();
 
     void deleteWordsToAddLater(String word);
+
+    Map<LocalDate, Integer> getSummaryGraph();
 }

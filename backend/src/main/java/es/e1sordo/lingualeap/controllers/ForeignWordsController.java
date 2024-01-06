@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
+import es.e1sordo.lingualeap.dto.CountDateDto;
 import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDto;
@@ -141,5 +142,11 @@ public class ForeignWordsController {
     public void deleteWordToAddLater(@PathVariable String word) {
         log.info("Delete word to add later");
         service.deleteWordsToAddLater(word);
+    }
+
+    @GetMapping("/summary/graph")
+    public List<CountDateDto> getSummaryGraph() {
+        log.info("Get summary graph");
+        return service.getSummaryGraph().entrySet().stream().map(Mappings::mapToDto).toList();
     }
 }

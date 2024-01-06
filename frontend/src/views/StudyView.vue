@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import api, { WordMeaningDto, SpacedRepetitionDayCountDto } from "@/api/backend-api";
+import api, { WordMeaningDto, DateCountDto } from "@/api/backend-api";
 import FlashCarousel from '@/components/FlashCarousel.vue';
 import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
 import WordsTable from '@/components/WordsTable.vue';
@@ -70,7 +70,7 @@ import { computed, onMounted, ref } from 'vue';
 
 const prefersDarkScheme = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-const summaryGraph = ref<SpacedRepetitionDayCountDto[]>([]);
+const summaryGraph = ref<DateCountDto[]>([]);
 const todayWords = ref<WordMeaningDto[]>([]);
 const shuffledTodayWords = ref<WordMeaningDto[]>([]);
 const wordsCount = computed(() => Object.keys(todayWords.value).length);
@@ -104,7 +104,7 @@ const updateCurrentWord = () => {
 
 onMounted(async () => {
     try {
-        const summaryResponse = await api.getSummaryGraph();
+        const summaryResponse = await api.getPlannedRepetitionsSummaryGraph();
         summaryGraph.value = summaryResponse.data;
 
         const wordsResponse = await api.getWordsToRepeatToday();

@@ -19,7 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -139,6 +142,19 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
     public void deleteWordsToAddLater(final String word) {
         final String trimmedWord = word.trim();
         wordsToAddLaterRepository.deleteAllById(List.of(trimmedWord, trimmedWord.toLowerCase()));
+    }
+
+    @Override
+    public Map<LocalDate, Integer> getSummaryGraph() {
+        final LocalDate today = LocalDate.now();
+        final Map<LocalDate, Integer> summary = new HashMap<>();
+
+        final var repositoryResult = repository.getAddedWordsStatistics(today.minusYears(1));
+        for (var result : repositoryResult) {
+            summary.put(result.date(), result.count().intValue());
+        }
+
+        return summary;
     }
 
     private void addMeaningToSpacedRepetition(List<WordMeaning> meanings) {
