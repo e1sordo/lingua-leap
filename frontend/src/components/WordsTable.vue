@@ -23,7 +23,13 @@
                         <span v-if="!invertSpoilers && spoilers[index]" class="spoiler pe-auto">
                             {{ word.fakeWord }}
                         </span>
-                        <span v-else>{{ word.word }}</span>
+                        <span v-else>
+                            <small v-if="word.gender" class="pe-1">
+                                <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
+                                <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
+                            </small>
+                            {{ word.word }}
+                        </span>
                     </th>
                     <th class="fw-normal text-break" @click="toggleSpoiler(index)">
                         <span v-if="invertSpoilers && spoilers[index]" class="spoiler pe-auto">
@@ -103,3 +109,12 @@ export default defineComponent({
     }
 });
 </script>
+
+<style scoped>
+.male-gender {
+    color: rgba(5, 187, 54, 0.8);
+}
+.female-gender {
+    color: rgba(234, 64, 223, 0.8);
+}
+</style>
