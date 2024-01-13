@@ -47,7 +47,7 @@
     </div>
 
     <div class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
-        <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2">
+        <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2 text-nowrap">
             <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
                 data-bs-placement="bottom">
                 {{ partOfSpeechMeta[meaningStatistics.pos].labelEsp }}:
@@ -168,7 +168,7 @@ provide('decreaseTotalWordsToRepeatToday', decreaseTotalWordsToRepeatToday);
     font-weight: 800;
     font-size: 32px;
     outline: none;
-    background: linear-gradient(135deg, #cf3535 0%, #de7e00 25%, rgb(215, 208, 12) 50%, #de7e00 75%, #cf3535 100%);
+    background: linear-gradient(135deg, #fb0000 0%, #f8930f 25%, rgb(215, 208, 12) 50%, #f8930f 75%, #fb0000 100%);
     background-size: 400%;
     background-clip: text;
     -webkit-background-clip: text;

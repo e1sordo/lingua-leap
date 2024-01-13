@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.services.impl;
 
+import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
@@ -8,11 +9,13 @@ import es.e1sordo.lingualeap.repositories.WordMeaningContextsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningsRepository;
 import es.e1sordo.lingualeap.services.WordMeaningsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WordMeaningsServiceImpl implements WordMeaningsService {
@@ -32,6 +35,23 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
         wordMeaningContext.setWordMeaning(wordMeaning);
 
         return contextsRepository.save(wordMeaningContext);
+    }
+
+    @Override
+    public void editVariants(final Long meaningId, final EditWordMeaningVariantsDto request) {
+        final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
+
+        if (request.russian() != null) {
+            log.info("Changing russian variant of meaning {} from '{}' to '{}'", meaningId, wordMeaning.getRussianVariant(), request.russian());
+            wordMeaning.setRussianVariant(request.russian().trim());
+        }
+
+        if (request.english() != null) {
+            log.info("Changing english variant of meaning {} from '{}' to '{}'", meaningId, wordMeaning.getEnglishVariant(), request.english());
+            wordMeaning.setEnglishVariant(request.english().trim());
+        }
+
+        meaningsRepository.save(wordMeaning);
     }
 
     @Override

@@ -158,6 +158,10 @@ export default {
         return axiosApi.post('/meanings/' + meaningId, body);
     },
 
+    editVariants(meaningId: number, russian: string | null, english: string | null): Promise<AxiosResponse<void>> {
+        return axiosApi.patch('/meanings/' + meaningId + '/variants', { russian, english });
+    },
+
     getMeaningsStatistics(): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
         return axiosApi.get('/meanings/statistics');
     },

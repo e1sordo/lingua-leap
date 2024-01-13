@@ -8,12 +8,12 @@
             <hr class="my-4" />
 
             <div v-if="addLaterWords.length > 0" class="text-center">
-                <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 m-md-3 d-inline-flex btn-group"
-                    role="group">
-                    <button @click="$router.push('/add?word=' + word)" type="button" class="btn btn-success">
-                        {{ word }}
+                <h5>Total words to add: <strong>{{ addLaterWords.length }}</strong></h5>
+                <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 d-inline-flex btn-group" role="group">
+                    <button @click="$router.push('/add?word=' + word)" type="button" class="btn btn-outline-success btn-sm">
+                        <strong>{{ word }}</strong>
                     </button>
-                    <button @click="deleteWordFromAddLater(word)" type="button" class="btn btn-success">
+                    <button @click="deleteWordFromAddLater(word)" type="button" class="btn btn-outline-success btn-sm">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </div>
@@ -21,7 +21,9 @@
             </div>
 
             <div v-for="(dateStatistics, index) in datesStatistics" :key="index">
-                <p class="mt-5">{{ convertDateToSinceString(dateStatistics.date) }} ({{ dateStatistics.totalWords }} слов)
+                <p class="mt-5">
+                    {{ convertDateToSinceString(dateStatistics.date) }}
+                    (<strong>{{ dateStatistics.totalWords }}</strong> слов)
                 </p>
                 <RecentlyAddedWords :data="wordsByDate(dateStatistics.date)" />
             </div>

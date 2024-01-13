@@ -3,87 +3,88 @@
         <div class="container-md mb-5">
 
             <p>
-                <a :href="`https://www.spanishdict.com/translate/${wordDetail.word}`"
-                    class="btn btn-outline-primary btn-lg m-2" target="_blank">
+                <a :href="`https://www.spanishdict.com/translate/${word}`" class="btn btn-outline-primary btn-lg m-2"
+                    target="_blank">
                     Span¡shD!ctionary
                 </a>
-                <a :href="`https://youglish.com/pronounce/${wordDetail.word}/spanish`"
-                    class="btn btn-outline-success btn-lg m-2" target="_blank">
+                <a :href="`https://youglish.com/pronounce/${word}/spanish`" class="btn btn-outline-success btn-lg m-2"
+                    target="_blank">
                     YouGlish
                 </a>
             </p>
 
             <div class="my-4">
-                <h1 class="display-1 fw-semibold">{{ wordDetail.word }}</h1>
+                <h1 class="display-1 fw-semibold">{{ word }}</h1>
             </div>
 
-            <div v-for="(meaning, index) in wordDetail.meanings" :key="index" class="card text-start bg-transparent mb-4">
+            <div v-for="(meaning, index) in meanings" :key="index" class="card text-start mb-4">
                 <div class="card-body">
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Значение слова #{{ index + 1 }}</h5>
+                    <div class="d-flex justify-content-start align-items-center mb-4">
+                        <h5 class="card-title mb-0 me-3">Значение слова #{{ index + 1 }}</h5>
+                        <span class="me-3">{{ meaning.pos }}</span>
+                        <span v-if="meaning.pos === 'NOUN'">{{ meaning.gender }}</span>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3 py-3">
                         <div class="col-sm-6">
-                            <div class="input-group">
+                            <div class="input-group input-group-lg">
                                 <span class="input-group-text">🇷🇺</span>
                                 <input v-model="meaning.russianVariant" id="russianVariant" type="text" required
                                     class="form-control" placeholder="Перевод на русский">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon-rus"
+                                    @click="editVariants(index, meaning.russianVariant, null)">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <div class="input-group">
+                            <div class="input-group input-group-lg">
                                 <span class="input-group-text">🇬🇧</span>
                                 <input v-model="meaning.englishVariant" id="englishVariant" type="text" required
                                     class="form-control" placeholder="Translation into English">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon-eng"
+                                    @click="editVariants(index, null, meaning.englishVariant)">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="meaning.definition" class="mb-3">
+                    <div v-if="meaning.definition" class="my-3">
                         {{ meaning.definition }}
                     </div>
 
-                    <div v-if="meaning.imageUrl" class="row mt-1 mb-3">
-                        <div class="col-lg-3 col-md-6 col-sm-9">
-                            <img :src="meaning.imageUrl" alt="Image" class="img-fluid w-100 img-thumbnail mt-2" />
+                    <div class="row g-3 my-3">
+                        <div :class="meaning.imageUrl ? 'col-sm-8' : 'col-sm-12'">
+                            <h5 class="card-title pb-2">📖 Примеры употребления</h5>
+
+                            <div class="mx-lg-2">
+                                <figure v-for="context in meaning.contexts" :key="context.id">
+                                    <blockquote class="blockquote">
+                                        <p>{{ context.sentence }}</p>
+                                    </blockquote>
+                                    <figcaption class="blockquote-footer">
+                                        {{ context.translation }}
+                                    </figcaption>
+                                </figure>
+
+                                <AddNewContextForm :meaningId="meaning.id"
+                                    :onAddItem="(item) => addContextLocally(index, item)" />
+                            </div>
+                        </div>
+
+                        <div v-if="meaning.imageUrl" class="col-md-4 col-sm-9">
+                            <img :src="meaning.imageUrl" alt="Image" class="img-fluid w-100 img-thumbnail" />
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="partOfSpeech" class="form-label">Часть речи:</label>
-                        {{ meaning.pos }}
-                    </div>
-
-                    <div v-if="meaning.pos === 'NOUN'" class="mb-3">
-                        <label for="grammaticalGender" class="form-label">Род существительного:</label>
-                        {{ meaning.gender }}
-                    </div>
-
-
-                    <h5 class="card-title pt-3 pb-2">📖 Примеры употребления</h5>
-
-                    <div class="mx-lg-2">
-                        <figure v-for="context in meaning.contexts" :key="context.id">
-                            <blockquote class="blockquote">
-                                <p>{{ context.sentence }}</p>
-                            </blockquote>
-                            <figcaption class="blockquote-footer">
-                                {{ context.translation }}
-                            </figcaption>
-                        </figure>
-
-                        <AddNewContextForm :meaningId="meaning.id" :onAddItem="(item) => addContext(index, item)" />
-                    </div>
-
                 </div>
             </div>
 
 
             <div class="row g-3 my-4">
                 <div class="col-auto">
-                    Дата добавления: {{ wordDetail.addedDate }}
+                    Дата добавления: {{ addedDate }}
                 </div>
             </div>
 
@@ -91,43 +92,50 @@
     </div>
 </template>
 
-<script lang="ts">
-import api, { ForeignWordDetailDto, WordMeaningContextDto } from "@/api/backend-api";
+<script setup lang="ts">
+import api, { WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
 import AddNewContextForm from '@/components/AddNewContextForm.vue';
-import { partOfSpeechMeta } from '@/constants';
-import { convertDateToSinceString } from '@/utils/convertDateToSinceString';
-import { defineComponent } from 'vue';
+import { onMounted, ref } from "vue";
+import { useRoute } from 'vue-router';
 
-export default defineComponent({
-    name: 'WordDetailView',
-    components: {
-        AddNewContextForm
-    },
-    data() {
-        return {
-            wordDetail: {} as ForeignWordDetailDto
-        };
-    },
-    mounted() {
-        this.fetchDetails();
-    },
-    setup() {
-        return { partOfSpeechMeta, convertDateToSinceString };
-    },
-    methods: {
-        async fetchDetails() {
-            try {
-                const response = await api.getByName(this.$route.params.word as string);
-                this.wordDetail = response.data;
-                document.title = document.title + ` ${this.wordDetail.word}`;
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        addContext(meaningIndex: number, newContext: WordMeaningContextDto) {
-            console.log(meaningIndex, newContext);
-            this.wordDetail.meanings[meaningIndex].contexts.push(newContext);
-        },
+const word = ref('');
+const meanings = ref([] as WordMeaningDto[]);
+const addedDate = ref(new Date());
+
+const fetchDetails = async () => {
+    try {
+        const router = useRoute();
+        const response = await api.getByName(router.params.word as string);
+        word.value = response.data.word;
+        meanings.value = response.data.meanings;
+        addedDate.value = response.data.addedDate;
+        document.title = document.title + ` ${word.value}`;
+    } catch (error) {
+        console.error(error);
     }
+};
+
+onMounted(() => {
+    fetchDetails();
 });
+
+const addContextLocally = async (meaningIndex: number, newContext: WordMeaningContextDto) => {
+    console.log(meaningIndex, newContext);
+    meanings.value[meaningIndex].contexts.push(newContext);
+};
+
+const editVariants = async (meaningIndex: number, russianVariant: string | null, englishVariant: string | null) => {
+    if (russianVariant) {
+        meanings.value[meaningIndex].russianVariant = russianVariant;
+    } else if (englishVariant) {
+        meanings.value[meaningIndex].englishVariant = englishVariant;
+    }
+
+    const meaningId = meanings.value[meaningIndex].id;
+    try {
+        api.editVariants(meaningId, russianVariant, englishVariant);
+    } catch (error) {
+        console.error(error);
+    }
+}
 </script>
