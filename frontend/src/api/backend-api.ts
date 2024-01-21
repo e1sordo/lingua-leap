@@ -162,6 +162,10 @@ export default {
         return axiosApi.patch('/meanings/' + meaningId + '/variants', { russian, english });
     },
 
+    editImageUrl(meaningId: number, newImageUrl: string): Promise<AxiosResponse<void>> {
+        return axiosApi.patch('/meanings/' + meaningId + '/image', { newImageUrl });
+    },
+
     getMeaningsStatistics(): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
         return axiosApi.get('/meanings/statistics');
     },

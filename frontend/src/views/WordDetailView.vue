@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="row g-3 my-3">
-                        <div :class="meaning.imageUrl ? 'col-sm-8' : 'col-sm-12'">
+                        <div :class="meaning.imageUrl ? 'col-sm-8' : 'col-sm-11'">
                             <h5 class="card-title pb-2">📖 Примеры употребления</h5>
 
                             <div class="mx-lg-2">
@@ -75,7 +75,43 @@
                         </div>
 
                         <div v-if="meaning.imageUrl" class="col-md-4 col-sm-9">
-                            <img :src="meaning.imageUrl" alt="Image" class="img-fluid w-100 img-thumbnail" />
+                            <a href="#" data-bs-toggle="modal" :data-bs-target="'#imageUrlEditModal' + meaning.id">
+                                <img :src="meaning.imageUrl" alt="Image" class="img-fluid w-100 img-thumbnail" />
+                            </a>
+                        </div>
+                        <div v-else class="col-sm-1 text-end">
+                            <a href="#" data-bs-toggle="modal" :data-bs-target="'#imageUrlEditModal' + meaning.id">🏞️</a>
+                        </div>
+
+                        <div class="modal fade" :id="'imageUrlEditModal' + meaning.id" tabindex="-1"
+                            aria-labelledby="imageUrlEditModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="imageUrlEditModalLabel">Change imageUrl</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label for="image-url-text" class="col-form-label">Image URL:</label>
+                                                <input v-model="meaning.imageUrl" type="text" class="form-control"
+                                                    id="image-url-text">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Close
+                                        </button>
+                                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                            @click="editImageUrl(index, meaning.imageUrl)">
+                                            Change
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,5 +173,16 @@ const editVariants = async (meaningIndex: number, russianVariant: string | null,
     } catch (error) {
         console.error(error);
     }
-}
+};
+
+const editImageUrl = async (meaningIndex: number, newImageUrl: string) => {
+    meanings.value[meaningIndex].imageUrl = newImageUrl;
+
+    const meaningId = meanings.value[meaningIndex].id;
+    try {
+        api.editImageUrl(meaningId, newImageUrl);
+    } catch (error) {
+        console.error(error);
+    }
+};
 </script>

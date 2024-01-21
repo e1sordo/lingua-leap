@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,6 +51,18 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
         if (request.english() != null) {
             log.info("Changing english variant of meaning {} from '{}' to '{}'", meaningId, wordMeaning.getEnglishVariant(), request.english());
             wordMeaning.setEnglishVariant(request.english().trim());
+        }
+
+        meaningsRepository.save(wordMeaning);
+    }
+
+    @Override
+    public void editImageUrl(final Long meaningId, final String newUrl) {
+        final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
+
+        if (hasText(newUrl) && !newUrl.equals(wordMeaning.getImageUrl())) {
+            log.info("Changing image url of meaning {} from '{}' to '{}'", meaningId, wordMeaning.getImageUrl(), newUrl);
+            wordMeaning.setImageUrl(newUrl);
         }
 
         meaningsRepository.save(wordMeaning);

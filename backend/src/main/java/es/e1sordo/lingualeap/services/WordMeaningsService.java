@@ -12,5 +12,7 @@ public interface WordMeaningsService {
 
     void editVariants(final Long meaningId, final EditWordMeaningVariantsDto request);
 
+    void editImageUrl(final Long meaningId, final String newUrl);
+
     List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
 }

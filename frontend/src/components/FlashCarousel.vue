@@ -37,14 +37,17 @@
                             {{ meaning.word }}
                         </h1>
                     </word-context-menu>
-                    <h3 class="card-title py-2">{{ meaning.englishVariant }} ({{ meaning.russianVariant }})</h3>
+
+                    <h4 class="card-title py-1">🇬🇧 {{ meaning.englishVariant }}</h4>
+                    <h4 class="card-title py-1">🇷🇺 {{ meaning.russianVariant }}</h4>
+
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
-                    <div class="card card-body mb-2" v-for="(context, contextIndex) in meaning.contexts" :key="contextIndex"
-                        @click="toggleSpoilers">
-                        <p class="user-select-all mb-1" :class="{ 'spoiler': !showContexts }">
-                            {{ context.sentence }}
-                        </p>
+
+                    <hr class="border border-secondary border-2 opacity-75 my-4" />
+
+                    <div class="my-3" v-for="(context, contextIndex) in meaning.contexts" :key="contextIndex">
+                        <p class="user-select-all mb-1"><strong>{{ context.sentence }}</strong></p>
                         <span class="text-muted user-select-all">{{ context.translation }}</span>
                     </div>
                 </div>
@@ -52,7 +55,7 @@
                 <div class="card-footer">
                     <div class="d-flex justify-content-between mx-md-4 my-2">
                         <button v-for="score in scores" :key="score.score" @click="submitAnswer(score.score)" type="button"
-                            class="btn" :class="'btn-outline-' + score.color">
+                            class="btn border-3" :class="'btn-outline-' + score.color">
                             {{ score.score }}
                         </button>
                     </div>

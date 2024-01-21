@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
+import es.e1sordo.lingualeap.dto.EditWordMeaningImageUrlDto;
 import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
@@ -35,6 +36,12 @@ public class WordMeaningsController {
     public void editVariants(@PathVariable Long meaningId, @RequestBody EditWordMeaningVariantsDto request) {
         log.info("Edit Variants of Meaning {}", meaningId);
         service.editVariants(meaningId, request);
+    }
+
+    @PatchMapping("/{meaningId}/image")
+    public void editImageUrl(@PathVariable Long meaningId, @RequestBody EditWordMeaningImageUrlDto request) {
+        log.info("Edit ImageUrl of Meaning {}", meaningId);
+        service.editImageUrl(meaningId, request.newImageUrl());
     }
 
     @GetMapping("/statistics")
