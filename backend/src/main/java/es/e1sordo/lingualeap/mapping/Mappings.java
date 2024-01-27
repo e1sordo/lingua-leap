@@ -1,14 +1,16 @@
 package es.e1sordo.lingualeap.mapping;
 
-import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.CountDateDto;
+import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.VocabularyListDetailDto;
 import es.e1sordo.lingualeap.dto.VocabularyListDto;
+import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.models.WordMeaning;
+import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
 
 import java.time.LocalDate;
@@ -39,7 +41,18 @@ public final class Mappings {
                 entity.getFrequency(),
                 entity.getLearningStatus(),
                 entity.getListsContaining().stream().map(Mappings::mapToDto).toList(),
+                entity.getCollocations().stream().map(Mappings::mapToDto).toList(),
                 entity.getContexts().stream().map(Mappings::mapToDto).toList()
+        );
+    }
+
+    public static WordMeaningCollocationDto mapToDto(final WordMeaningCollocation entity) {
+        return new WordMeaningCollocationDto(
+                entity.getId(),
+                entity.getPattern(),
+                entity.getResolvedPattern(),
+                entity.getTranslationRussian(),
+                entity.getTranslationEnglish()
         );
     }
 

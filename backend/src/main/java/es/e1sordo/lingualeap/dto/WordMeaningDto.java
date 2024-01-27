@@ -17,5 +17,6 @@ public record WordMeaningDto(Long id,
                              Integer frequency,
                              LearningStatus learningStatus,
                              List<VocabularyListDto> lists,
+                             List<WordMeaningCollocationDto> collocations,
                              List<WordMeaningContextDto> contexts) {
 }

@@ -1,10 +1,13 @@
 package es.e1sordo.lingualeap.services.impl;
 
 import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
+import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.models.WordMeaning;
+import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
+import es.e1sordo.lingualeap.repositories.WordMeaningCollocationsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningContextsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningsRepository;
 import es.e1sordo.lingualeap.services.WordMeaningsService;
@@ -24,6 +27,7 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
 
     private final WordMeaningsRepository meaningsRepository;
     private final WordMeaningContextsRepository contextsRepository;
+    private final WordMeaningCollocationsRepository collocationsRepository;
 
     @Override
     public WordMeaningContext linkContext(final Long meaningId, final WordMeaningContextDto request) {
@@ -37,6 +41,21 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
         wordMeaningContext.setWordMeaning(wordMeaning);
 
         return contextsRepository.save(wordMeaningContext);
+    }
+
+    @Override
+    public WordMeaningCollocation linkCollocation(final Long meaningId, final WordMeaningCollocationDto request) {
+        final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
+
+        final WordMeaningCollocation wordMeaningCollocation = new WordMeaningCollocation();
+        wordMeaningCollocation.setPattern(request.pattern());
+        wordMeaningCollocation.setTranslationRussian(request.translationRussian());
+        wordMeaningCollocation.setTranslationEnglish(request.translationEnglish());
+
+        wordMeaning.addCollocation(wordMeaningCollocation);
+        wordMeaningCollocation.setWordMeaning(wordMeaning);
+
+        return collocationsRepository.save(wordMeaningCollocation);
     }
 
     @Override

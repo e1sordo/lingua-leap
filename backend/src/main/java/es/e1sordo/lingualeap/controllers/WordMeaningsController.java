@@ -2,6 +2,7 @@ package es.e1sordo.lingualeap.controllers;
 
 import es.e1sordo.lingualeap.dto.EditWordMeaningImageUrlDto;
 import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
+import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
@@ -26,10 +27,16 @@ public class WordMeaningsController {
 
     private final WordMeaningsService service;
 
-    @PostMapping("/{meaningId}")
+    @PostMapping("/{meaningId}/contexts")
     public WordMeaningContextDto linkContext(@PathVariable Long meaningId, @RequestBody WordMeaningContextDto request) {
         log.info("Link new Context with existed Meaning {}", meaningId);
         return Mappings.mapToDto(service.linkContext(meaningId, request));
+    }
+
+    @PostMapping("/{meaningId}/collocations")
+    public WordMeaningCollocationDto linkCollocation(@PathVariable Long meaningId, @RequestBody WordMeaningCollocationDto request) {
+        log.info("Link new Collocation with existed Meaning {}", meaningId);
+        return Mappings.mapToDto(service.linkCollocation(meaningId, request));
     }
 
     @PatchMapping("/{meaningId}/variants")

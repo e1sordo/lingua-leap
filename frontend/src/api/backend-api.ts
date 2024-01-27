@@ -78,6 +78,7 @@ export interface PartOfSpeechStatisticsDto {
 export interface WordMeaningDto extends ForeignWordDto {
     definition: string;
     frequency: number;
+    collocations: WordMeaningCollocationDto[];
     contexts: WordMeaningContextDto[];
     lists: VocabularyListDto[];
 }
@@ -86,6 +87,14 @@ export interface WordMeaningContextDto {
     id: number;
     sentence: string;
     translation: string;
+}
+
+export interface WordMeaningCollocationDto {
+    id: number;
+    pattern: string;
+    resolvedPattern: string;
+    translationRussian: string;
+    translationEnglish: string;
 }
 
 export interface VocabularyListDto {
@@ -155,7 +164,11 @@ export default {
 
     // meanings
     linkContext(meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {
-        return axiosApi.post('/meanings/' + meaningId, body);
+        return axiosApi.post('/meanings/' + meaningId + '/contexts', body);
+    },
+
+    linkCollocation(meaningId: number, body: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
+        return axiosApi.post('/meanings/' + meaningId + '/collocations', body);
     },
 
     editVariants(meaningId: number, russian: string | null, english: string | null): Promise<AxiosResponse<void>> {

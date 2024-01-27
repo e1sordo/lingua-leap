@@ -3,7 +3,7 @@
         <div ref="hiddenCardTopElement" style="height: 30px; position: absolute; top: -30px; pointer-events: none;"></div>
         <div class="card text-center">
             <a @click="toggleCardAndShowAnswer" type="button">
-                <img v-if="meaning.imageUrl" :src="meaning.imageUrl" class="card-img-top" alt="...">
+                <img v-if="meaning.imageUrl" :src="meaning.imageUrl" class="card-img-top">
                 <img v-else src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
                     class="opacity-25 card-img-top" />
             </a>
@@ -16,6 +16,13 @@
                     </h3>
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
+
+                    <hr class="border border-secondary border-2 opacity-75 my-4" />
+
+                    <div v-for="collocation in meaning.collocations" :key="collocation.id">
+                        <button type="button" class="btn btn-primary collocation-question-btn m-1"
+                            v-html="collocation.resolvedPattern" />
+                    </div>
                 </div>
 
                 <div class="card-footer">
@@ -44,7 +51,17 @@
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
 
-                    <hr class="border border-secondary border-2 opacity-75 my-4" />
+                    <hr v-if="meaning.collocations" class="border border-secondary border-2 opacity-75 my-4" />
+
+                    <div class="my-3" v-for="(collocation, collocationIndex) in meaning.collocations"
+                        :key="collocationIndex">
+                        <p class="user-select-all mb-1" v-html="collocation.resolvedPattern" />
+                        <span class="text-muted user-select-all">
+                            🇬🇧 {{ collocation.translationEnglish }} (🇷🇺 {{ collocation.translationRussian }})
+                        </span>
+                    </div>
+
+                    <hr v-if="meaning.contexts" class="border border-secondary border-2 opacity-75 my-4" />
 
                     <div class="my-3" v-for="(context, contextIndex) in meaning.contexts" :key="contextIndex">
                         <p class="user-select-all mb-1"><strong>{{ context.sentence }}</strong></p>
@@ -148,3 +165,13 @@ const submitAnswer = (score: number) => {
     });
 };
 </script>
+
+<style>
+.main-word {
+    font-weight: bold;
+}
+
+.collocation-question-btn .main-word {
+    filter: blur(4px);
+}
+</style>

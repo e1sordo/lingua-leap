@@ -1,12 +1,14 @@
 package es.e1sordo.lingualeap.services.impl;
 
 import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
+import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.dto.WordMeaningDto;
 import es.e1sordo.lingualeap.enums.LearningStatus;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.repositories.ForeignWordsRepository;
+import es.e1sordo.lingualeap.repositories.WordMeaningCollocationsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningContextsRepository;
 import es.e1sordo.lingualeap.repositories.WordMeaningsRepository;
 import es.e1sordo.lingualeap.repositories.WordsToAddLaterRepository;
@@ -34,6 +36,8 @@ class ForeignWordsServiceImplTest {
     @Autowired
     private WordMeaningsRepository meaningsRepository;
     @Autowired
+    private WordMeaningCollocationsRepository meaningCollocationsRepository;
+    @Autowired
     private WordMeaningContextsRepository meaningContextsRepository;
     @Autowired
     private WordsToAddLaterRepository wordsToAddLaterRepository;
@@ -45,6 +49,7 @@ class ForeignWordsServiceImplTest {
         List.of(
                 wordsRepository,
                 meaningsRepository,
+                meaningCollocationsRepository,
                 meaningContextsRepository,
                 wordsToAddLaterRepository
         ).forEach(CrudRepository::deleteAll);
@@ -69,6 +74,15 @@ class ForeignWordsServiceImplTest {
                         3,
                         LearningStatus.NEW,
                         List.of(),
+                        List.of(
+                                new WordMeaningCollocationDto(
+                                        null,
+                                        "some words {|lowercase} around it",
+                                        null,
+                                        "перевод на русский",
+                                        "translate on english"
+                                )
+                        ),
                         List.of(
                                 new WordMeaningContextDto(
                                         null,
@@ -99,6 +113,7 @@ class ForeignWordsServiceImplTest {
         assertNotNull(entity.getId());
 
         assertEquals(1, meaningsRepository.count());
+        assertEquals(1, meaningCollocationsRepository.count());
         assertEquals(2, meaningContextsRepository.count());
     }
 

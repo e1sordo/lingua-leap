@@ -65,7 +65,7 @@ export default defineComponent({
                 backendApi.linkContext(this.meaningId, newItem)
                     .then((resp) => {
                         this.onAddItem(resp.data);
-                        console.log("Word was added");
+                        console.log("Context was linked");
                         this.resetForm();
                     });
             } catch (ex) {

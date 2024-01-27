@@ -7,6 +7,7 @@ import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.models.WordMeaning;
+import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
 import es.e1sordo.lingualeap.models.WordToAddLater;
 import es.e1sordo.lingualeap.repositories.ForeignWordsRepository;
@@ -57,6 +58,19 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
             }
 
             addMeaningToSmartListOfRecentlyAdded(meaning);
+
+            if (meaningDto.collocations() != null) {
+                for (final var collocationDto : meaningDto.collocations()) {
+                    final var collocation = new WordMeaningCollocation();
+
+                    collocation.setPattern(collocationDto.pattern().trim());
+                    collocation.setTranslationRussian(collocationDto.translationRussian().trim());
+                    collocation.setTranslationEnglish(collocationDto.translationEnglish().trim());
+                    collocation.setWordMeaning(meaning);
+
+                    meaning.addCollocation(collocation);
+                }
+            }
 
             if (meaningDto.contexts() != null) {
                 for (final var contextDto : meaningDto.contexts()) {

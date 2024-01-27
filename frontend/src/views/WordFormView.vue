@@ -91,6 +91,60 @@
                         </div>
 
 
+                        <h5 class="card-title pt-3 pb-2">🥇 Популярные коллокации</h5>
+
+                        <div v-for="(collocation, collocationIndex) in meaning.collocations" :key="collocationIndex">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-4">
+                                    <div class="form-floating">
+                                        <textarea v-model="collocation.pattern"
+                                            :id="'collocation-pattern-' + collocationIndex" type="text" class="form-control"
+                                            @input="handleContexSentenceInput(index, collocationIndex)"
+                                            style="height: 100px" placeholder="Leave a pattern here" />
+                                        <label :for="'collocation-original-' + collocationIndex">
+                                            Коллокация #{{ collocationIndex + 1 }}. Паттерн
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-floating">
+                                        <textarea v-model="collocation.translationRussian"
+                                            :id="'collocation-translate-russian-' + collocationIndex" type="text"
+                                            class="form-control" style="height: 100px"
+                                            placeholder="Leave a russian translation here" />
+                                        <label :for="'collocation-translate-russian-' + collocationIndex">
+                                            🇷🇺 Перевод
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-floating">
+                                        <textarea v-model="collocation.translationEnglish"
+                                            :id="'collocation-translate-english-' + collocationIndex" type="text"
+                                            class="form-control" style="height: 100px"
+                                            placeholder="Leave a english translation here" />
+                                        <label :for="'collocation-translate-english-' + collocationIndex">
+                                            🇺🇸 Перевод
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <button :disabled="collocationIndex !== meaning.collocations.length - 1"
+                                    @click.prevent="addContext(index)" type="button" class="btn btn-success">
+                                    + пример
+                                </button>
+                                <button v-if="meaning.collocations.length > 1"
+                                    @click.prevent="removeContext(index, collocationIndex)" type="button"
+                                    class="btn btn-danger">
+                                    - удалить
+                                </button>
+                            </div>
+                        </div>
+
+
                         <h5 class="card-title pt-3 pb-2">📖 Примеры употребления</h5>
 
                         <div v-for="(context, contextIndex) in meaning.contexts" :key="contextIndex">
@@ -181,6 +235,7 @@ export default defineComponent({
                         definition: '',
                         frequency: 1,
                         learningStatus: 'NEW',
+                        collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
                         contexts: [{ id: 0, sentence: '', translation: '' }],
                         lists: [] as VocabularyListDto[]
                     },
@@ -229,6 +284,7 @@ export default defineComponent({
                 definition: '',
                 frequency: 1,
                 learningStatus: 'NEW',
+                collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
                 contexts: [{ id: 0, sentence: '', translation: '' }],
                 lists: [],
                 addedDate: null
@@ -237,6 +293,14 @@ export default defineComponent({
         removeMeaning(index: number) {
             if (this.form.meanings.length > 1) {
                 this.form.meanings.splice(index, 1);
+            }
+        },
+        addCollocation(meaningIndex: number) {
+            this.form.meanings[meaningIndex].collocations.push({ id: 0, pattern: '', translationRussian: '', translationEnglish: '', resolvedPattern: '' });
+        },
+        removeCollocation(meaningIndex: number, collocationIndex: number) {
+            if (this.form.meanings[meaningIndex].collocations.length > 1) {
+                this.form.meanings[meaningIndex].collocations.splice(collocationIndex, 1);
             }
         },
         addContext(meaningIndex: number) {
@@ -271,6 +335,7 @@ export default defineComponent({
                     definition: '',
                     frequency: 1,
                     learningStatus: 'NEW',
+                    collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
                     contexts: [{ id: 0, sentence: '', translation: '' }],
                     lists: [],
                     addedDate: null
@@ -293,6 +358,13 @@ export default defineComponent({
                     definition: meaning.definition,
                     frequency: 1,
                     learningStatus: meaning.learningStatus,
+                    collocations: meaning.collocations.map((collocation) => ({
+                        id: collocation.id,
+                        resolvedPattern: collocation.resolvedPattern,
+                        pattern: collocation.pattern,
+                        translationRussian: collocation.translationRussian,
+                        translationEnglish: collocation.translationEnglish
+                    })),
                     contexts: meaning.contexts.map((context) => ({
                         id: context.id,
                         sentence: context.sentence,

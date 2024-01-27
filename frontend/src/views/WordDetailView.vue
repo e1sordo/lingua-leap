@@ -55,7 +55,34 @@
                         {{ meaning.definition }}
                     </div>
 
-                    <div class="row g-3 my-3">
+                    <div class="my-3">
+                        <h5 class="card-title pb-2">🥇 Популярные коллокации</h5>
+
+                        <div class="mx-lg-2">
+                            <div class="row g-3 mb-3">
+                                <div class="col-3" v-for="collocation in meaning.collocations" :key="collocation.id">
+                                    <div class="card mb-1">
+                                        <div class="card-body">
+                                            <h5 class="card-title pb-2" v-html="collocation.resolvedPattern" />
+                                            <h6 class="card-subtitle mb-2 text-body-secondary">
+                                                🇷🇺 {{ collocation.translationRussian }}
+                                            </h6>
+                                            <h6 class="card-subtitle mb-2 text-body-secondary">
+                                                🇺🇸 {{ collocation.translationEnglish }}
+                                            </h6>
+                                            <!-- <a href="#" class="card-link">Card link</a> -->
+                                            <!-- <a href="#" class="card-link">Another link</a> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <AddNewCollocationForm :meaningId="meaning.id"
+                            :onAddItem="(item) => addCollocationLocally(index, item)" />
+                    </div>
+
+                    <div class="row g-3 my-4">
                         <div :class="meaning.imageUrl ? 'col-sm-8' : 'col-sm-11'">
                             <h5 class="card-title pb-2">📖 Примеры употребления</h5>
 
@@ -129,7 +156,8 @@
 </template>
 
 <script setup lang="ts">
-import api, { WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
+import api, { WordMeaningCollocationDto, WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
+import AddNewCollocationForm from '@/components/AddNewCollocationForm.vue';
 import AddNewContextForm from '@/components/AddNewContextForm.vue';
 import { onMounted, ref } from "vue";
 import { useRoute } from 'vue-router';
@@ -154,6 +182,11 @@ const fetchDetails = async () => {
 onMounted(() => {
     fetchDetails();
 });
+
+const addCollocationLocally = async (meaningIndex: number, newCollocation: WordMeaningCollocationDto) => {
+    console.log(meaningIndex, newCollocation);
+    meanings.value[meaningIndex].collocations.push(newCollocation);
+};
 
 const addContextLocally = async (meaningIndex: number, newContext: WordMeaningContextDto) => {
     console.log(meaningIndex, newContext);
@@ -186,3 +219,9 @@ const editImageUrl = async (meaningIndex: number, newImageUrl: string) => {
     }
 };
 </script>
+
+<style scoped>
+.main-word {
+    font-weight: bold;
+}
+</style>

@@ -60,6 +60,10 @@ public class WordMeaning {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "wordMeaning")
     @ToString.Exclude
+    private List<WordMeaningCollocation> collocations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "wordMeaning")
+    @ToString.Exclude
     private List<WordMeaningContext> contexts = new ArrayList<>();
 
     @Enumerated(value = EnumType.ORDINAL)
@@ -73,6 +77,10 @@ public class WordMeaning {
     )
     @ToString.Exclude
     private Set<VocabularyList> listsContaining = new HashSet<>();
+
+    public void addCollocation(WordMeaningCollocation collocation) {
+        this.collocations.add(collocation);
+    }
 
     public void addContext(WordMeaningContext context) {
         this.contexts.add(context);
