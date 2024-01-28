@@ -133,11 +133,11 @@
 
                             <div class="d-flex justify-content-between mb-3">
                                 <button :disabled="collocationIndex !== meaning.collocations.length - 1"
-                                    @click.prevent="addContext(index)" type="button" class="btn btn-success">
+                                    @click.prevent="addCollocation(index)" type="button" class="btn btn-success">
                                     + пример
                                 </button>
                                 <button v-if="meaning.collocations.length > 1"
-                                    @click.prevent="removeContext(index, collocationIndex)" type="button"
+                                    @click.prevent="removeCollocation(index, collocationIndex)" type="button"
                                     class="btn btn-danger">
                                     - удалить
                                 </button>
