@@ -15,6 +15,8 @@ import lombok.ToString;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Entity
 @Table(name = WordMeaningCollocation.TABLE_NAME)
 @Getter
@@ -47,14 +49,13 @@ public class WordMeaningCollocation {
                     }
 
                     String text = wordMeaning.getWord().getWord();
+                    String rules = part.substring(1, part.length() - 1);
+                    final String[] rulesParts = rules.split("\\|");
 
-                    String numberAndModification = part.substring(1, part.length() - 1);
-
-                    final String[] numberAndModificationParts = numberAndModification.split("\\|");
-
-                    if (numberAndModificationParts.length >= 2) {
-                        String partOfMeaningWord = numberAndModificationParts[0]; // don't need now
-                        String modification = numberAndModificationParts[1];
+                    if (rulesParts.length == 1 && hasText(rulesParts[0])) {
+                        text = rulesParts[0];
+                    } else if (rulesParts.length >= 2) {
+                        String modification = rulesParts[1];
                         if ("lowercase".equals(modification)) {
                             text = text.toLowerCase();
                         } else if ("uppercase".equals(modification)) {

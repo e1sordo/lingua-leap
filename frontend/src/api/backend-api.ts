@@ -179,6 +179,10 @@ export default {
         return axiosApi.patch('/meanings/' + meaningId + '/image', { newImageUrl });
     },
 
+    editCollocation(meaningId: number, collocationId: number, request: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
+        return axiosApi.put('/meanings/' + meaningId + '/collocations/' + collocationId, request);
+    },
+
     getMeaningsStatistics(): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
         return axiosApi.get('/meanings/statistics');
     },

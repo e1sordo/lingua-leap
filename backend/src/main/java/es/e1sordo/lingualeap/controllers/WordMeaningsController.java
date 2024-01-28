@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +50,14 @@ public class WordMeaningsController {
     public void editImageUrl(@PathVariable Long meaningId, @RequestBody EditWordMeaningImageUrlDto request) {
         log.info("Edit ImageUrl of Meaning {}", meaningId);
         service.editImageUrl(meaningId, request.newImageUrl());
+    }
+
+    @PutMapping("/{meaningId}/collocations/{collocationId}")
+    public WordMeaningCollocationDto editCollocation(@PathVariable Long meaningId,
+                                                     @PathVariable Long collocationId,
+                                                     @RequestBody WordMeaningCollocationDto request) {
+        log.info("Edit Collocation {} of Meaning {}", collocationId, meaningId);
+        return Mappings.mapToDto(service.editCollocation(meaningId, collocationId, request));
     }
 
     @GetMapping("/statistics")

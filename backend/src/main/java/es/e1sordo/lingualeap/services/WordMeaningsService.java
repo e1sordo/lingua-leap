@@ -18,5 +18,7 @@ public interface WordMeaningsService {
 
     void editImageUrl(final Long meaningId, final String newUrl);
 
+    WordMeaningCollocation editCollocation(Long meaningId, Long collocationId, WordMeaningCollocationDto request);
+
     List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
 }

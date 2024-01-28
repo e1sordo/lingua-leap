@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -14,33 +15,27 @@ class WordMeaningCollocationTest {
 
     @Test
     void getResolvedPattern() {
-        final var entity = new WordMeaningCollocation(
-                23L,
-                new WordMeaning(
-                        99L,
-                        new ForeignWord(
-                                11L,
-                                "MY WORD",
-                                LocalDate.now(),
-                                List.of()
-                        ),
-                        PartOfSpeech.ADVERB,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        emptyList(),
-                        emptyList(),
-                        null,
-                        emptySet()
-                ),
-                "first {|lowercase} second",
-                "translate1",
-                "translate2"
+        final WordMeaning cruelWordMeaning = new WordMeaning(
+                99L,
+                new ForeignWord(11L, "CRUel", LocalDate.now(), List.of()),
+                PartOfSpeech.ADVERB,
+                null, null, null, null, null, null, emptyList(), emptyList(), null, emptySet()
         );
 
-        assertEquals("first <span class=\"main-word\">my word</span> second", entity.getResolvedPattern());
+        Map.of(
+                "penas {} mano", "penas <span class=\"main-word\">CRUel</span> mano", // as is
+                "penas {crueles}", "penas <span class=\"main-word\">crueles</span>", // use word inside braces
+                "first {|lowercase} second", "first <span class=\"main-word\">cruel</span> second"
+        ).forEach((pattern, resolvedPattern) -> {
+            final var entity = new WordMeaningCollocation(
+                    23L,
+                    cruelWordMeaning,
+                    pattern,
+                    "translate1",
+                    "translate2"
+            );
+
+            assertEquals(resolvedPattern, entity.getResolvedPattern());
+        });
     }
 }

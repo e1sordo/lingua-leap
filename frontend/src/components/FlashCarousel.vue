@@ -14,15 +14,17 @@
                     <h3 class="card-title" :class="{ 'spoiler': !showContexts }" @click="toggleSpoilers">
                         {{ showContexts ? meaning.englishVariant : meaning.russianVariant }}
                     </h3>
-                    <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
-                    <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
 
                     <hr class="border border-secondary border-2 opacity-75 my-4" />
-
-                    <div v-for="collocation in meaning.collocations" :key="collocation.id">
-                        <button type="button" class="btn btn-primary collocation-question-btn m-1"
-                            v-html="collocation.resolvedPattern" />
+                    <div class="d-inline-flex">
+                        <button v-for="collocation in meaning.collocations" :key="collocation.id" type="button"
+                            class="btn btn-primary collocation-question-btn m-1">
+                            {{ showContexts ? collocation.translationEnglish : collocation.translationRussian }}
+                        </button>
                     </div>
+
+                    <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
+                    <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
                 </div>
 
                 <div class="card-footer">

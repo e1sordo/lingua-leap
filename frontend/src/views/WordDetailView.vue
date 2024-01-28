@@ -60,7 +60,7 @@
 
                         <div class="mx-lg-2">
                             <div class="row g-3 mb-3">
-                                <div class="col-3" v-for="collocation in meaning.collocations" :key="collocation.id">
+                                <div class="col-3" v-for="(collocation, colIndex) in meaning.collocations" :key="colIndex">
                                     <div class="card mb-1">
                                         <div class="card-body">
                                             <h5 class="card-title pb-2" v-html="collocation.resolvedPattern" />
@@ -70,10 +70,66 @@
                                             <h6 class="card-subtitle mb-2 text-body-secondary">
                                                 🇺🇸 {{ collocation.translationEnglish }}
                                             </h6>
-                                            <!-- <a href="#" class="card-link">Card link</a> -->
+                                            <a href="#" class="card-link" data-bs-toggle="modal"
+                                                :data-bs-target="'#collocationEditModal' + collocation.id">
+                                                Edit
+                                            </a>
                                             <!-- <a href="#" class="card-link">Another link</a> -->
                                         </div>
                                     </div>
+
+                                    <div class="modal fade" :id="'collocationEditModal' + collocation.id" tabindex="-1"
+                                        aria-labelledby="collocationEditModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="collocationEditModalLabel">
+                                                        Change collocation
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close" />
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form>
+                                                        <div class="mb-3">
+                                                            <label for="collocation-pattern-text" class="col-form-label">
+                                                                Pattern:
+                                                            </label>
+                                                            <input v-model="collocation.pattern" type="text"
+                                                                class="form-control" id="collocation-pattern-text">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="collocation-translation-rus-text"
+                                                                class="col-form-label">
+                                                                🇷🇺:
+                                                            </label>
+                                                            <input v-model="collocation.translationRussian" type="text"
+                                                                class="form-control" id="collocation-translation-rus-text">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="collocation-translation-eng-text"
+                                                                class="col-form-label">
+                                                                🇺🇸:
+                                                            </label>
+                                                            <input v-model="collocation.translationEnglish" type="text"
+                                                                class="form-control" id="collocation-translation-eng-text">
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        Close
+                                                    </button>
+                                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                                        @click="editCollocation(index, colIndex, collocation.pattern, collocation.translationRussian, collocation.translationEnglish)">
+                                                        Change
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -140,6 +196,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -214,6 +271,23 @@ const editImageUrl = async (meaningIndex: number, newImageUrl: string) => {
     const meaningId = meanings.value[meaningIndex].id;
     try {
         api.editImageUrl(meaningId, newImageUrl);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const editCollocation = async (meaningIndex: number, collocationIndex: number, newPattern: string, newRusTranslation: string, newEngTranslation: string) => {
+    meanings.value[meaningIndex].collocations[collocationIndex].pattern = newPattern;
+    meanings.value[meaningIndex].collocations[collocationIndex].translationRussian = newRusTranslation;
+    meanings.value[meaningIndex].collocations[collocationIndex].translationEnglish = newEngTranslation;
+
+    const meaningId = meanings.value[meaningIndex].id;
+    const collocation = meanings.value[meaningIndex].collocations[collocationIndex];
+    try {
+        api.editCollocation(meaningId, collocation.id, collocation)
+            .then((resp) => {
+                meanings.value[meaningIndex].collocations[collocationIndex].resolvedPattern = resp.data.resolvedPattern;
+            });
     } catch (error) {
         console.error(error);
     }

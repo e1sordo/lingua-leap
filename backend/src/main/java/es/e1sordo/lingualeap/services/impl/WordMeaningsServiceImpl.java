@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -85,6 +86,31 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
         }
 
         meaningsRepository.save(wordMeaning);
+    }
+
+    @Override
+    public WordMeaningCollocation editCollocation(final Long meaningId, final Long collocationId, final WordMeaningCollocationDto request) {
+        final WordMeaningCollocation collocation = collocationsRepository.findById(collocationId).orElseThrow(NoSuchElementException::new);
+        if (!Objects.equals(collocation.getWordMeaning().getId(), meaningId)) {
+            throw new IllegalArgumentException("Collocation does not belong to this meaning");
+        }
+
+        if (request.pattern() != null) {
+            log.info("Changing pattern of collocation {} from '{}' to '{}'", collocationId, collocation.getPattern(), request.pattern());
+            collocation.setPattern(request.pattern().trim());
+        }
+
+        if (request.translationRussian() != null) {
+            log.info("Changing russian translation of collocation {} from '{}' to '{}'", collocationId, collocation.getTranslationRussian(), request.translationRussian());
+            collocation.setTranslationRussian(request.translationRussian().trim());
+        }
+
+        if (request.translationEnglish() != null) {
+            log.info("Changing english translation of collocation {} from '{}' to '{}'", collocationId, collocation.getTranslationEnglish(), request.translationEnglish());
+            collocation.setTranslationEnglish(request.translationEnglish().trim());
+        }
+
+        return collocationsRepository.save(collocation);
     }
 
     @Override
