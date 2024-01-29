@@ -90,7 +90,8 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
         final ForeignWord persistedWord = repository.save(word);
 
         addMeaningToSpacedRepetition(persistedWord.getMeanings());
-        wordsToAddLaterRepository.deleteById(persistedWord.getWord());
+        wordsToAddLaterRepository.findByWordIgnoreCase(persistedWord.getWord())
+                .ifPresent(wordsToAddLaterRepository::delete);
     }
 
     private void addMeaningToSmartListOfRecentlyAdded(final WordMeaning meaning) {

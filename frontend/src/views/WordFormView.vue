@@ -40,8 +40,8 @@
 
                         <div class="mb-3">
                             <label for="definition" class="form-label">Определение:</label>
-                            <input v-model="meaning.definition" id="definition" type="text" class="form-control"
-                                aria-label="Word definition" aria-describedby="basic-addon1">
+                            <textarea v-model="meaning.definition" id="definition" type="text" class="form-control"
+                                aria-label="Word definition" aria-describedby="basic-addon1" />
                         </div>
 
                         <div class="mb-3 col-lg-4">
@@ -98,10 +98,10 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-4">
                                     <div class="form-floating">
-                                        <textarea v-model="collocation.pattern"
-                                            :id="'collocation-pattern-' + collocationIndex" type="text" class="form-control"
+                                        <input v-model="collocation.pattern" :id="'collocation-pattern-' + collocationIndex"
+                                            type="text" class="form-control"
                                             @input="handleContexSentenceInput(index, collocationIndex)"
-                                            style="height: 100px" placeholder="Leave a pattern here" />
+                                            placeholder="Leave a pattern here" />
                                         <label :for="'collocation-original-' + collocationIndex">
                                             Коллокация #{{ collocationIndex + 1 }}. Паттерн
                                         </label>
@@ -109,10 +109,9 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-floating">
-                                        <textarea v-model="collocation.translationRussian"
+                                        <input v-model="collocation.translationRussian"
                                             :id="'collocation-translate-russian-' + collocationIndex" type="text"
-                                            class="form-control" style="height: 100px"
-                                            placeholder="Leave a russian translation here" />
+                                            class="form-control" placeholder="Leave a russian translation here" />
                                         <label :for="'collocation-translate-russian-' + collocationIndex">
                                             🇷🇺 Перевод
                                         </label>
@@ -120,10 +119,9 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-floating">
-                                        <textarea v-model="collocation.translationEnglish"
+                                        <input v-model="collocation.translationEnglish"
                                             :id="'collocation-translate-english-' + collocationIndex" type="text"
-                                            class="form-control" style="height: 100px"
-                                            placeholder="Leave a english translation here" />
+                                            class="form-control" placeholder="Leave a english translation here" />
                                         <label :for="'collocation-translate-english-' + collocationIndex">
                                             🇺🇸 Перевод
                                         </label>
@@ -134,7 +132,7 @@
                             <div class="d-flex justify-content-between mb-3">
                                 <button :disabled="collocationIndex !== meaning.collocations.length - 1"
                                     @click.prevent="addCollocation(index)" type="button" class="btn btn-success">
-                                    + пример
+                                    + коллокация
                                 </button>
                                 <button v-if="meaning.collocations.length > 1"
                                     @click.prevent="removeCollocation(index, collocationIndex)" type="button"

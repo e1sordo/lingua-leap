@@ -17,7 +17,7 @@
                 <h1 class="display-1 fw-semibold">{{ word }}</h1>
             </div>
 
-            <div v-for="(meaning, index) in meanings" :key="index" class="card text-start mb-4">
+            <div v-for="(meaning, index) in meanings" :key="index" class="card text-start my-4">
                 <div class="card-body">
 
                     <div class="d-flex justify-content-start align-items-center mb-4">
@@ -60,7 +60,8 @@
 
                         <div class="mx-lg-2">
                             <div class="row g-3 mb-3">
-                                <div class="col-3" v-for="(collocation, colIndex) in meaning.collocations" :key="colIndex">
+                                <div class="col-md-6 col-lg-4 col-xl-3"
+                                    v-for="(collocation, colIndex) in meaning.collocations" :key="colIndex">
                                     <div class="card mb-1">
                                         <div class="card-body">
                                             <h5 class="card-title pb-2" v-html="collocation.resolvedPattern" />
@@ -132,10 +133,11 @@
 
                                 </div>
                             </div>
-                        </div>
 
-                        <AddNewCollocationForm :meaningId="meaning.id"
-                            :onAddItem="(item) => addCollocationLocally(index, item)" />
+                            <AddNewCollocationForm :meaningId="meaning.id"
+                                :onAddItem="(item) => addCollocationLocally(index, item)" />
+
+                        </div>
                     </div>
 
                     <div class="row g-3 my-4">
