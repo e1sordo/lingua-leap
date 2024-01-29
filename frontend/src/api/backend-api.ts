@@ -183,6 +183,10 @@ export default {
         return axiosApi.put('/meanings/' + meaningId + '/collocations/' + collocationId, request);
     },
 
+    removeCollocation(meaningId: number, collocationId: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete('/meanings/' + meaningId + '/collocations/' + collocationId);
+    },
+
     getMeaningsStatistics(): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
         return axiosApi.get('/meanings/statistics');
     },

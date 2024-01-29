@@ -21,4 +21,6 @@ public interface WordMeaningsService {
     WordMeaningCollocation editCollocation(Long meaningId, Long collocationId, WordMeaningCollocationDto request);
 
     List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
+
+    void deleteCollocation(Long meaningId, Long collocationId);
 }

@@ -121,6 +121,10 @@
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                                         Close
                                                     </button>
+                                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                                        @click="removeCollocation(index, colIndex)">
+                                                        Delete
+                                                    </button>
                                                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
                                                         @click="editCollocation(index, colIndex, collocation.pattern, collocation.translationRussian, collocation.translationEnglish)">
                                                         Change
@@ -289,6 +293,19 @@ const editCollocation = async (meaningIndex: number, collocationIndex: number, n
         api.editCollocation(meaningId, collocation.id, collocation)
             .then((resp) => {
                 meanings.value[meaningIndex].collocations[collocationIndex].resolvedPattern = resp.data.resolvedPattern;
+            });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const removeCollocation = async (meaningIndex: number, collocationIndex: number) => {
+    const meaningId = meanings.value[meaningIndex].id;
+    const collocation = meanings.value[meaningIndex].collocations[collocationIndex];
+    try {
+        api.removeCollocation(meaningId, collocation.id)
+            .then(() => {
+                meanings.value[meaningIndex].collocations.splice(collocationIndex, 1);
             });
     } catch (error) {
         console.error(error);

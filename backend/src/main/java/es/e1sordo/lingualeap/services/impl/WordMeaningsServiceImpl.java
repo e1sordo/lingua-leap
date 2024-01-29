@@ -46,6 +46,10 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
 
     @Override
     public WordMeaningCollocation linkCollocation(final Long meaningId, final WordMeaningCollocationDto request) {
+        if (!hasText(request.pattern())) {
+            throw new IllegalArgumentException("Pattern is required");
+        }
+
         final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
 
         final WordMeaningCollocation wordMeaningCollocation = new WordMeaningCollocation();
@@ -116,5 +120,15 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
     @Override
     public List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech() {
         return meaningsRepository.countMeaningsByPartOfSpeech();
+    }
+
+    @Override
+    public void deleteCollocation(final Long meaningId, final Long collocationId) {
+        final WordMeaningCollocation collocation = collocationsRepository.findById(collocationId).orElseThrow(NoSuchElementException::new);
+        if (!Objects.equals(collocation.getWordMeaning().getId(), meaningId)) {
+            throw new IllegalArgumentException("Collocation does not belong to this meaning");
+        }
+
+        collocationsRepository.delete(collocation);
     }
 }

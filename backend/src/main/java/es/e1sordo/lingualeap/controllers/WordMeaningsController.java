@@ -9,6 +9,7 @@ import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
 import es.e1sordo.lingualeap.services.WordMeaningsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,6 +59,12 @@ public class WordMeaningsController {
                                                      @RequestBody WordMeaningCollocationDto request) {
         log.info("Edit Collocation {} of Meaning {}", collocationId, meaningId);
         return Mappings.mapToDto(service.editCollocation(meaningId, collocationId, request));
+    }
+
+    @DeleteMapping("/{meaningId}/collocations/{collocationId}")
+    public void deleteCollocation(@PathVariable Long meaningId, @PathVariable Long collocationId) {
+        log.info("Delete Collocation {} of Meaning {}", collocationId, meaningId);
+        service.deleteCollocation(meaningId, collocationId);
     }
 
     @GetMapping("/statistics")

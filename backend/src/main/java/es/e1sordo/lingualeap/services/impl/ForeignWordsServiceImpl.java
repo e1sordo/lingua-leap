@@ -61,9 +61,14 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
             if (meaningDto.collocations() != null) {
                 for (final var collocationDto : meaningDto.collocations()) {
+                    final String trimmedPattern = collocationDto.pattern().trim();
+                    if (trimmedPattern.isBlank()) {
+                        continue;
+                    }
+
                     final var collocation = new WordMeaningCollocation();
 
-                    collocation.setPattern(collocationDto.pattern().trim());
+                    collocation.setPattern(trimmedPattern);
                     collocation.setTranslationRussian(collocationDto.translationRussian().trim());
                     collocation.setTranslationEnglish(collocationDto.translationEnglish().trim());
                     collocation.setWordMeaning(meaning);
