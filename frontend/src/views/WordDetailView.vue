@@ -212,6 +212,40 @@
                 <div class="col-auto">
                     Дата добавления: {{ addedDate }}
                 </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteWordConfirmationModal">
+                        Delete
+                    </button>
+
+                    <div class="modal fade" id="deleteWordConfirmationModal" tabindex="-1"
+                        aria-labelledby="deleteWordConfirmationModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="deleteWordConfirmationModalLabel">
+                                        Delete word <strong>{{ word }}</strong>
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to delete this word?</p>
+                                    <p>This is unrecoverable action.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                        @click="deleteWord">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -223,7 +257,10 @@ import api, { WordMeaningCollocationDto, WordMeaningContextDto, WordMeaningDto }
 import AddNewCollocationForm from '@/components/AddNewCollocationForm.vue';
 import AddNewContextForm from '@/components/AddNewContextForm.vue';
 import { onMounted, ref } from "vue";
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const word = ref('');
 const meanings = ref([] as WordMeaningDto[]);
@@ -231,8 +268,7 @@ const addedDate = ref(new Date());
 
 const fetchDetails = async () => {
     try {
-        const router = useRoute();
-        const response = await api.getByName(router.params.word as string);
+        const response = await api.getByName(route.params.word as string);
         word.value = response.data.word;
         meanings.value = response.data.meanings;
         addedDate.value = response.data.addedDate;
@@ -311,6 +347,15 @@ const removeCollocation = async (meaningIndex: number, collocationIndex: number)
         console.error(error);
     }
 };
+
+const deleteWord = () => {
+    try {
+        api.deleteWord(word.value);
+        router.push('/');
+    } catch (ex) {
+        console.log("Error", ex);
+    }
+}
 </script>
 
 <style scoped>

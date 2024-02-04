@@ -5,6 +5,7 @@ import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDto;
 import es.e1sordo.lingualeap.dto.RecentlyAddedForeignWordsPageDto;
+import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.WordToAddLater;
@@ -26,6 +27,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @RestController
@@ -66,7 +69,7 @@ public class ForeignWordsController {
                                 word,
                                 meaning.getRussianVariant(),
                                 meaning.getEnglishVariant(),
-                                meaning.getPos(),
+                                ofNullable(meaning.getPos()).orElse(PartOfSpeech.PHRASE),
                                 meaning.getImageUrl(),
                                 meaning.getGender(),
                                 added,
@@ -81,7 +84,7 @@ public class ForeignWordsController {
                         entity.getWord(),
                         firstMeaning.getRussianVariant(),
                         firstMeaning.getEnglishVariant(),
-                        firstMeaning.getPos(),
+                        ofNullable(firstMeaning.getPos()).orElse(PartOfSpeech.PHRASE),
                         firstMeaning.getImageUrl(),
                         firstMeaning.getGender(),
                         entity.getAdded(),
@@ -110,6 +113,12 @@ public class ForeignWordsController {
     public ForeignWordDetailDto getWordDetail(@PathVariable String word) {
         log.info("Get word '{}'", word);
         return Mappings.mapToDto(service.getBy(word));
+    }
+
+    @DeleteMapping(value = "/{word}")
+    public void deleteWord(@PathVariable String word) {
+        log.info("Delete word '{}'", word);
+        service.delete(word);
     }
 
     @GetMapping(value = "/total", produces = MediaType.APPLICATION_JSON_VALUE)

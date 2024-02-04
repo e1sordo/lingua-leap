@@ -119,7 +119,10 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
 
     @Override
     public List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech() {
-        return meaningsRepository.countMeaningsByPartOfSpeech();
+        return meaningsRepository.countMeaningsByPartOfSpeech()
+                .stream()
+                .filter(o -> o.pos() != null)
+                .toList();
     }
 
     @Override

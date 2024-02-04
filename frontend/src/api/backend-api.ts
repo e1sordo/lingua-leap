@@ -161,6 +161,10 @@ export default {
         return axiosApi.get('/words/summary/graph');
     },
 
+    deleteWord(word: string): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`/words/${word}`);
+    },
+
 
     // meanings
     linkContext(meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {

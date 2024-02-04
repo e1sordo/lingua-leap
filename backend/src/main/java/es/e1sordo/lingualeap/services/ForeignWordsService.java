@@ -29,4 +29,6 @@ public interface ForeignWordsService {
     void deleteWordsToAddLater(String word);
 
     Map<LocalDate, Integer> getSummaryGraph();
+
+    void delete(String word);
 }

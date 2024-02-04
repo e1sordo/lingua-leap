@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
+
 @Service
 @RequiredArgsConstructor
 public class ForeignWordsServiceImpl implements ForeignWordsService {
@@ -107,13 +109,20 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
     private static WordMeaning getWordMeaning(final WordMeaningDto meaningDto, final ForeignWord word) {
         final var meaning = new WordMeaning();
 
-        meaning.setPos(meaningDto.pos());
-        if (PartOfSpeech.NOUN == meaningDto.pos()) {
+        final PartOfSpeech partOfSpeech = meaningDto.pos();
+        if (partOfSpeech == null) {
+            throw new IllegalArgumentException("Missing part of speech");
+        }
+
+        meaning.setPos(partOfSpeech);
+        if (PartOfSpeech.NOUN == partOfSpeech) {
             meaning.setGender(meaningDto.gender());
         }
         meaning.setImageUrl(meaningDto.imageUrl());
-        meaning.setRussianVariant(meaningDto.russianVariant());
-        meaning.setEnglishVariant(meaningDto.englishVariant());
+        meaning.setRussianVariant(ofNullable(meaningDto.russianVariant())
+                .orElseThrow(() -> new IllegalArgumentException("Missing russian variant")));
+        meaning.setEnglishVariant(ofNullable(meaningDto.englishVariant())
+                .orElseThrow(() -> new IllegalArgumentException("Missing english variant")));
         meaning.setDefinition(meaningDto.definition());
         meaning.setFrequency(meaningDto.frequency());
         meaning.setLearningStatus(LearningStatus.NEW);
@@ -175,6 +184,12 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
         }
 
         return summary;
+    }
+
+    @Override
+    public void delete(final String word) {
+        final ForeignWord foreignWord = getBy(word);
+        repository.delete(foreignWord);
     }
 
     private void addMeaningToSpacedRepetition(List<WordMeaning> meanings) {
