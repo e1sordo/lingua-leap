@@ -92,6 +92,13 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
         log.info("New word '{}' was added to SpacedRepetition", meaning.getWord().getWord());
     }
 
+    @Override
+    public void deleteWordMeaning(final Long wordMeaningId) {
+        final SM2WordMeaningMeta meta = repository.findByWordId(wordMeaningId).get();
+        repository.delete(meta);
+        log.info("Word '{}' was removed from SpacedRepetition", meta.getWord().getWord());
+    }
+
     private void updateLearningStatusOfWord(final SM2WordMeaningMeta meta) {
         final int repetitionNumber = meta.getRepetitionNumber();
 

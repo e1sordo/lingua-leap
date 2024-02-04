@@ -16,7 +16,7 @@
                     </h3>
 
                     <hr class="border border-secondary border-2 opacity-75 my-4" />
-                    <div class="d-inline-flex">
+                    <div>
                         <button v-for="collocation in meaning.collocations" :key="collocation.id" type="button"
                             class="btn btn-primary collocation-question-btn m-1">
                             {{ showContexts ? collocation.translationEnglish : collocation.translationRussian }}
@@ -53,8 +53,8 @@
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
 
-                    <hr v-if="meaning.collocations" class="border border-secondary border-2 opacity-75 my-4" />
-
+                    <hr v-if="meaning.collocations && meaning.collocations.length > 0"
+                        class="border border-secondary border-2 opacity-75 my-4" />
                     <div class="my-3" v-for="(collocation, collocationIndex) in meaning.collocations"
                         :key="collocationIndex">
                         <p class="user-select-all mb-1" v-html="collocation.resolvedPattern" />
@@ -63,8 +63,8 @@
                         </span>
                     </div>
 
-                    <hr v-if="meaning.contexts" class="border border-secondary border-2 opacity-75 my-4" />
-
+                    <hr v-if="meaning.contexts && meaning.contexts.length > 0"
+                        class="border border-secondary border-2 opacity-75 my-4" />
                     <div class="my-3" v-for="(context, contextIndex) in meaning.contexts" :key="contextIndex">
                         <p class="user-select-all mb-1"><strong>{{ context.sentence }}</strong></p>
                         <span class="text-muted user-select-all">{{ context.translation }}</span>

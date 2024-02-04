@@ -3,6 +3,10 @@
         <div class="container-md mb-5">
 
             <p>
+                <a :href="`https://www.translate.ru/перевод/испанский-русский/${word}`" class="btn btn-outline-success btn-lg m-2"
+                    target="_blank">
+                    PROMT.One
+                </a>
                 <a :href="`https://www.spanishdict.com/translate/${word}`" class="btn btn-outline-primary btn-lg m-2"
                     target="_blank">
                     Span¡shD!ctionary

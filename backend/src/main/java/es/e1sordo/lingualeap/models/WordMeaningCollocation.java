@@ -42,7 +42,7 @@ public class WordMeaningCollocation {
     private String translationEnglish;
 
     public String getResolvedPattern() {
-        return Arrays.stream(pattern.split(" "))
+        return Arrays.stream(splitString(pattern))
                 .map(part -> {
                     if (!part.startsWith("{") || !part.endsWith("}")) {
                         return part;
@@ -68,5 +68,13 @@ public class WordMeaningCollocation {
                     return "<span class=\"main-word\">" + text + "</span>";
                 })
                 .collect(Collectors.joining(" "));
+    }
+
+    private String[] splitString(String input) {
+        // Регулярное выражение для разделения строки по пробелу,
+        // но игнорирование пробелов внутри фигурных скобок
+        String regex = " (?![^\\{]*\\})";
+
+        return input.split(regex);
     }
 }

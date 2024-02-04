@@ -16,4 +16,6 @@ public interface SpacedRepetitionService {
     void addWordMeaning(WordMeaning meaning);
 
     Map<LocalDate, Integer> getSummaryGraph();
+
+    void deleteWordMeaning(Long wordMeaningId);
 }

@@ -189,6 +189,7 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
     @Override
     public void delete(final String word) {
         final ForeignWord foreignWord = getBy(word);
+        foreignWord.getMeanings().forEach(meaning -> spacedRepetitionService.deleteWordMeaning(meaning.getId()));
         repository.delete(foreignWord);
     }
 

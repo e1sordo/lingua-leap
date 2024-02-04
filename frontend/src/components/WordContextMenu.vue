@@ -17,6 +17,12 @@
                 <h6 class="dropdown-header">Tools</h6>
             </li>
             <li>
+                <a class="dropdown-item" :href="`https://www.translate.ru/перевод/испанский-русский/${word}`" target="_blank">
+                    PROMT.One
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </li>
+            <li>
                 <a class="dropdown-item" :href="`https://www.spanishdict.com/translate/${word}`" target="_blank">
                     Span¡shD!ctionary
                     <i class="bi bi-box-arrow-up-right"></i>

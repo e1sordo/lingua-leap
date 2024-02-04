@@ -38,4 +38,24 @@ class WordMeaningCollocationTest {
             assertEquals(resolvedPattern, entity.getResolvedPattern());
         });
     }
+
+    @Test
+    void getResolvedPatternForMultiWord() {
+        final WordMeaning cruelWordMeaning = new WordMeaning(
+                99L,
+                new ForeignWord(11L, "¿Quien sabe?", LocalDate.now(), List.of()),
+                PartOfSpeech.ADVERB,
+                null, null, null, null, null, null, emptyList(), emptyList(), null, emptySet()
+        );
+
+        final var entity = new WordMeaningCollocation(
+                23L,
+                cruelWordMeaning,
+                "pero {quien sabe}",
+                "translate1",
+                "translate2"
+        );
+
+        assertEquals("pero <span class=\"main-word\">quien sabe</span>", entity.getResolvedPattern());
+    }
 }
