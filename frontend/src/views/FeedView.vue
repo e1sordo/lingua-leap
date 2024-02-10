@@ -2,8 +2,30 @@
     <div>
         <div class="container-sm" ref="scrollComponent">
 
-            <calendar-heatmap :end-date="todayDate" :values="summaryGraph" :max="21" :round="3"
-                no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
+            <div class="row g-3 my-4">
+                <div class="col-xl-10">
+                    <calendar-heatmap :end-date="todayDate" :values="summaryGraph" :max="21" :round="3"
+                        no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
+                </div>
+                <div class="col-xl-2 fs-6 fw-lighter">
+                    <div class="d-none d-xl-block text-start">
+                        <br />
+                        <p class="m-2"><strong>{{ addedThisWeek }}</strong> — this week</p>
+                        <p class="m-2"><strong>{{ addedPreviousWeek }}</strong> — previous week</p>
+                        <p class="m-2"><strong>{{ addedThisMonth }}</strong> — this month</p>
+                        <p class="m-2"><strong>{{ addedPreviousMonth }}</strong> — previous month</p>
+                    </div>
+                    <div class="d-xl-none">
+                        <span class="m-2"><strong>{{ addedThisWeek }}</strong> — this week</span>
+                        <span class="m-2"><strong>{{ addedPreviousWeek }}</strong> — previous week</span>
+                        <span class="m-2"><strong>{{ addedThisMonth }}</strong> — this month</span>
+                        <span class="m-2"><strong>{{ addedPreviousMonth }}</strong> — previous month</span>
+                    </div>
+                </div>
+            </div>
+
+
+
 
             <hr class="my-4" />
 
@@ -55,6 +77,10 @@ class DateStatistics {
 const prefersDarkScheme = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
 
 const summaryGraph = ref<DateCountDto[]>([]);
+const addedThisWeek = ref(0);
+const addedPreviousWeek = ref(0);
+const addedThisMonth = ref(0);
+const addedPreviousMonth = ref(0);
 const todayDate = new Date();
 
 const stopLoading = ref(false);
@@ -101,8 +127,13 @@ const fetchLatestWords = async () => {
 
 const fetchSummaryGraph = async () => {
     try {
-        const response = await api.getWordsSummaryGraph();
-        summaryGraph.value = response.data;
+        const response = await api.getAddedWordsStatistics();
+        const dto = response.data;
+        summaryGraph.value = dto.summary;
+        addedThisWeek.value = dto.addedThisWeek;
+        addedPreviousWeek.value = dto.addedPreviousWeek;
+        addedThisMonth.value = dto.addedThisMonth;
+        addedPreviousMonth.value = dto.addedPreviousMonth;
     } catch (error) {
         console.error(error);
     }

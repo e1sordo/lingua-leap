@@ -48,14 +48,14 @@ const routes = [
         component: ListsView
     },
     {
-        path: '/lists/:id',
-        name: 'listDetail',
+        path: '/lists/pos/:pos',
+        name: 'listByPosDetail',
         meta: { title: 'List' },
         component: ListDetailView
     },
     {
-        path: '/lists/pos/:pos',
-        name: 'listDetail',
+        path: '/lists/:id',
+        name: 'listByIdDetail',
         meta: { title: 'List' },
         component: ListDetailView
     },

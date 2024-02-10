@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
+import es.e1sordo.lingualeap.dto.AddedWordsStatisticsDto;
 import es.e1sordo.lingualeap.dto.CountDateDto;
 import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
@@ -153,9 +155,39 @@ public class ForeignWordsController {
         service.deleteWordsToAddLater(word);
     }
 
-    @GetMapping("/summary/graph")
-    public List<CountDateDto> getSummaryGraph() {
-        log.info("Get summary graph");
-        return service.getSummaryGraph().entrySet().stream().map(Mappings::mapToDto).toList();
+    @GetMapping("/statistics")
+    public AddedWordsStatisticsDto getStatistics() {
+        log.info("Get added words statistics");
+        final AtomicInteger addedThisWeek = new AtomicInteger();
+        final AtomicInteger addedPreviousWeek = new AtomicInteger();
+        final AtomicInteger addedThisMonth = new AtomicInteger();
+        final AtomicInteger addedPreviousMonth = new AtomicInteger();
+
+        final List<CountDateDto> data = service.getSummaryGraph().entrySet().stream()
+                .map(Mappings::mapToDto)
+                .peek(dto -> {
+                    final LocalDate date = dto.date();
+
+                    if (date.isAfter(LocalDate.now().minusDays(7))) {
+                        addedThisWeek.addAndGet(dto.count());
+                    } else if (date.isAfter(LocalDate.now().minusDays(14))) {
+                        addedPreviousWeek.addAndGet(dto.count());
+                    }
+
+                    if (date.isAfter(LocalDate.now().minusDays(30))) {
+                        addedThisMonth.addAndGet(dto.count());
+                    } else if (date.isAfter(LocalDate.now().minusDays(60))) {
+                        addedPreviousMonth.addAndGet(dto.count());
+                    }
+                })
+                .toList();
+
+        return new AddedWordsStatisticsDto(
+                data,
+                addedThisWeek.get(),
+                addedPreviousWeek.get(),
+                addedThisMonth.get(),
+                addedPreviousMonth.get()
+        );
     }
 }

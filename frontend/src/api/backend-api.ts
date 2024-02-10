@@ -109,6 +109,14 @@ export interface VocabularyListDetailDto {
     words: WordMeaningDto[];
 }
 
+export interface AddedWordsStatisticsDto {
+    summary: DateCountDto[];
+    addedThisWeek: number;
+    addedPreviousWeek: number;
+    addedThisMonth: number;
+    addedPreviousMonth: number;
+}
+
 export interface DateCountDto {
     date: Date;
     count: number;
@@ -157,8 +165,8 @@ export default {
         return axiosApi.delete('/words/later/' + word);
     },
 
-    getWordsSummaryGraph(): Promise<AxiosResponse<DateCountDto[]>> {
-        return axiosApi.get('/words/summary/graph');
+    getAddedWordsStatistics(): Promise<AxiosResponse<AddedWordsStatisticsDto>> {
+        return axiosApi.get('/words/statistics');
     },
 
     deleteWord(word: string): Promise<AxiosResponse<void>> {
