@@ -11,5 +11,6 @@ public enum PartOfSpeech {
     INTERJECTION,
     DETERMINER,
 
-    PHRASE
+    PHRASE,
+    ABBREVIATION
 }

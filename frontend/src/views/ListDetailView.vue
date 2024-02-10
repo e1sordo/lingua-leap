@@ -77,7 +77,10 @@ export default defineComponent({
     methods: {
         async fetchDetails() {
             try {
-                const response = await api.getListById(parseInt(this.$route.params.id as string));
+                const response = this.$route.path.includes('/pos/')
+                    ? await api.getListByPos(this.$route.params.pos as string)
+                    : await api.getListById(parseInt(this.$route.params.id as string));
+
                 this.listDetail = response.data;
                 this.listCount = this.listDetail.words.length;
 

@@ -54,6 +54,12 @@ const routes = [
         component: ListDetailView
     },
     {
+        path: '/lists/pos/:pos',
+        name: 'listDetail',
+        meta: { title: 'List' },
+        component: ListDetailView
+    },
+    {
         path: '/add',
         name: 'addNewWord',
         meta: { title: 'Add' },

@@ -1,14 +1,17 @@
 package es.e1sordo.lingualeap.services.impl;
 
 import es.e1sordo.lingualeap.dto.UpsertVocabularyListRequestDto;
+import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.repositories.VocabularyListsRepository;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
+import es.e1sordo.lingualeap.services.WordMeaningsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -16,6 +19,7 @@ import java.util.List;
 public class VocabularyListsServiceImpl implements VocabularyListsService {
 
     private final VocabularyListsRepository repository;
+    private final WordMeaningsService wordMeaningsService;
 
     @Override
     public List<VocabularyList> getAll() {
@@ -26,6 +30,18 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
     public VocabularyList getBy(final Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("VocabularyList not found"));
+    }
+
+    @Override
+    public VocabularyList getByPos(final String posStr) {
+        final var pos = PartOfSpeech.valueOf(posStr.toUpperCase());
+        return new VocabularyList(
+                0L,
+                pos.name(),
+                true,
+                new HashSet<>(wordMeaningsService.getAllByPos(pos)),
+                LocalDate.now()
+        );
     }
 
     @Override

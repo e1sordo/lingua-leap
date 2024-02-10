@@ -112,6 +112,10 @@ export default defineComponent({
     background-color: rgba(28, 155, 166, var(--word-pos-bg-opacity));
 }
 
+.pos-abbreviation {
+    background-color: rgba(124, 166, 28, var(--word-pos-bg-opacity));
+}
+
 .male-gender {
     color: rgb(10, 255, 76);
 }

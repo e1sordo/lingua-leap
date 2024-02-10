@@ -10,6 +10,8 @@ public interface VocabularyListsService {
 
     VocabularyList getBy(Long id);
 
+    VocabularyList getByPos(String pos);
+
     VocabularyList getSmartListOfRecentlyAdded();
 
     VocabularyList getSmartListOfProblemWords();

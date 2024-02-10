@@ -3,6 +3,7 @@ package es.e1sordo.lingualeap.services.impl;
 import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
 import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
+import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
@@ -29,6 +30,11 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
     private final WordMeaningsRepository meaningsRepository;
     private final WordMeaningContextsRepository contextsRepository;
     private final WordMeaningCollocationsRepository collocationsRepository;
+
+    @Override
+    public List<WordMeaning> getAllByPos(final PartOfSpeech pos) {
+        return meaningsRepository.findAllByPos(pos);
+    }
 
     @Override
     public WordMeaningContext linkContext(final Long meaningId, final WordMeaningContextDto request) {

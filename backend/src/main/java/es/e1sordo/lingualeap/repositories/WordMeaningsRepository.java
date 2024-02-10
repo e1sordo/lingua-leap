@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.repositories;
 
+import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,6 @@ public interface WordMeaningsRepository extends ListCrudRepository<WordMeaning, 
             GROUP BY m.pos
             """)
     List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
+
+    List<WordMeaning> findAllByPos(PartOfSpeech pos);
 }

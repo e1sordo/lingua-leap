@@ -210,6 +210,10 @@ export default {
         return axiosApi.get(`/lists/${id}`);
     },
 
+    getListByPos(pos: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
+        return axiosApi.get(`/lists/pos/${pos}`);
+    },
+
     deleteList(id: number): Promise<AxiosResponse<void>> {
         return axiosApi.delete(`/lists/${id}`);
     },

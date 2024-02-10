@@ -48,6 +48,12 @@ public class VocabularyListsController {
         return Mappings.mapToDetailDto(service.getBy(listId));
     }
 
+    @GetMapping(value = "/pos/{pos}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public VocabularyListDetailDto getListDetailByPos(@PathVariable String pos) {
+        log.info("Get list by pos '{}'", pos);
+        return Mappings.mapToDetailDto(service.getByPos(pos));
+    }
+
     @DeleteMapping(value = "/{listId}")
     public void deleteList(@PathVariable Long listId) {
         log.info("Delete list by id '{}'", listId);

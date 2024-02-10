@@ -48,11 +48,13 @@
 
     <div class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2 text-nowrap">
-            <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
-                data-bs-placement="bottom">
-                {{ partOfSpeechMeta[meaningStatistics.pos].labelEsp }}:
-            </span>
-            <span class="badge text-bg-secondary pl-2">{{ meaningStatistics.count }}</span>
+            <router-link :to="`/lists/pos/${meaningStatistics.pos}`" class="text-reset text-decoration-none">
+                <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
+                    data-bs-placement="bottom">
+                    {{ partOfSpeechMeta[meaningStatistics.pos].labelEsp }}:
+                </span>
+                <span class="badge text-bg-secondary pl-2">{{ meaningStatistics.count }}</span>
+            </router-link>
         </div>
     </div>
 

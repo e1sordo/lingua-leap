@@ -93,6 +93,14 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
         printOrder: 1,
         bgClass: '',
         textColor: ''
+    },
+    ABBREVIATION: {
+        label: 'Аббревиатура',
+        labelEsp: 'Abreviación',
+        definition: '',
+        printOrder: 11,
+        bgClass: '',
+        textColor: ''
     }
 };
 
