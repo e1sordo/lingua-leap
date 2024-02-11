@@ -54,6 +54,12 @@ const routes = [
         component: ListDetailView
     },
     {
+        path: '/lists/date/:date',
+        name: 'listByDateDetail',
+        meta: { title: 'List' },
+        component: ListDetailView
+    },
+    {
         path: '/lists/:id',
         name: 'listByIdDetail',
         meta: { title: 'List' },

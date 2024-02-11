@@ -77,9 +77,15 @@ export default defineComponent({
     methods: {
         async fetchDetails() {
             try {
-                const response = this.$route.path.includes('/pos/')
-                    ? await api.getListByPos(this.$route.params.pos as string)
-                    : await api.getListById(parseInt(this.$route.params.id as string));
+                let response;
+
+                if (this.$route.path.includes('/pos/')) {
+                    response = await api.getListByPos(this.$route.params.pos as string);
+                } else if (this.$route.path.includes('/date/')) {
+                    response = await api.getListByDate(this.$route.params.date as string);
+                } else {
+                    response = await api.getListById(parseInt(this.$route.params.id as string));
+                }
 
                 this.listDetail = response.data;
                 this.listCount = this.listDetail.words.length;

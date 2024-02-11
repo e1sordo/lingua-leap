@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -34,6 +35,11 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
     @Override
     public List<WordMeaning> getAllByPos(final PartOfSpeech pos) {
         return meaningsRepository.findAllByPos(pos);
+    }
+
+    @Override
+    public List<WordMeaning> getAllByDate(final LocalDate date) {
+        return meaningsRepository.findAllByDate(date);
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -20,4 +21,11 @@ public interface WordMeaningsRepository extends ListCrudRepository<WordMeaning, 
     List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
 
     List<WordMeaning> findAllByPos(PartOfSpeech pos);
+
+    @Query("""
+            SELECT m
+            FROM WordMeaning m
+            WHERE m.word.added = :date
+            """)
+    List<WordMeaning> findAllByDate(LocalDate date);
 }

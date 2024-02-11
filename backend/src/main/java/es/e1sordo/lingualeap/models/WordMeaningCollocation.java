@@ -41,7 +41,7 @@ public class WordMeaningCollocation {
     private String translationRussian;
     private String translationEnglish;
 
-    public String getResolvedPattern() {
+    public String getResolvedPattern(boolean withHtml) {
         return Arrays.stream(splitString(pattern))
                 .map(part -> {
                     if (!part.startsWith("{") || !part.endsWith("}")) {
@@ -65,9 +65,13 @@ public class WordMeaningCollocation {
                         }
                     }
 
-                    return "<span class=\"main-word\">" + text + "</span>";
+                    return withHtml ? "<span class=\"main-word\">" + text + "</span>" : text;
                 })
                 .collect(Collectors.joining(" "));
+    }
+
+    public String getResolvedPattern() {
+        return getResolvedPattern(true);
     }
 
     private String[] splitString(String input) {

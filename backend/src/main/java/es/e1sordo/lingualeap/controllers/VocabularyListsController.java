@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -52,6 +53,12 @@ public class VocabularyListsController {
     public VocabularyListDetailDto getListDetailByPos(@PathVariable String pos) {
         log.info("Get list by pos '{}'", pos);
         return Mappings.mapToDetailDto(service.getByPos(pos));
+    }
+
+    @GetMapping(value = "/date/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public VocabularyListDetailDto getListDetailByDate(@PathVariable LocalDate date) {
+        log.info("Get list by date '{}'", date);
+        return Mappings.mapToDetailDto(service.getByDate(date));
     }
 
     @DeleteMapping(value = "/{listId}")

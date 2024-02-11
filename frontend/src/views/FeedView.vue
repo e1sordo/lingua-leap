@@ -16,16 +16,21 @@
                         <p class="m-2"><strong>{{ addedPreviousMonth }}</strong> — previous month</p>
                     </div>
                     <div class="d-xl-none">
-                        <span class="m-2"><strong>{{ addedThisWeek }}</strong> — this week</span>
-                        <span class="m-2"><strong>{{ addedPreviousWeek }}</strong> — previous week</span>
-                        <span class="m-2"><strong>{{ addedThisMonth }}</strong> — this month</span>
-                        <span class="m-2"><strong>{{ addedPreviousMonth }}</strong> — previous month</span>
+                        <span class="mx-2 d-inline-block text-nowrap">
+                            <strong>{{ addedThisWeek }}</strong> — this week
+                        </span>
+                        <span class="mx-2 d-inline-block text-nowrap">
+                            <strong>{{ addedPreviousWeek }}</strong> — previous week
+                        </span>
+                        <span class="mx-2 d-inline-block text-nowrap">
+                            <strong>{{ addedThisMonth }}</strong> — this month
+                        </span>
+                        <span class="mx-2 d-inline-block text-nowrap">
+                            <strong>{{ addedPreviousMonth }}</strong> — previous month
+                        </span>
                     </div>
                 </div>
             </div>
-
-
-
 
             <hr class="my-4" />
 
@@ -44,8 +49,10 @@
 
             <div v-for="(dateStatistics, index) in datesStatistics" :key="index">
                 <p class="mt-5">
-                    {{ convertDateToSinceString(dateStatistics.date) }}
-                    (<strong>{{ dateStatistics.totalWords }}</strong> слов)
+                    <router-link :to="`/lists/date/${dateStatistics.date}`" class="text-reset text-decoration-none">
+                        {{ convertDateToSinceString(dateStatistics.date) }}
+                        (<strong>{{ dateStatistics.totalWords }}</strong> слов)
+                    </router-link>
                 </p>
                 <RecentlyAddedWords :data="wordsByDate(dateStatistics.date)" />
             </div>

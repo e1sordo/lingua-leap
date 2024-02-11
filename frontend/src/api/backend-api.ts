@@ -222,6 +222,10 @@ export default {
         return axiosApi.get(`/lists/pos/${pos}`);
     },
 
+    getListByDate(date: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
+        return axiosApi.get(`/lists/date/${date}`);
+    },
+
     deleteList(id: number): Promise<AxiosResponse<void>> {
         return axiosApi.delete(`/lists/${id}`);
     },

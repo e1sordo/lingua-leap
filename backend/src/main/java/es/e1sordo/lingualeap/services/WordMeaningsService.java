@@ -9,10 +9,13 @@ import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface WordMeaningsService {
     List<WordMeaning> getAllByPos(PartOfSpeech pos);
+
+    List<WordMeaning> getAllByDate(LocalDate date);
 
     WordMeaningContext linkContext(final Long meaningId, WordMeaningContextDto request);
 

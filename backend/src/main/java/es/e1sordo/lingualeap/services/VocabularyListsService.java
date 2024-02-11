@@ -3,6 +3,7 @@ package es.e1sordo.lingualeap.services;
 import es.e1sordo.lingualeap.dto.UpsertVocabularyListRequestDto;
 import es.e1sordo.lingualeap.models.VocabularyList;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface VocabularyListsService {
@@ -11,6 +12,8 @@ public interface VocabularyListsService {
     VocabularyList getBy(Long id);
 
     VocabularyList getByPos(String pos);
+
+    VocabularyList getByDate(LocalDate date);
 
     VocabularyList getSmartListOfRecentlyAdded();
 

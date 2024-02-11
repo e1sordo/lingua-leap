@@ -2,7 +2,9 @@ package es.e1sordo.lingualeap.services.impl;
 
 import es.e1sordo.lingualeap.dto.UpsertVocabularyListRequestDto;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
+import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
+import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.repositories.VocabularyListsRepository;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
 import es.e1sordo.lingualeap.services.WordMeaningsService;
@@ -10,13 +12,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 @Service
 @RequiredArgsConstructor
 public class VocabularyListsServiceImpl implements VocabularyListsService {
+
+    public static final DateTimeFormatter SPANISH_DATE_FORMATTER = DateTimeFormatter
+            .ofLocalizedDate(FormatStyle.LONG)
+            .localizedBy(Locale.of("es", "ES"));
 
     private final VocabularyListsRepository repository;
     private final WordMeaningsService wordMeaningsService;
@@ -45,6 +57,49 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
     }
 
     @Override
+    public VocabularyList getByDate(final LocalDate date) {
+        final List<WordMeaning> allMeanings = wordMeaningsService.getAllByDate(date);
+
+        final Set<WordMeaning> allMeaningsWithCollocations = new HashSet<>(allMeanings);
+
+        for (WordMeaning meaning : allMeanings) {
+            if (meaning.getCollocations().isEmpty()) continue;
+            final var collocationsAsMeanings = meaning.getCollocations().stream()
+                    .map(collocation -> new WordMeaning(
+                            collocation.getId(),
+                            new ForeignWord(
+                                    meaning.getWord().getId(),
+                                    collocation.getResolvedPattern(false),
+                                    meaning.getWord().getAdded(),
+                                    emptyList()
+                            ),
+                            meaning.getPos(),
+                            meaning.getGender(),
+                            meaning.getImageUrl(),
+                            collocation.getTranslationRussian(),
+                            collocation.getTranslationEnglish(),
+                            meaning.getDefinition(),
+                            meaning.getFrequency(),
+                            emptyList(),
+                            emptyList(),
+                            meaning.getLearningStatus(),
+                            emptySet()
+                    ))
+                    .toList();
+
+            allMeaningsWithCollocations.addAll(collocationsAsMeanings);
+        }
+
+        return new VocabularyList(
+                0L,
+                date.format(SPANISH_DATE_FORMATTER),
+                true,
+                allMeaningsWithCollocations,
+                LocalDate.now()
+        );
+    }
+
+    @Override
     public VocabularyList getSmartListOfRecentlyAdded() {
         return getSmartListByName("New words");
     }
@@ -56,7 +111,7 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
 
     private VocabularyList getSmartListByName(String name) {
         return repository.findByNameAndSmartIsTrue(name).orElseGet(
-                () -> repository.save(new VocabularyList(null, name, true, Collections.emptySet(), LocalDate.now())));
+                () -> repository.save(new VocabularyList(null, name, true, emptySet(), LocalDate.now())));
     }
 
     @Override
