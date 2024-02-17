@@ -15,6 +15,14 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label for="numericType" class="form-label">Тип числительных</label>
+                                    <select v-model="numericType" id="numericType" class="form-select" required>
+                                        <option value="cardinal">Количественные (cardinal)</option>
+                                        <option value="ordinal">Порядковые (ordinal)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
                                     <label for="rangeStart" class="form-label">Начальное значение</label>
                                     <input type="number" v-model="rangeStart" id="rangeStart" class="form-control"
                                         required />
@@ -45,6 +53,16 @@
                                     </div>
                                 </div>
 
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input id="voiceModificationCheck" v-model="voiceModificationCheck"
+                                            class="form-check-input" type="checkbox" role="switch" checked>
+                                        <label class="form-check-label" for="voiceModificationCheck">
+                                            Модификация голоса
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <button class="btn btn-primary mt-3" type="submit">Начать тренировку</button>
                             </form>
                         </div>
@@ -59,7 +77,8 @@
                                     </template>
                                     <template v-else>
                                         Введите это число:<br />
-                                        <span class="fs-5">{{ numberToWords(currentNumber) }}</span>
+                                        <span class="fs-5">{{ numberToWords(currentNumber, numericType == 'ordinal')
+                                        }}</span>
                                     </template>
                                 </p>
 
@@ -128,6 +147,7 @@ interface Result {
 const trainingStarted = ref(false);
 const trainingCompleted = ref(false);
 const totalVariants = ref(20);
+const numericType = ref('cardinal');
 const rangeStart = ref(1);
 const rangeEnd = ref(100);
 const trainingMode = ref('audio');
@@ -142,6 +162,7 @@ const trainingResults = ref([] as Result[]);
 const userInputField = ref(null);
 
 const selectedVoice = ref(0);
+const voiceModificationCheck = ref(false);
 
 const startTraining = () => {
     trainingStarted.value = true;
@@ -227,6 +248,7 @@ const nextNumber = () => {
 };
 
 const speakNumber = (number: number | string) => {
-    speak(number, selectedVoice.value);
+    const input = numericType.value == 'ordinal' ? number + 'º' : number;
+    speak(input, selectedVoice.value, voiceModificationCheck.value);
 }
 </script>

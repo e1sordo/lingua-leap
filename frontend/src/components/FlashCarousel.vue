@@ -15,7 +15,8 @@
                         {{ showContexts ? meaning.englishVariant : meaning.russianVariant }}
                     </h3>
 
-                    <hr class="border border-secondary border-2 opacity-75 my-4" />
+                    <hr v-if="meaning.collocations && meaning.collocations.length > 0"
+                        class="border border-secondary border-2 opacity-75 my-4" />
                     <div>
                         <button v-for="collocation in meaning.collocations" :key="collocation.id" type="button"
                             class="btn btn-primary collocation-question-btn m-1">
@@ -23,8 +24,10 @@
                         </button>
                     </div>
 
-                    <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
-                    <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
+                    <template v-if="meaning.pos != 'ABBREVIATION'">
+                        <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
+                        <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
+                    </template>
                 </div>
 
                 <div class="card-footer">
@@ -39,15 +42,19 @@
                 <div class="card-body">
                     <word-context-menu :word="meaning.word">
                         <h1 class="card-title" @click="speak(meaning.word)">
-                            <small v-if="meaning.gender">
-                                <i v-if="meaning.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
-                                <i v-if="meaning.gender == 'FEMININE'" class="bi bi-gender-female"></i>
-                            </small>
                             {{ meaning.word }}
                         </h1>
                     </word-context-menu>
 
-                    <h4 class="card-title py-1">🇬🇧 {{ meaning.englishVariant }}</h4>
+                    <div class="d-flex justify-content-center align-items-center mx-md-4 my-2">
+                        <small v-if="meaning.gender" class="pe-2">
+                            <i v-if="meaning.gender == 'MASCULINE'" class="bi bi-gender-male"></i>
+                            <i v-if="meaning.gender == 'FEMININE'" class="bi bi-gender-female"></i>
+                        </small>
+                        <small class="fw-lighter fst-italic">{{ meaning.pos }}</small>
+                    </div>
+
+                    <h4 class="card-title">🇬🇧 {{ meaning.englishVariant }}</h4>
                     <h4 class="card-title py-1">🇷🇺 {{ meaning.russianVariant }}</h4>
 
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
@@ -57,7 +64,7 @@
                         class="border border-secondary border-2 opacity-75 my-4" />
                     <div class="my-3" v-for="(collocation, collocationIndex) in meaning.collocations"
                         :key="collocationIndex">
-                        <p class="user-select-all mb-1" v-html="collocation.resolvedPattern" />
+                        <p class="user-select-all mb-1" v-html="collocation.resolvedPattern"></p>
                         <span class="text-muted user-select-all">
                             🇬🇧 {{ collocation.translationEnglish }} (🇷🇺 {{ collocation.translationRussian }})
                         </span>
@@ -74,7 +81,7 @@
                 <div class="card-footer">
                     <div class="d-flex justify-content-between mx-md-4 my-2">
                         <button v-for="score in scores" :key="score.score" @click="submitAnswer(score.score)" type="button"
-                            class="btn border-3" :class="'btn-outline-' + score.color">
+                            class="btn border-3" :class="'btn-outline-' + score.color" :disabled="buttonsDisabled">
                             {{ score.score }}
                         </button>
                     </div>

@@ -55,7 +55,7 @@ export interface ForeignWordDto {
     russianVariant: string;
     englishVariant: string;
     pos: PartOfSpeech | string;
-    imageUrl: string;
+    imageUrl: string | null;
     gender: GrammaticalGender | string | null;
     learningStatus: LearningStatus | string;
     addedDate: Date | null;

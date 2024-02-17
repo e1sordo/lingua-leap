@@ -92,7 +92,78 @@ describe('numberToWords', () => {
 
     Object.entries(testCases).forEach(([input, expectedOutput]) => {
         it(`should convert ${input} to "${expectedOutput}"`, () => {
-            expect(numberToWords(Number(input))).toBe(expectedOutput);
+            expect(numberToWords(Number(input), false)).toBe(expectedOutput);
+        });
+    });
+});
+
+
+describe('ordinalNumberToWords', () => {
+    const testCases: Record<number, string> = {
+        1: "primero",
+        2: "segundo",
+        3: "tercero",
+        4: "cuarto",
+        5: "quinto",
+        6: "sexto",
+        7: "séptimo",
+        8: "octavo",
+        9: "noveno",
+        10: "décimo",
+        11: "undécimo",
+        12: "duodécimo",
+        13: "decimotercero",
+        14: "decimocuarto",
+        15: "decimoquinto",
+        16: "decimosexto",
+        17: "decimoséptimo",
+        18: "decimooctavo",
+        19: "decimonoveno",
+        20: "vigésimo",
+        21: "vigésimo primero",
+        22: "vigésimo segundo",
+        23: "vigésimo tercero",
+        24: "vigésimo cuarto",
+        25: "vigésimo quinto",
+        26: "vigésimo sexto",
+        27: "vigésimo séptimo",
+        28: "vigésimo octavo",
+        29: "vigésimo noveno",
+        30: "trigésimo",
+        31: "trigésimo primero",
+        32: "trigésimo segundo",
+        39: "trigésimo noveno",
+        42: "cuadragésimo segundo",
+        54: "quincuagésimo cuarto",
+        63: "sexagésimo tercero",
+        77: "septuagésimo séptimo",
+        81: "octogésimo primero",
+        96: "nonagésimo sexto",
+        100: "centésimo",
+        101: "centésimo primero",
+        111: "centésimo undécimo",
+        112: "centésimo duodécimo",
+        113: "centésimo decimotercero",
+        120: "centésimo vigésimo",
+        200: "ducentésimo",
+        300: "tricentésimo",
+        400: "cuadrigentésimo",
+        500: "quingentésimo",
+        600: "sexcentésimo",
+        700: "septingentésimo",
+        800: "octogentésimo",
+        900: "noningentésimo",
+        999: "noningentésimo nonagésimo noveno",
+        1000: "milésimo",
+        2000: "dos milésimo",
+        4000: "cuatro milésimo",
+        5000: "cinco milésimo",
+        1000000: "millonésimo"
+    };
+
+    Object.entries(testCases).forEach(([input, expectedOutput]) => {
+        it(`should convert ${input} to "${expectedOutput}"`, () => {
+            expect(numberToWords(Number(input), true)).toBe(expectedOutput);
         });
     });
 });

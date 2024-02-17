@@ -39,7 +39,11 @@ function tripletEnd(triplet: number, idx: number, words: string[]): string[] {
     return words;
 }
 
-export function numberToWords(input: number): string {
+export function numberToWords(input: number, ordinal: boolean): string {
+    if (ordinal) {
+        return ordinalNumberToWords(input);
+    }
+
     // Log the input
     // console.log("Input:", input);
     let words = [];
@@ -124,4 +128,55 @@ export function numberToWords(input: number): string {
     // Log the words length
     // console.log("Words length:", words.length);
     return words.join(" ").replace("uno mil", "un mil");
+}
+
+function ordinalNumberToWords(number: number): string {
+    const units = ['', 'primero', 'segundo', 'tercero', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno'];
+    const specials = ['décimo', 'undécimo', 'duodécimo', 'decimotercero', 'decimocuarto', 'decimoquinto', 'decimosexto', 'decimoséptimo', 'decimooctavo', 'decimonoveno'];
+    const tens = ['', 'décimo', 'vigésimo', 'trigésimo', 'cuadragésimo', 'quincuagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo'];
+    const hundreds = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'cuadrigentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octogentésimo', 'noningentésimo'];
+    const thousands = ['', 'milésimo', 'dos milésimo', 'tres milésimo', 'cuatro milésimo', 'cinco milésimo', 'seis milésimo', 'siete milésimo', 'ocho milésimo', 'nueve milésimo'];
+    const millions = ['', 'millonésimo', 'dos millonésimo', 'tres millonésimo', 'cuatro millonésimo', 'cinco millonésimo', 'seis millonésimo', 'siete millonésimo', 'ocho millonésimo', 'nueve millonésimo'];
+
+    if (number >= 1 && number <= 9) {
+        return units[number];
+    } else if (number >= 10 && number <= 19) {
+        return specials[number - 10];
+    } else if (number >= 20 && number <= 99) {
+        const ten = Math.floor(number / 10);
+        const unit = number % 10;
+        return (tens[ten] + ' ' + units[unit]).trim();
+    } else if (number >= 100 && number <= 999) {
+        const hundred = Math.floor(number / 100);
+        const ten = Math.floor((number % 100) / 10);
+        const unit = number % 10;
+        if (ten === 0 && unit === 0) {
+            return hundreds[hundred];
+        } else {
+            return hundreds[hundred] + ' ' + ordinalNumberToWords(number % 100);
+        }
+    } else if (number >= 1000 && number <= 999999) {
+        const thousand = Math.floor(number / 1000);
+        const hundred = Math.floor((number % 1000) / 100);
+        const ten = Math.floor((number % 100) / 10);
+        const unit = number % 10;
+        if (hundred === 0 && ten === 0 && unit === 0) {
+            return thousands[thousand];
+        } else {
+            return thousands[thousand] + ' ' + ordinalNumberToWords(number % 1000);
+        }
+    } else if (number >= 1000000 && number <= 999999999) {
+        const million = Math.floor(number / 1000000);
+        const thousand = Math.floor((number % 1000000) / 1000);
+        const hundred = Math.floor((number % 1000) / 100);
+        const ten = Math.floor((number % 100) / 10);
+        const unit = number % 10;
+        if (thousand === 0 && hundred === 0 && ten === 0 && unit === 0) {
+            return millions[million];
+        } else {
+            return millions[million] + ' ' + ordinalNumberToWords(number % 1000000);
+        }
+    } else {
+        return 'Number out of range';
+    }
 }
