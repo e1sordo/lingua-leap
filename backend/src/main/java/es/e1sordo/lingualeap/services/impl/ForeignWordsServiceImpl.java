@@ -83,8 +83,20 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
                 for (final var contextDto : meaningDto.contexts()) {
                     final var context = new WordMeaningContext();
 
-                    context.setSentence(contextDto.sentence().trim());
-                    context.setTranslation(contextDto.translation().trim());
+                    final String sentence = contextDto.sentence().trim();
+                    if (sentence.isBlank()) {
+                        continue;
+                    } else {
+                        context.setSentence(sentence);
+                    }
+
+                    final String translation = contextDto.translation().trim();
+                    if (translation.isBlank()) {
+                        continue;
+                    } else {
+                        context.setTranslation(translation);
+                    }
+
                     context.setWordMeaning(meaning);
 
                     meaning.addContext(context);

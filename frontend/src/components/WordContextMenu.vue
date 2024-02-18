@@ -16,22 +16,10 @@
             <li>
                 <h6 class="dropdown-header">Tools</h6>
             </li>
-            <li>
-                <a class="dropdown-item" :href="`https://www.translate.ru/перевод/испанский-русский/${word}`" target="_blank">
-                    PROMT.One
-                    <i class="bi bi-box-arrow-up-right"></i>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item" :href="`https://www.spanishdict.com/translate/${word}`" target="_blank">
-                    Span¡shD!ctionary
-                    <i class="bi bi-box-arrow-up-right"></i>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item" :href="`https://youglish.com/pronounce/${word}/spanish`" target="_blank">
-                    YouGlish
-                    <i class="bi bi-box-arrow-up-right"></i>
+            <li v-for="(service, id) in dictionaryServices" :key="id">
+                <a class="dropdown-item" :href="service.link(word!!)" target="_blank">
+                    {{ service.name }}
+                    <i class="bi bi-box-arrow-up-right text-primary"></i>
                 </a>
             </li>
             <li>
@@ -50,5 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import { dictionaryServices } from '@/constants';
+
 defineProps({ word: String })
 </script>

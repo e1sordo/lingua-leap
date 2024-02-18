@@ -54,6 +54,7 @@ export interface ForeignWordDto {
     word: string;
     russianVariant: string;
     englishVariant: string;
+    definition: string;
     pos: PartOfSpeech | string;
     imageUrl: string | null;
     gender: GrammaticalGender | string | null;
@@ -187,8 +188,12 @@ export default {
         return axiosApi.patch('/meanings/' + meaningId + '/variants', { russian, english });
     },
 
-    editImageUrl(meaningId: number, newImageUrl: string): Promise<AxiosResponse<void>> {
-        return axiosApi.patch('/meanings/' + meaningId + '/image', { newImageUrl });
+    editDefinition(meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
+        return axiosApi.patch('/meanings/' + meaningId + '/definition', { newValue });
+    },
+
+    editImageUrl(meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
+        return axiosApi.patch('/meanings/' + meaningId + '/image', { newValue });
     },
 
     editCollocation(meaningId: number, collocationId: number, request: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {

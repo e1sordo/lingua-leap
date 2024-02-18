@@ -23,6 +23,8 @@ public interface WordMeaningsService {
 
     void editVariants(final Long meaningId, final EditWordMeaningVariantsDto request);
 
+    void editDefinition(final Long meaningId, final String newDefinition);
+
     void editImageUrl(final Long meaningId, final String newUrl);
 
     WordMeaningCollocation editCollocation(Long meaningId, Long collocationId, WordMeaningCollocationDto request);

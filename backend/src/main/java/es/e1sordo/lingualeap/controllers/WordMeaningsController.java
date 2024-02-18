@@ -1,7 +1,7 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.EditWordMeaningImageUrlDto;
 import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
+import es.e1sordo.lingualeap.dto.PatchEditOneFieldDto;
 import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.mapping.Mappings;
@@ -47,10 +47,16 @@ public class WordMeaningsController {
         service.editVariants(meaningId, request);
     }
 
+    @PatchMapping("/{meaningId}/definition")
+    public void editDefinition(@PathVariable Long meaningId, @RequestBody PatchEditOneFieldDto request) {
+        log.info("Edit Definition of Meaning {}", meaningId);
+        service.editDefinition(meaningId, request.newValue());
+    }
+
     @PatchMapping("/{meaningId}/image")
-    public void editImageUrl(@PathVariable Long meaningId, @RequestBody EditWordMeaningImageUrlDto request) {
+    public void editImageUrl(@PathVariable Long meaningId, @RequestBody PatchEditOneFieldDto request) {
         log.info("Edit ImageUrl of Meaning {}", meaningId);
-        service.editImageUrl(meaningId, request.newImageUrl());
+        service.editImageUrl(meaningId, request.newValue());
     }
 
     @PutMapping("/{meaningId}/collocations/{collocationId}")

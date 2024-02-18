@@ -93,10 +93,22 @@ public class WordMeaningsServiceImpl implements WordMeaningsService {
     }
 
     @Override
+    public void editDefinition(final Long meaningId, final String newDefinition) {
+        final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
+
+        if (!newDefinition.equals(wordMeaning.getImageUrl())) {
+            log.info("Changing definition of meaning {}", meaningId);
+            wordMeaning.setDefinition(newDefinition);
+        }
+
+        meaningsRepository.save(wordMeaning);
+    }
+
+    @Override
     public void editImageUrl(final Long meaningId, final String newUrl) {
         final WordMeaning wordMeaning = meaningsRepository.findById(meaningId).orElseThrow(NoSuchElementException::new);
 
-        if (hasText(newUrl) && !newUrl.equals(wordMeaning.getImageUrl())) {
+        if (!newUrl.equals(wordMeaning.getImageUrl())) {
             log.info("Changing image url of meaning {} from '{}' to '{}'", meaningId, wordMeaning.getImageUrl(), newUrl);
             wordMeaning.setImageUrl(newUrl);
         }

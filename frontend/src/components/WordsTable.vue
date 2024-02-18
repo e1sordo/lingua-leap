@@ -13,7 +13,7 @@
                     <th scope="col" @click="toggleMeaningLang()" style="cursor: pointer; width: 45%; max-width: 45%;">
                         Meaning
                     </th>
-                    <th scope="col">(i)</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -28,7 +28,8 @@
                                 <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
                                 <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
                             </small>
-                            {{ word.word }}
+                            <span v-html="word.word"></span>
+                            <i v-if="word.definition" class="bi bi-info-circle ps-1" :title="word.definition"></i>
                         </span>
                     </th>
                     <th class="fw-normal text-break" @click="toggleSpoiler(index)">
@@ -39,7 +40,7 @@
                     </th>
                     <th>
                         <word-context-menu :word="word.word">
-                            <div class="btn btn-sm">(i)</div>
+                            <div class="btn btn-sm"><i class="bi bi-caret-down-fill"></i></div>
                         </word-context-menu>
                     </th>
                 </tr>

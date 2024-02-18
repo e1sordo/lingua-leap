@@ -69,11 +69,11 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
                             collocation.getId(),
                             new ForeignWord(
                                     meaning.getWord().getId(),
-                                    collocation.getResolvedPattern(false),
+                                    collocation.getResolvedPattern(),
                                     meaning.getWord().getAdded(),
                                     emptyList()
                             ),
-                            meaning.getPos(),
+                            PartOfSpeech.PHRASE,
                             meaning.getGender(),
                             meaning.getImageUrl(),
                             collocation.getTranslationRussian(),

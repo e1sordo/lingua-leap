@@ -3,17 +3,9 @@
         <div class="container-md mb-5">
 
             <p>
-                <a :href="`https://www.translate.ru/перевод/испанский-русский/${word}`" class="btn btn-outline-success btn-lg m-2"
-                    target="_blank">
-                    PROMT.One
-                </a>
-                <a :href="`https://www.spanishdict.com/translate/${word}`" class="btn btn-outline-primary btn-lg m-2"
-                    target="_blank">
-                    Span¡shD!ctionary
-                </a>
-                <a :href="`https://youglish.com/pronounce/${word}/spanish`" class="btn btn-outline-success btn-lg m-2"
-                    target="_blank">
-                    YouGlish
+                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(word!!)" class="btn btn-lg m-2"
+                    :class="`btn-outline-${service.color}`" target="_blank">
+                    {{ service.name }}
                 </a>
             </p>
 
@@ -26,9 +18,10 @@
 
                     <div class="d-flex justify-content-start align-items-center mb-4">
                         <h5 class="card-title mb-0 me-3">Значение слова #{{ index + 1 }}</h5>
-                        <span class="me-3">{{ meaning.pos }}</span>
-                        <span v-if="meaning.pos === 'NOUN'">{{ meaning.gender }}</span>
+                        <span class="me-1" v-if="meaning.pos === 'NOUN'">{{ meaning.gender }}</span>
+                        <span>{{ meaning.pos }}</span>
                     </div>
+
 
                     <div class="row g-3 py-3">
                         <div class="col-sm-6">
@@ -55,11 +48,42 @@
                         </div>
                     </div>
 
-                    <div v-if="meaning.definition" class="my-3">
-                        {{ meaning.definition }}
+
+                    <div class="my-4 mb-5">
+                        <h5 class="card-title pb-2">💬 Описание</h5>
+
+                        <div class="ps-2">
+                            {{ meaning.definition }}
+                            <a href="#" class="card-link text-reset text-decoration-none" data-bs-toggle="modal"
+                                :data-bs-target="'#definitionEditModal' + index">
+                                <span v-if="!meaning.definition" class="pe-2">Добавить описание</span>
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+
+                            <ActionModalWindow :id="'definitionEditModal' + index" title="Change definition">
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <textarea v-model="meaning.definition" type="text" class="form-control"
+                                                id="definition-text" style="height: 250px;"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                        @click="editDefinition(index)">
+                                        Change
+                                    </button>
+                                </div>
+                            </ActionModalWindow>
+                        </div>
                     </div>
 
-                    <div class="my-3">
+
+                    <div class="my-4">
                         <h5 class="card-title pb-2">🥇 Популярные коллокации</h5>
 
                         <div class="mx-lg-2">
@@ -83,70 +107,55 @@
                                         </div>
                                     </div>
 
-                                    <div class="modal fade" :id="'collocationEditModal' + collocation.id" tabindex="-1"
-                                        aria-labelledby="collocationEditModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="collocationEditModalLabel">
-                                                        Change collocation
-                                                    </h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close" />
+                                    <ActionModalWindow :id="'collocationEditModal' + collocation.id"
+                                        title="Change collocation">
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="mb-3">
+                                                    <label for="collocation-pattern-text" class="col-form-label">
+                                                        Pattern:
+                                                    </label>
+                                                    <input v-model="collocation.pattern" type="text" class="form-control"
+                                                        id="collocation-pattern-text">
                                                 </div>
-                                                <div class="modal-body">
-                                                    <form>
-                                                        <div class="mb-3">
-                                                            <label for="collocation-pattern-text" class="col-form-label">
-                                                                Pattern:
-                                                            </label>
-                                                            <input v-model="collocation.pattern" type="text"
-                                                                class="form-control" id="collocation-pattern-text">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="collocation-translation-rus-text"
-                                                                class="col-form-label">
-                                                                🇷🇺:
-                                                            </label>
-                                                            <input v-model="collocation.translationRussian" type="text"
-                                                                class="form-control" id="collocation-translation-rus-text">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="collocation-translation-eng-text"
-                                                                class="col-form-label">
-                                                                🇺🇸:
-                                                            </label>
-                                                            <input v-model="collocation.translationEnglish" type="text"
-                                                                class="form-control" id="collocation-translation-eng-text">
-                                                        </div>
-                                                    </form>
+                                                <div class="mb-3">
+                                                    <label for="collocation-translation-rus-text" class="col-form-label">
+                                                        🇷🇺:
+                                                    </label>
+                                                    <input v-model="collocation.translationRussian" type="text"
+                                                        class="form-control" id="collocation-translation-rus-text">
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                        Close
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                                                        @click="removeCollocation(index, colIndex)">
-                                                        Delete
-                                                    </button>
-                                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                                        @click="editCollocation(index, colIndex, collocation.pattern, collocation.translationRussian, collocation.translationEnglish)">
-                                                        Change
-                                                    </button>
+                                                <div class="mb-3">
+                                                    <label for="collocation-translation-eng-text" class="col-form-label">
+                                                        🇺🇸:
+                                                    </label>
+                                                    <input v-model="collocation.translationEnglish" type="text"
+                                                        class="form-control" id="collocation-translation-eng-text">
                                                 </div>
-                                            </div>
+                                            </form>
                                         </div>
-                                    </div>
-
-
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Close
+                                            </button>
+                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                                @click="removeCollocation(index, colIndex)">
+                                                Delete
+                                            </button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                                @click="editCollocation(index, colIndex, collocation.pattern, collocation.translationRussian, collocation.translationEnglish)">
+                                                Change
+                                            </button>
+                                        </div>
+                                    </ActionModalWindow>
                                 </div>
                             </div>
 
                             <AddNewCollocationForm :meaningId="meaning.id"
                                 :onAddItem="(item) => addCollocationLocally(index, item)" />
-
                         </div>
                     </div>
+
 
                     <div class="row g-3 my-4">
                         <div :class="meaning.imageUrl ? 'col-sm-8' : 'col-sm-11'">
@@ -176,36 +185,26 @@
                             <a href="#" data-bs-toggle="modal" :data-bs-target="'#imageUrlEditModal' + meaning.id">🏞️</a>
                         </div>
 
-                        <div class="modal fade" :id="'imageUrlEditModal' + meaning.id" tabindex="-1"
-                            aria-labelledby="imageUrlEditModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="imageUrlEditModalLabel">Change imageUrl</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
+                        <ActionModalWindow :id="'imageUrlEditModal' + meaning.id" title="Change imageUrl">
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="image-url-text" class="col-form-label">Image URL:</label>
+                                        <input v-model="meaning.imageUrl" type="text" class="form-control"
+                                            id="image-url-text">
                                     </div>
-                                    <div class="modal-body">
-                                        <form>
-                                            <div class="mb-3">
-                                                <label for="image-url-text" class="col-form-label">Image URL:</label>
-                                                <input v-model="meaning.imageUrl" type="text" class="form-control"
-                                                    id="image-url-text">
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            Close
-                                        </button>
-                                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                            @click="editImageUrl(index, meaning.imageUrl)">
-                                            Change
-                                        </button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
-                        </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                    @click="editImageUrl(index)">
+                                    Change
+                                </button>
+                            </div>
+                        </ActionModalWindow>
 
                     </div>
                 </div>
@@ -258,8 +257,10 @@
 
 <script setup lang="ts">
 import api, { WordMeaningCollocationDto, WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
+import { dictionaryServices } from '@/constants';
 import AddNewCollocationForm from '@/components/AddNewCollocationForm.vue';
 import AddNewContextForm from '@/components/AddNewContextForm.vue';
+import ActionModalWindow from '@/components/ActionModalWindow.vue';
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from 'vue-router';
 
@@ -311,12 +312,23 @@ const editVariants = async (meaningIndex: number, russianVariant: string | null,
     }
 };
 
-const editImageUrl = async (meaningIndex: number, newImageUrl: string) => {
-    meanings.value[meaningIndex].imageUrl = newImageUrl;
+const editDefinition = async (meaningIndex: number) => {
+    const newDefinition = meanings.value[meaningIndex].definition;
 
     const meaningId = meanings.value[meaningIndex].id;
     try {
-        api.editImageUrl(meaningId, newImageUrl);
+        api.editDefinition(meaningId, newDefinition || '');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const editImageUrl = async (meaningIndex: number) => {
+    const newImageUrl = meanings.value[meaningIndex].imageUrl;
+
+    const meaningId = meanings.value[meaningIndex].id;
+    try {
+        api.editImageUrl(meaningId, newImageUrl || '');
     } catch (error) {
         console.error(error);
     }

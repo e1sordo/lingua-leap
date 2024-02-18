@@ -1,6 +1,14 @@
 <template>
     <div>
         <div class="container-md mb-5">
+
+            <p>
+                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(form.word)"
+                    class="btn btn-lg m-2" :class="`btn-outline-${service.color}`" target="_blank">
+                    {{ service.name }}
+                </a>
+            </p>
+
             <form @submit.prevent="submitForm" class="m-4">
 
                 <div class="input-group input-group-lg mb-4">
@@ -171,11 +179,14 @@
 
                             <div class="d-flex justify-content-between mb-3">
                                 <button :disabled="contextIndex !== meaning.contexts.length - 1"
-                                    @click.prevent="addContext(index)" type="button" class="btn btn-success">+
-                                    пример</button>
+                                    @click.prevent="addContext(index)" type="button" class="btn btn-success">
+                                    + пример
+                                </button>
                                 <button v-if="meaning.contexts.length > 1"
                                     @click.prevent="removeContext(index, contextIndex)" type="button"
-                                    class="btn btn-danger">- удалить</button>
+                                    class="btn btn-danger">
+                                    - удалить
+                                </button>
                             </div>
                         </div>
 
@@ -208,7 +219,7 @@
 
 <script lang="ts">
 import backendApi, { AddNewWordRequestDto, VocabularyListDto } from '@/api/backend-api';
-import { partOfSpeechMeta } from '@/constants';
+import { dictionaryServices, partOfSpeechMeta } from '@/constants';
 import { defineComponent } from 'vue';
 
 const sortedPosArray = Object.entries(partOfSpeechMeta)
@@ -250,9 +261,11 @@ export default defineComponent({
             { label: 'Имя собственное', value: 'PROPER' },
         ];
 
-        return { partOfSpeechList, genderList };
+        return { partOfSpeechList, dictionaryServices, genderList };
     },
     mounted() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         this.fetchAllVocabularyLists();
         this.form.word = this.$route.query.word as string || '';
         this.updatePageTitle();

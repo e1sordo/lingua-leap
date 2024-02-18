@@ -3,7 +3,7 @@
         <template v-if="isWinter">
             <LightRope />
         </template>
-        <nav class="navbar navbar-expand-lg" style="background-color: rgb(0, 93, 235)">
+        <nav class="navbar navbar-expand-lg" style="background-color: rgb(23, 96, 5)">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                     aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,9 +113,9 @@ const isWinterDay = () => {
         // Check if day falls within winter season
         if (month === 11 && day >= 10) { // December 10 or later
             return true;
-        } else if (month === 1 && day <= 19) { // February 19 or earlier
+        } else if (month === 1 && day <= 15) { // February 15 or earlier
             return true;
-        } else {
+        } else if (month === 0) {
             return true;
         }
     }
@@ -162,7 +162,7 @@ provide('decreaseTotalWordsToRepeatToday', decreaseTotalWordsToRepeatToday);
 
 @media (prefers-color-scheme: dark) {
     body {
-        background-color: rgb(1, 36, 49) !important;
+        background-color: rgb(21, 41, 34) !important;
     }
 }
 

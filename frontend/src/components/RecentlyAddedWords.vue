@@ -4,13 +4,13 @@
             <word-context-menu :word="word.word">
                 <div class="text-decoration-none rounded learning-level-side">
                     <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
-                    <span class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
-                        <small v-if="word.gender">
+                    <div class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
+                        <small v-if="word.gender" class="pe-2">
                             <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
                             <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
                         </small>
-                        {{ word.word }}
-                    </span>
+                        <span v-html="word.word"></span>
+                    </div>
                 </div>
             </word-context-menu>
         </div>

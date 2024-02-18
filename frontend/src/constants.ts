@@ -1,5 +1,44 @@
 import i18n from '@/i18n';
 
+interface DictionaryService {
+    name: string;
+    link: (word: string) => string;
+    color: string;
+}
+
+export const dictionaryServices: DictionaryService[] = [
+    {
+        name: 'PROMT.One',
+        link: (word: string) => `https://www.translate.ru/перевод/испанский-русский/${word}`,
+        color: 'success'
+    },
+    {
+        name: 'Span¡shD!ctionary',
+        link: (word: string) => `https://www.spanishdict.com/translate/${word}`,
+        color: 'primary'
+    },
+    {
+        name: 'YouGlish',
+        link: (word: string) => `https://youglish.com/pronounce/${word}/spanish`,
+        color: 'success'
+    },
+    {
+        name: 'RAE',
+        link: (word: string) => `https://dle.rae.es/${word}`,
+        color: 'primary'
+    },
+    {
+        name: 'bab.la',
+        link: (word: string) => `https://es.bab.la/diccionario/espanol/${word}`,
+        color: 'primary'
+    },
+    {
+        name: 'linguatools.de',
+        link: (word: string) => `https://www.linguatools.de/kollokationen-es/bolls/search?utf8=✓&query=${word}&commit=Search+Collocations%21`,
+        color: 'warning'
+    }
+];
+
 interface PartOfSpeechMeta {
     [key: string]: PartOfSpeechMetaItem
 }
