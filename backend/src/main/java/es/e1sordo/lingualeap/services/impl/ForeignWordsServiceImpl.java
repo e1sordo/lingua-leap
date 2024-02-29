@@ -171,7 +171,11 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
     @Override
     public void createWordToAddLater(final String word) {
-        wordsToAddLaterRepository.save(new WordToAddLater(word.trim()));
+        final String trimmedWord = word.trim();
+        final int timesAdded = wordsToAddLaterRepository.findByWordIgnoreCase(trimmedWord)
+                .map(WordToAddLater::getTimesAdded)
+                .orElse(1);
+        wordsToAddLaterRepository.save(new WordToAddLater(word.trim(), timesAdded));
     }
 
     @Override

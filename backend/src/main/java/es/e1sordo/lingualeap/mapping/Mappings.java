@@ -7,17 +7,22 @@ import es.e1sordo.lingualeap.dto.VocabularyListDto;
 import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.dto.WordMeaningDto;
+import es.e1sordo.lingualeap.dto.WordToAddLaterDto;
 import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.VocabularyList;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.WordMeaningCollocation;
 import es.e1sordo.lingualeap.models.WordMeaningContext;
+import es.e1sordo.lingualeap.models.WordToAddLater;
 
 import java.time.LocalDate;
 import java.util.Map;
 
 public final class Mappings {
 
+    public static WordToAddLaterDto mapToDto(WordToAddLater entity) {
+        return new WordToAddLaterDto(entity.getWord(), entity.getTimesAdded());
+    }
 
     public static ForeignWordDetailDto mapToDto(final ForeignWord entity) {
         return new ForeignWordDetailDto(

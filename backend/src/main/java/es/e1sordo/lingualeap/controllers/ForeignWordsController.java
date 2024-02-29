@@ -6,6 +6,7 @@ import es.e1sordo.lingualeap.dto.CreateWordRequestDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDetailDto;
 import es.e1sordo.lingualeap.dto.ForeignWordDto;
 import es.e1sordo.lingualeap.dto.RecentlyAddedForeignWordsPageDto;
+import es.e1sordo.lingualeap.dto.WordToAddLaterDto;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
 import es.e1sordo.lingualeap.mapping.Mappings;
 import es.e1sordo.lingualeap.models.ForeignWord;
@@ -142,10 +143,10 @@ public class ForeignWordsController {
     }
 
     @GetMapping(value = "/later")
-    public List<String> getAllWordsToAddLater() {
+    public List<WordToAddLaterDto> getAllWordsToAddLater() {
         log.info("Get all words to add later");
         return service.getAllWordsToAddLater().stream()
-                .map(WordToAddLater::getWord)
+                .map(Mappings::mapToDto)
                 .toList();
     }
 

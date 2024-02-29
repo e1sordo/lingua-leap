@@ -21,7 +21,7 @@
 
             <hr />
 
-            <div class="row justify-content-center">
+            <!-- <div class="row justify-content-center">
                 <div class="col-lg-9">
 
                     <figure v-for="context  in contexts" :key="context.id">
@@ -46,7 +46,7 @@
                         </template>
                     </article>
                 </div>
-            </div>
+            </div> -->
 
         </div>
     </div>

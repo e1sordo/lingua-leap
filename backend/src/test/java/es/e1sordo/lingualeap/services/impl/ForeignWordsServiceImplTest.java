@@ -131,5 +131,6 @@ class ForeignWordsServiceImplTest {
 
         assertEquals(1, actualResult.size());
         assertEquals("todo", actualResult.get(0).getWord());
+        assertEquals(1, actualResult.get(0).getTimesAdded());
     }
 }

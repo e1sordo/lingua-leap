@@ -42,6 +42,10 @@
                 <div class="card-body">
                     <word-context-menu :word="meaning.word">
                         <h1 class="card-title" @click="speak(meaning.word)">
+                            <small v-if="meaning.gender" class="fw-lighter fst-italic pe-2">
+                                <span v-if="meaning.gender == 'MASCULINE'">EL</span>
+                                <span v-if="meaning.gender == 'FEMININE'">LA</span>
+                            </small>
                             {{ meaning.word }}
                         </h1>
                     </word-context-menu>
@@ -54,8 +58,8 @@
                         <small class="fw-lighter fst-italic">{{ meaning.pos }}</small>
                     </div>
 
-                    <h4 class="card-title">🇬🇧 {{ meaning.englishVariant }}</h4>
-                    <h4 class="card-title py-1">🇷🇺 {{ meaning.russianVariant }}</h4>
+                    <h4 class="card-title py-1">🇷🇺 {{ meaning.russianVariant }} 🇷🇺</h4>
+                    <h4 class="card-title">🇬🇧 {{ meaning.englishVariant }} 🇬🇧</h4>
 
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>

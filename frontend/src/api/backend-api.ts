@@ -122,6 +122,10 @@ export interface DateCountDto {
     date: Date;
     count: number;
 }
+export interface AddLaterWordDto {
+    word: string;
+    timesAdded: number;
+}
 
 export default {
     heartbeat(): Promise<AxiosResponse<void>> {
@@ -158,7 +162,7 @@ export default {
         return response.data.total;
     },
 
-    getAllAddLaterWords(): Promise<AxiosResponse<string[]>> {
+    getAllAddLaterWords(): Promise<AxiosResponse<AddLaterWordDto[]>> {
         return axiosApi.get('/words/later');
     },
 

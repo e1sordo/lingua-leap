@@ -37,10 +37,12 @@
             <div v-if="addLaterWords.length > 0" class="text-center">
                 <h5>Total words to add: <strong>{{ addLaterWords.length }}</strong></h5>
                 <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 d-inline-flex btn-group" role="group">
-                    <button @click="$router.push('/add?word=' + word)" type="button" class="btn btn-outline-success btn-sm">
-                        <strong>{{ word }}</strong>
+                    <button @click="$router.push('/add?word=' + word.word)" type="button"
+                        class="btn btn-outline-success btn-sm">
+                        <i v-if="word.timesAdded > 1" class="bi pe-1" :class="`bi-${word.timesAdded}-circle-fill`"></i>
+                        <strong>{{ word.word }}</strong>
                     </button>
-                    <button @click="deleteWordFromAddLater(word)" type="button" class="btn btn-outline-success btn-sm">
+                    <button @click="deleteWordFromAddLater(word.word)" type="button" class="btn btn-outline-success btn-sm">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </div>
@@ -62,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import api, { DateCountDto, ForeignWordDto } from "@/api/backend-api";
+import api, { DateCountDto, ForeignWordDto, AddLaterWordDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
 import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
 import { convertDateToSinceString } from '@/utils/convertDateToSinceString';
@@ -98,7 +100,7 @@ const scrollComponent = ref<HTMLDivElement>();
 
 const latestWords = ref(new Set<ForeignWordDto>());
 const lastLoadedWordId = ref(-1);
-const addLaterWords = ref([] as string[]);
+const addLaterWords = ref([] as AddLaterWordDto[]);
 
 const fetchLatestWords = async () => {
     if (isLoading.value) {
@@ -192,7 +194,7 @@ const datesStatistics = computed(() => {
 
 const deleteWordFromAddLater = (word: string) => {
     api.deleteWordFromAddLaterList(word).then(() => {
-        addLaterWords.value = addLaterWords.value.filter(w => w !== word);
+        addLaterWords.value = addLaterWords.value.filter(w => w.word !== word);
     });
 };
 
