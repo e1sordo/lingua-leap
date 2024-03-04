@@ -28,5 +28,7 @@ public interface ForeignWordsRepository extends ListCrudRepository<ForeignWord, 
 
     Optional<ForeignWord> findByWord(String word);
 
+    Optional<ForeignWord> findByWordIgnoreCase(String word);
+
     boolean existsByWord(String word);
 }

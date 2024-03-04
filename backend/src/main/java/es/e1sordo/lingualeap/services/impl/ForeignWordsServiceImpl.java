@@ -173,14 +173,14 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
     public void createWordToAddLater(final String word) {
         final String trimmedWord = word.trim();
 
-        if (repository.findByWord(trimmedWord).isPresent()) {
+        if (repository.findByWordIgnoreCase(trimmedWord).isPresent()) {
             return;
         }
 
-        final int timesAdded = wordsToAddLaterRepository.findByWordIgnoreCase(trimmedWord)
-                .map(WordToAddLater::getTimesAdded)
-                .orElse(1);
-        wordsToAddLaterRepository.save(new WordToAddLater(word.trim(), timesAdded));
+        final var wordToAddLater = wordsToAddLaterRepository.findByWordIgnoreCase(trimmedWord)
+                .orElseGet(() -> new WordToAddLater(trimmedWord, 0));
+        wordToAddLater.incrementTimesAdded();
+        wordsToAddLaterRepository.save(wordToAddLater);
     }
 
     @Override

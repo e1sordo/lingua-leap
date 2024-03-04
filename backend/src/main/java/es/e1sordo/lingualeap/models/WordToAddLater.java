@@ -26,4 +26,8 @@ public class WordToAddLater {
 
     @Column(columnDefinition = "integer default 1")
     private int timesAdded;
+
+    public void incrementTimesAdded() {
+        this.timesAdded++;
+    }
 }

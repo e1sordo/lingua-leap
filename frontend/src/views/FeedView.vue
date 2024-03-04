@@ -39,7 +39,7 @@
                 <div v-for="(word, index) in addLaterWords" :key="index" class="m-2 d-inline-flex btn-group" role="group">
                     <button @click="$router.push('/add?word=' + word.word)" type="button"
                         class="btn btn-outline-success btn-sm">
-                        <i v-if="word.timesAdded > 1" class="bi pe-1" :class="`bi-${word.timesAdded}-circle-fill`"></i>
+                        <i v-if="word.timesAdded > 1" class="bi pe-1" :class="`bi-${word.timesAdded}-circle-fill text-warning`"></i>
                         <strong>{{ word.word }}</strong>
                     </button>
                     <button @click="deleteWordFromAddLater(word.word)" type="button" class="btn btn-outline-success btn-sm">
@@ -53,7 +53,7 @@
                 <p class="mt-5">
                     <router-link :to="`/lists/date/${dateStatistics.date}`" class="text-reset text-decoration-none">
                         {{ convertDateToSinceString(dateStatistics.date) }}
-                        (<strong>{{ dateStatistics.totalWords }}</strong> слов)
+                        (<strong>{{ dateStatistics.totalWords }}</strong> palabras)
                     </router-link>
                 </p>
                 <RecentlyAddedWords :data="wordsByDate(dateStatistics.date)" />
