@@ -23,10 +23,12 @@
 
             <hr class="my-5" />
 
-            <calendar-heatmap allowFutureDays :end-date="datePlusYear" :values="summaryGraph"
-                :max="50" :round="3" no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
+            <calendar-heatmap allowFutureDays :end-date="datePlusYear" :values="summaryGraph" :max="50" :round="3"
+                no-data-text="No words for this day" tooltip-unit="words" :darkMode="prefersDarkScheme" />
 
             <hr class="my-5" />
+
+            <p>Total de palabras de hoy: {{ todayWords.length }}</p>
 
             <div class="row justify-content-center">
                 <div class="col-lg-7">

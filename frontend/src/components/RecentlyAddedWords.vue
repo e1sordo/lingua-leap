@@ -1,18 +1,19 @@
 <template>
     <div>
         <div v-for="word in sortedData" :key="word.id" class="m-2 m-md-3 d-inline-flex">
-            <word-context-menu :word="word.word">
-                <div class="text-decoration-none rounded learning-level-side">
-                    <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
-                    <div class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
+            <div class="text-decoration-none rounded learning-level-side">
+                <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
+                <div class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
+                    <word-context-menu :word="word.word">
                         <small v-if="word.gender" class="pe-2">
                             <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
                             <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
                         </small>
                         <span v-html="word.word"></span>
-                    </div>
+                    </word-context-menu>
                 </div>
-            </word-context-menu>
+                <i v-if="listView" class="bi bi-folder-minus mx-2" type="button" @click="$emit('removeFromList', word)"></i>
+            </div>
         </div>
     </div>
 </template>
@@ -32,6 +33,11 @@ export default defineComponent({
             type: Array,
             required: true,
             default: () => ([])
+        },
+        listView: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     setup() {
@@ -119,6 +125,7 @@ export default defineComponent({
 .male-gender {
     color: rgb(10, 255, 76);
 }
+
 .female-gender {
     color: rgb(255, 133, 247);
 }

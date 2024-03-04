@@ -21,5 +21,7 @@ public interface VocabularyListsService {
 
     VocabularyList upsertList(UpsertVocabularyListRequestDto request);
 
+    void removeWordFromList(Long listId, Long wordMeaningId);
+
     void delete(Long id);
 }

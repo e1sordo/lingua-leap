@@ -235,6 +235,10 @@ export default {
         return axiosApi.get(`/lists/date/${date}`);
     },
 
+    removeWordFromList(id: number, meaningId: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`/lists/${id}/words/${meaningId}`);
+    },
+
     deleteList(id: number): Promise<AxiosResponse<void>> {
         return axiosApi.delete(`/lists/${id}`);
     },

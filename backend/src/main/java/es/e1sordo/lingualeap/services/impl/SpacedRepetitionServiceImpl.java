@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -31,9 +33,17 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
 
     @Override
     public List<WordMeaning> getTodayWords() {
-        return repository.findByPlannedReviewLessThanEqual(LocalDate.now()).stream()
-                .map(SM2WordMeaningMeta::getWord)
-                .toList();
+        final Supplier<Stream<SM2WordMeaningMeta>> allPlanedWordsStream = ()
+                -> repository.findByPlannedReviewLessThanEqual(LocalDate.now()).stream();
+
+        var allPlanedWords = allPlanedWordsStream.get();
+
+        final boolean hasNotNewlyCreatedWords = allPlanedWordsStream.get().anyMatch(meta -> meta.getTotalRepetitions() > 0);
+        if (hasNotNewlyCreatedWords) {
+            allPlanedWords = allPlanedWords.filter(meta -> meta.getTotalRepetitions() > 0);
+        }
+
+        return allPlanedWords.map(SM2WordMeaningMeta::getWord).toList();
     }
 
     @Override

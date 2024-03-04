@@ -10,6 +10,19 @@
                     Detail
                 </router-link>
             </li>
+
+            <li v-if="customActions?.length || 0 > 0">
+                <hr class="dropdown-divider" />
+            </li>
+            <li v-if="customActions?.length || 0 > 0">
+                <h6 class="dropdown-header">Custom actions</h6>
+            </li>
+            <li v-for="(action, index) in customActions" :key="index">
+                <a class="dropdown-item" :href="action.link" target="_blank">
+                    {{ action.name }}
+                </a>
+            </li>
+
             <li>
                 <hr class="dropdown-divider" />
             </li>
@@ -22,23 +35,21 @@
                     <i class="bi bi-box-arrow-up-right text-primary"></i>
                 </a>
             </li>
-            <li>
-                <hr class="dropdown-divider" />
-            </li>
-            <li>
-                <h6 class="dropdown-header">Lists</h6>
-            </li>
-            <li>
-                <a class="dropdown-item" href="#">
-                    Separated link
-                </a>
-            </li>
         </ul>
     </div>
 </template>
 
 <script setup lang="ts">
 import { dictionaryServices } from '@/constants';
+import { PropType } from 'vue';
 
-defineProps({ word: String })
+interface CustomAction {
+    name: string;
+    link: string;
+}
+
+defineProps({
+    word: String,
+    customActions: Array as PropType<CustomAction[]>,
+})
 </script>

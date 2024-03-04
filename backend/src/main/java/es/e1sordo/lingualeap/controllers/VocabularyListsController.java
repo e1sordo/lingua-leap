@@ -61,6 +61,12 @@ public class VocabularyListsController {
         return Mappings.mapToDetailDto(service.getByDate(date));
     }
 
+    @DeleteMapping(value = "/{listId}/words/{wordMeaningId}")
+    public void removeWordFromList(@PathVariable Long listId, @PathVariable Long wordMeaningId) {
+        log.info("Remove word '{}' from list by id '{}'", wordMeaningId, listId);
+        service.removeWordFromList(listId, wordMeaningId);
+    }
+
     @DeleteMapping(value = "/{listId}")
     public void deleteList(@PathVariable Long listId) {
         log.info("Delete list by id '{}'", listId);

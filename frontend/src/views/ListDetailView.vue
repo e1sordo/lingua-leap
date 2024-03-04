@@ -8,7 +8,7 @@
 
             <p>Список состоит из {{ listCount }} слов</p>
 
-            <RecentlyAddedWords :data="listDetail.words" />
+            <RecentlyAddedWords :data="listDetail.words" :list-view="true" @removeFromList="removeFromList" />
 
             <hr />
 
@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import api, { VocabularyListDetailDto, WordMeaningContextDto } from "@/api/backend-api";
+import api, { VocabularyListDetailDto, WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
 import WordsTable from '@/components/WordsTable.vue';
 import { defineComponent } from 'vue';
@@ -101,6 +101,12 @@ export default defineComponent({
         },
         toggleShuffleBit() {
             this.shuffleRefreshingBit = !this.shuffleRefreshingBit;
+        },
+        removeFromList(word: WordMeaningDto) {
+            api.removeWordFromList(this.listDetail.id, word.id).then(() => {
+                this.listDetail.words = this.listDetail.words.filter(w => w.id !== word.id);
+                this.listCount = this.listDetail.words.length;
+            });
         }
     }
 });

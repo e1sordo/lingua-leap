@@ -131,6 +131,20 @@ public class VocabularyListsServiceImpl implements VocabularyListsService {
     }
 
     @Override
+    public void removeWordFromList(final Long listId, final Long wordMeaningId) {
+        final var list = repository.findById(listId).orElseThrow(() -> new RuntimeException("VocabularyList not found"));
+        final boolean removed = list.getMeanings().removeIf(wordMeaning -> {
+            if (wordMeaning.getId().equals(wordMeaningId)) {
+                wordMeaning.getListsContaining().remove(list);
+                return true;
+            }
+            return false;
+        });
+        if (!removed) throw new RuntimeException("WordMeaning not found in VocabularyList");
+        repository.save(list);
+    }
+
+    @Override
     public void delete(final Long id) {
         final var list = repository.findById(id).orElseThrow(() -> new RuntimeException("VocabularyList not found"));
         if (list.isSmart()) throw new RuntimeException("Cannot delete smart list!");
