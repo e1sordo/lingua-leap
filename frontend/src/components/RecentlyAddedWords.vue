@@ -1,20 +1,38 @@
 <template>
     <div>
-        <div v-for="word in sortedData" :key="word.id" class="m-2 m-md-3 d-inline-flex">
-            <div class="text-decoration-none rounded learning-level-side">
-                <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
-                <div class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
-                    <word-context-menu :word="word.word">
-                        <small v-if="word.gender" class="pe-2">
-                            <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
-                            <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
-                        </small>
-                        <span v-html="word.word"></span>
-                    </word-context-menu>
+        <template v-for="word in sortedData" :key="word.id">
+            <div class="m-2 m-md-3 d-inline-flex">
+                <div class="text-decoration-none rounded learning-level-side">
+                    <i class="bi mx-2" :class="iconsByLearningStatus[word.learningStatus]"></i>
+                    <div class="fs-5 fw-normal py-2 px-3 badge word-text" :class="'pos-' + word.pos.toLowerCase()">
+                        <word-context-menu :word="word.word">
+                            <small v-if="word.gender" class="pe-2">
+                                <i v-if="word.gender == 'MASCULINE'" class="bi bi-gender-male male-gender"></i>
+                                <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
+                            </small>
+                            <span v-html="word.word"></span>
+                        </word-context-menu>
+                    </div>
+                    <i v-if="listView" class="bi bi-folder-minus mx-2" type="button" data-bs-toggle="modal"
+                        :data-bs-target="'#confirmationModal' + word.id"></i>
                 </div>
-                <i v-if="listView" class="bi bi-folder-minus mx-2" type="button" @click="$emit('removeFromList', word)"></i>
             </div>
-        </div>
+
+            <ActionModalWindow v-if="listView" :id="'confirmationModal' + word.id" title="Delete from list">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete word from this list?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                        @click="$emit('removeFromList', word)">
+                        Delete
+                    </button>
+                </div>
+            </ActionModalWindow>
+        </template>
     </div>
 </template>
 
@@ -22,11 +40,12 @@
 import { partOfSpeechMeta } from '@/constants';
 import { defineComponent } from 'vue';
 import WordContextMenu from '@/components/WordContextMenu.vue';
+import ActionModalWindow from '@/components/ActionModalWindow.vue';
 
 export default defineComponent({
     name: 'RecentlyAddedWords',
     components: {
-        WordContextMenu
+        WordContextMenu, ActionModalWindow
     },
     props: {
         data: {

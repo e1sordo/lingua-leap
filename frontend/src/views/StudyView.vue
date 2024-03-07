@@ -36,7 +36,7 @@
                         <WordsTable :data="todayWords" :refresh="shuffleRefreshingBit" />
                     </div>
                     <button class="btn btn-primary mt-2" @click="toggleSpoiler">
-                        {{ isSpoilerVisible ? 'Скрыть' : 'Показать' }} всю таблицу
+                        {{ isSpoilerVisible ? 'Ocultar' : 'Mostrar' }} toda la tabla
                     </button>
 
                     <hr class="my-5" />

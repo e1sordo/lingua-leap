@@ -27,32 +27,21 @@
                     </button>
                 </div>
 
-                <div class="modal fade" :id="'confirmationModal' + wordsList.id" tabindex="-1"
-                    aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="confirmationModalLabel">
-                                    Delete list <strong>{{ wordsList.name }}</strong>
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Are you sure you want to delete this list?</p>
-                                <p>This is unrecoverable action.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                                    @click="deleteList(wordsList.id)">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
+                <ActionModalWindow :id="'confirmationModal' + wordsList.id" title="Delete list">
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this list?</p>
+                        <p>This is unrecoverable action.</p>
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            @click="deleteList(wordsList.id)">
+                            Delete
+                        </button>
+                    </div>
+                </ActionModalWindow>
             </div>
 
         </div>
@@ -61,6 +50,7 @@
 
 <script setup lang="ts">
 import api, { VocabularyListDto } from "@/api/backend-api";
+import ActionModalWindow from '@/components/ActionModalWindow.vue';
 import { onMounted, ref } from 'vue';
 
 const lists = ref([] as VocabularyListDto[]);

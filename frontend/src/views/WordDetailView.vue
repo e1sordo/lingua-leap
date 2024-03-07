@@ -3,8 +3,8 @@
         <div class="container-md mb-5">
 
             <p>
-                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(word!!)" class="btn btn-lg m-2"
-                    :class="`btn-outline-${service.color}`" target="_blank">
+                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(word!!)"
+                    class="btn btn-lg m-2" :class="`btn-outline-${service.color}`" target="_blank">
                     {{ service.name }}
                 </a>
             </p>
@@ -115,18 +115,20 @@
                                                     <label for="collocation-pattern-text" class="col-form-label">
                                                         Pattern:
                                                     </label>
-                                                    <input v-model="collocation.pattern" type="text" class="form-control"
-                                                        id="collocation-pattern-text">
+                                                    <input v-model="collocation.pattern" type="text"
+                                                        class="form-control" id="collocation-pattern-text">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="collocation-translation-rus-text" class="col-form-label">
+                                                    <label for="collocation-translation-rus-text"
+                                                        class="col-form-label">
                                                         🇷🇺:
                                                     </label>
                                                     <input v-model="collocation.translationRussian" type="text"
                                                         class="form-control" id="collocation-translation-rus-text">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="collocation-translation-eng-text" class="col-form-label">
+                                                    <label for="collocation-translation-eng-text"
+                                                        class="col-form-label">
                                                         🇺🇸:
                                                     </label>
                                                     <input v-model="collocation.translationEnglish" type="text"
@@ -182,7 +184,8 @@
                             </a>
                         </div>
                         <div v-else class="col-sm-1 text-end">
-                            <a href="#" data-bs-toggle="modal" :data-bs-target="'#imageUrlEditModal' + meaning.id">🏞️</a>
+                            <a href="#" data-bs-toggle="modal"
+                                :data-bs-target="'#imageUrlEditModal' + meaning.id">🏞️</a>
                         </div>
 
                         <ActionModalWindow :id="'imageUrlEditModal' + meaning.id" title="Change imageUrl">

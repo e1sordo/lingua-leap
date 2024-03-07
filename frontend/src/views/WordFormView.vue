@@ -52,14 +52,19 @@
                                 aria-label="Word definition" aria-describedby="basic-addon1" />
                         </div>
 
-                        <div class="mb-3 col-lg-4">
+                        <div class="mb-3">
                             <label for="vocabularyLists" class="form-label">Добавление в списки:</label>
-                            <select multiple v-model="meaning.lists" id="vocabularyLists" class="form-select">
-                                <option v-for="list in allVocabularyLists" :key="list.id" :value="list"
-                                    :selected="meaning.lists.map(l => l.id).includes(list.id)">
-                                    {{ list.name }}
-                                </option>
-                            </select>
+                            <VueMultiselect id="vocabularyLists" v-model="meaning.lists" :options="allVocabularyLists"
+                                :close-on-select="true" placeholder="Выберите списки" :multiple="true" label="name"
+                                track-by="id">
+                                <template #singleLabel="props">
+                                    {{ props.option.name }}
+                                </template>
+
+                                <template #option="props">
+                                    {{ props.option.name }}
+                                </template>
+                            </VueMultiselect>
                         </div>
 
                         <div class="mb-3">
@@ -69,7 +74,8 @@
 
                             <div v-if="meaning.imageUrl" class="row mt-1">
                                 <div class="col-lg-3 col-md-6 col-sm-9">
-                                    <img :src="meaning.imageUrl" alt="Image" class="img-fluid w-100 img-thumbnail mt-2" />
+                                    <img :src="meaning.imageUrl" alt="Image"
+                                        class="img-fluid w-100 img-thumbnail mt-2" />
                                 </div>
                             </div>
                         </div>
@@ -87,11 +93,13 @@
                             <label for="grammaticalGender" class="form-label">Род существительного:</label>
                             <div class="w-100" />
                             <div class="btn-group" role="group" aria-label="Radio toggle for grammatial gender of noun">
+
                                 <template v-for="(gender, genderIndex) in genderList" :key="genderIndex">
                                     <input type="radio" class="btn-check" :name="index + 'btnradio'"
                                         v-model="meaning.gender" autocomplete="off" :value="gender.value"
                                         :id="index + 'grammaticalGender' + genderIndex">
-                                    <label class="btn btn-outline-primary" :for="index + 'grammaticalGender' + genderIndex">
+                                    <label class="btn btn-outline-primary"
+                                        :for="index + 'grammaticalGender' + genderIndex">
                                         {{ gender.label }}
                                     </label>
                                 </template>
@@ -106,8 +114,9 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-4">
                                     <div class="form-floating">
-                                        <input v-model="collocation.pattern" :id="'collocation-pattern-' + collocationIndex"
-                                            type="text" class="form-control"
+                                        <input v-model="collocation.pattern"
+                                            :id="'collocation-pattern-' + collocationIndex" type="text"
+                                            class="form-control"
                                             @input="handleContexSentenceInput(index, collocationIndex)"
                                             placeholder="Leave a pattern here" />
                                         <label :for="'collocation-original-' + collocationIndex">
@@ -160,8 +169,8 @@
                                     <div class="form-floating">
                                         <textarea v-model="context.sentence" :id="'context-original-' + contextIndex"
                                             type="text" class="form-control"
-                                            @input="handleContexSentenceInput(index, contextIndex)" style="height: 100px"
-                                            placeholder="Leave a sentence here" />
+                                            @input="handleContexSentenceInput(index, contextIndex)"
+                                            style="height: 100px" placeholder="Leave a sentence here" />
                                         <label :for="'context-original-' + contextIndex">
                                             Пример #{{ contextIndex + 1 }}. Исходная фраза
                                         </label>
@@ -169,9 +178,9 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-floating">
-                                        <textarea v-model="context.translation" :id="'context-translate-' + contextIndex"
-                                            type="text" class="form-control" style="height: 100px"
-                                            placeholder="Leave a translation here" />
+                                        <textarea v-model="context.translation"
+                                            :id="'context-translate-' + contextIndex" type="text" class="form-control"
+                                            style="height: 100px" placeholder="Leave a translation here" />
                                         <label :for="'context-translate-' + contextIndex">Перевод</label>
                                     </div>
                                 </div>
@@ -221,12 +230,16 @@
 import backendApi, { AddNewWordRequestDto, VocabularyListDto } from '@/api/backend-api';
 import { dictionaryServices, partOfSpeechMeta } from '@/constants';
 import { defineComponent } from 'vue';
+import VueMultiselect from 'vue-multiselect';
 
 const sortedPosArray = Object.entries(partOfSpeechMeta)
     .map(([key, { label, printOrder }]) => ({ label, value: key, printOrder }))
     .sort((a, b) => a.printOrder - b.printOrder);
 
 export default defineComponent({
+    components: {
+        VueMultiselect
+    },
     data() {
         return {
             allVocabularyLists: [] as VocabularyListDto[],
@@ -353,6 +366,8 @@ export default defineComponent({
                 },
             ];
             this.updatePageTitle();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         submitForm() {
             const requestDto = {
@@ -409,3 +424,5 @@ export default defineComponent({
     }
 });
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
