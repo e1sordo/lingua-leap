@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,24 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
     @Override
     public void createWord(CreateWordRequestDto request) {
-        final var word = new ForeignWord();
+        final var word = repository.findByWord(request.word()).orElseGet(() -> {
+            final var foreignWord = new ForeignWord();
+            foreignWord.setAdded(request.addedDate());
+            foreignWord.setWord(request.word());
+            return foreignWord;
+        });
 
-        word.setAdded(request.addedDate());
-        word.setWord(request.word());
+        final var meaningsToAddToSpacedRepetition = new ArrayList<WordMeaning>();
 
         for (WordMeaningDto meaningDto : request.meanings()) {
             final var meaning = getWordMeaning(meaningDto, word);
+
+            final boolean meaningAlreadyExist = word.getMeanings().stream()
+                    .anyMatch(existedMeaning -> existedMeaning.getEnglishVariant().equals(meaning.getEnglishVariant())
+                                                && existedMeaning.getRussianVariant().equals(meaning.getRussianVariant()));
+            if (meaningAlreadyExist) {
+                continue;
+            }
 
             if (meaningDto.lists() != null) {
                 for (final var listDto : meaningDto.lists()) {
@@ -60,6 +72,7 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
             }
 
             addMeaningToSmartListOfRecentlyAdded(meaning);
+            meaningsToAddToSpacedRepetition.add(meaning);
 
             if (meaningDto.collocations() != null) {
                 for (final var collocationDto : meaningDto.collocations()) {
@@ -108,7 +121,7 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
 
         final ForeignWord persistedWord = repository.save(word);
 
-        addMeaningToSpacedRepetition(persistedWord.getMeanings());
+        meaningsToAddToSpacedRepetition.forEach(spacedRepetitionService::addWordMeaning);
         wordsToAddLaterRepository.findByWordIgnoreCase(persistedWord.getWord())
                 .ifPresent(wordsToAddLaterRepository::delete);
     }
@@ -212,9 +225,5 @@ public class ForeignWordsServiceImpl implements ForeignWordsService {
         final ForeignWord foreignWord = getBy(word);
         foreignWord.getMeanings().forEach(meaning -> spacedRepetitionService.deleteWordMeaning(meaning.getId()));
         repository.delete(foreignWord);
-    }
-
-    private void addMeaningToSpacedRepetition(List<WordMeaning> meanings) {
-        meanings.forEach(spacedRepetitionService::addWordMeaning);
     }
 }
