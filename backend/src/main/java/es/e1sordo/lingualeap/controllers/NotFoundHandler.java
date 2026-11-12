@@ -1,5 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -19,7 +20,12 @@ import java.nio.charset.Charset;
 @ControllerAdvice
 public class NotFoundHandler {
     @ExceptionHandler({ NoHandlerFoundException.class, NoResourceFoundException.class })
-    public ResponseEntity<String> renderDefaultPage() {
+    public ResponseEntity<String> renderDefaultPage(final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        if (requestUri != null && requestUri.startsWith("/api/")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
+
         try {
             final Resource indexResource = new ClassPathResource("public/index.html");
             final String body = StreamUtils.copyToString(indexResource.getInputStream(), Charset.defaultCharset());

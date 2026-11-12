@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.services;
 
-import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
+import es.e1sordo.lingualeap.dto.EditWordMeaningTranslationsDto;
 import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
@@ -13,23 +13,25 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface WordMeaningsService {
-    List<WordMeaning> getAllByPos(PartOfSpeech pos);
+    List<WordMeaning> getAllByPos(Long courseId, PartOfSpeech pos);
 
-    List<WordMeaning> getAllByDate(LocalDate date);
+    List<WordMeaning> getAllByDate(Long courseId, LocalDate date);
 
-    WordMeaningContext linkContext(final Long meaningId, WordMeaningContextDto request);
+    WordMeaning getById(Long courseId, Long meaningId);
 
-    WordMeaningCollocation linkCollocation(final Long meaningId, WordMeaningCollocationDto request);
+    WordMeaningContext linkContext(Long courseId, final Long meaningId, WordMeaningContextDto request);
 
-    void editVariants(final Long meaningId, final EditWordMeaningVariantsDto request);
+    WordMeaningCollocation linkCollocation(Long courseId, final Long meaningId, WordMeaningCollocationDto request);
 
-    void editDefinition(final Long meaningId, final String newDefinition);
+    void editTranslations(Long courseId, final Long meaningId, final EditWordMeaningTranslationsDto request);
 
-    void editImageUrl(final Long meaningId, final String newUrl);
+    void editDefinition(Long courseId, final Long meaningId, final String newDefinition);
 
-    WordMeaningCollocation editCollocation(Long meaningId, Long collocationId, WordMeaningCollocationDto request);
+    void editImageUrl(Long courseId, final Long meaningId, final String newUrl);
 
-    List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
+    WordMeaningCollocation editCollocation(Long courseId, Long meaningId, Long collocationId, WordMeaningCollocationDto request);
 
-    void deleteCollocation(Long meaningId, Long collocationId);
+    List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech(Long courseId);
+
+    void deleteCollocation(Long courseId, Long meaningId, Long collocationId);
 }

@@ -11,7 +11,7 @@
                     <th scope="col">#</th>
                     <th scope="col" style="width: 45%; max-width: 45%;">Word</th>
                     <th scope="col" @click="toggleMeaningLang()" style="cursor: pointer; width: 45%; max-width: 45%;">
-                        Meaning
+                        Meaning ({{ selectedTranslationLanguageCode }})
                     </th>
                     <th scope="col"></th>
                 </tr>
@@ -29,15 +29,14 @@
                                 <i v-if="word.gender == 'FEMININE'" class="bi bi-gender-female female-gender"></i>
                             </small>
                             <span v-html="word.word"></span>
-                            <i v-if="word.definition" class="bi bi-info-circle ps-1" :title="word.definition"></i>
                         </span>
                     </th>
                     <th class="fw-normal text-break" @click="toggleSpoiler(index)">
                         <span v-if="invertSpoilers && spoilers[index]" class="spoiler pe-auto">
                             {{ word.fakeWord }}
                         </span>
-                        <span v-else :title="meaningValue ? word.russianVariant : word.englishVariant">
-                            {{ meaningValue ? word.englishVariant : word.russianVariant }}
+                        <span v-else>
+                            {{ translation(word, selectedTranslationLanguageCode) }}
                         </span>
                     </th>
                     <th>
@@ -53,7 +52,9 @@
 
 <script lang="ts">
 import { ForeignWordDto } from '@/api/backend-api';
-import { defineComponent, PropType, ref, watch } from 'vue';
+import { useCourses } from '@/composables/useCourses';
+import { translation } from '@/utils/translations';
+import { computed, defineComponent, PropType, ref, watch } from 'vue';
 import WordContextMenu from '@/components/WordContextMenu.vue';
 
 export default defineComponent({
@@ -68,7 +69,19 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const meaningValue = ref(true); // true -- eng, false -- rus
+        const { activeCourse } = useCourses();
+
+        const translationLanguageCodes = computed(() =>
+            activeCourse.value?.translationLanguageCodes || []
+        );
+
+        const selectedTranslationLanguageCode = ref('');
+        watch(translationLanguageCodes, (codes) => {
+            if (codes.length > 0 && !codes.includes(selectedTranslationLanguageCode.value)) {
+                selectedTranslationLanguageCode.value = codes[0];
+            }
+        }, { immediate: true });
+
         const invertSpoilers = ref(false);
         const spoilers = ref(new Array(50).fill(true));
 
@@ -80,7 +93,7 @@ export default defineComponent({
         watch(() => props.refresh, () => {
             spoilers.value = new Array(props.data.length).fill(true);
         })
-        return { meaningValue, spoilers, invertSpoilers };
+        return { selectedTranslationLanguageCode, translationLanguageCodes, spoilers, invertSpoilers, translation };
     },
     computed: {
         shuffledWords() {
@@ -99,7 +112,12 @@ export default defineComponent({
             this.spoilers[index] = !this.spoilers[index];
         },
         toggleMeaningLang() {
-            this.meaningValue = !this.meaningValue;
+            const codes = this.translationLanguageCodes;
+            if (codes.length < 2) {
+                return;
+            }
+            const currentIndex = codes.indexOf(this.selectedTranslationLanguageCode);
+            this.selectedTranslationLanguageCode = codes[(currentIndex + 1) % codes.length];
         },
         generateRandomString() {
             const length = Math.floor(Math.random() * 8) + 4;

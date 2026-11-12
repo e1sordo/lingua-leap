@@ -6,6 +6,8 @@ const axiosApi = axios.create({
     headers: { 'Content-Type': 'application/json' }
 });
 
+const courseBase = (courseId: number) => `/courses/${courseId}`;
+
 export interface KeyValueDto {
     key: string;
     value: string;
@@ -44,6 +46,29 @@ export enum LearningStatus {
     KNOWN
 }
 
+export type TranslationMap = { [languageCode: string]: string };
+
+export interface LanguageDto {
+    code: string;
+    name: string;
+    defaultSpeechLocale: string;
+}
+
+export interface CourseDto {
+    id: number;
+    targetLanguageCode: string;
+    targetLanguageName: string;
+    defaultSpeechLocale: string;
+    translationLanguageCodes: string[];
+    totalWords: number;
+    dueToday: number;
+}
+
+export interface CreateCourseRequestDto {
+    targetLanguageCode: string;
+    translationLanguageCodes: string[];
+}
+
 export interface RecentlyAddedForeignWordsPageDto {
     isLast: boolean;
     data: ForeignWordDto[];
@@ -52,9 +77,7 @@ export interface RecentlyAddedForeignWordsPageDto {
 export interface ForeignWordDto {
     id: number;
     word: string;
-    russianVariant: string;
-    englishVariant: string;
-    definition: string;
+    translations: TranslationMap;
     pos: PartOfSpeech | string;
     imageUrl: string | null;
     gender: GrammaticalGender | string | null;
@@ -63,12 +86,16 @@ export interface ForeignWordDto {
 }
 
 export interface AddNewWordRequestDto {
-    word: string;
     addedDate: Date;
+    word: string;
     meanings: WordMeaningDto[];
 }
 
-export interface ForeignWordDetailDto extends AddNewWordRequestDto {
+export interface ForeignWordDetailDto {
+    id: number;
+    word: string;
+    addedDate: Date | null;
+    meanings: WordMeaningDto[];
 }
 
 export interface PartOfSpeechStatisticsDto {
@@ -76,12 +103,19 @@ export interface PartOfSpeechStatisticsDto {
     count: number;
 }
 
-export interface WordMeaningDto extends ForeignWordDto {
+export interface WordMeaningDto {
+    id: number;
+    word: string;
+    pos: PartOfSpeech | string;
+    gender: GrammaticalGender | string | null;
+    imageUrl: string | null;
+    translations: TranslationMap;
     definition: string;
     frequency: number;
+    learningStatus: LearningStatus | string;
+    lists: VocabularyListDto[];
     collocations: WordMeaningCollocationDto[];
     contexts: WordMeaningContextDto[];
-    lists: VocabularyListDto[];
 }
 
 export interface WordMeaningContextDto {
@@ -94,8 +128,7 @@ export interface WordMeaningCollocationDto {
     id: number;
     pattern: string;
     resolvedPattern: string;
-    translationRussian: string;
-    translationEnglish: string;
+    translations: TranslationMap;
 }
 
 export interface VocabularyListDto {
@@ -122,6 +155,7 @@ export interface DateCountDto {
     date: Date;
     count: number;
 }
+
 export interface AddLaterWordDto {
     word: string;
     timesAdded: number;
@@ -133,133 +167,148 @@ export default {
     },
 
 
+    // languages & courses
+    getLanguages(): Promise<AxiosResponse<LanguageDto[]>> {
+        return axiosApi.get('/languages');
+    },
+
+    getCourses(): Promise<AxiosResponse<CourseDto[]>> {
+        return axiosApi.get('/courses');
+    },
+
+    createCourse(body: CreateCourseRequestDto): Promise<AxiosResponse<CourseDto>> {
+        return axiosApi.post('/courses', body);
+    },
+
+
     // words
     getAllRecentlyAddedWords(
+        courseId: number,
         page: number,
         pageSize: number,
         lastLoadedWordId: number = -1,
         rollOut: boolean = false
     ): Promise<AxiosResponse<RecentlyAddedForeignWordsPageDto>> {
         return axiosApi.get(
-            `/words?rollOut=${rollOut}&page=${page}&pageSize=${pageSize}&startsFromId=${lastLoadedWordId}`
+            `${courseBase(courseId)}/words?rollOut=${rollOut}&page=${page}&pageSize=${pageSize}&startsFromId=${lastLoadedWordId}`
         );
     },
 
-    getAutocompleteSuggestions(term: string): Promise<AxiosResponse<string[]>> {
-        return axiosApi.get('/words/autosuggestions?word=' + term);
+    getAutocompleteSuggestions(courseId: number, term: string): Promise<AxiosResponse<string[]>> {
+        return axiosApi.get(courseBase(courseId) + '/words/autosuggestions?word=' + term);
     },
 
-    addNewWord(body: AddNewWordRequestDto): Promise<AxiosResponse<void>> {
-        return axiosApi.post('/words', body);
+    addNewWord(courseId: number, body: AddNewWordRequestDto): Promise<AxiosResponse<void>> {
+        return axiosApi.post(courseBase(courseId) + '/words', body);
     },
 
-    getByName(name: string): Promise<AxiosResponse<ForeignWordDetailDto>> {
-        return axiosApi.get(`/words/${name}`);
+    getByName(courseId: number, name: string): Promise<AxiosResponse<ForeignWordDetailDto>> {
+        return axiosApi.get(`${courseBase(courseId)}/words/${name}`);
     },
 
-    async getTotalAddedWords(): Promise<number> {
-        const response = await axiosApi.get(`/words/total`);
+    async getTotalAddedWords(courseId: number): Promise<number> {
+        const response = await axiosApi.get(`${courseBase(courseId)}/words/total`);
         return response.data.total;
     },
 
-    getAllAddLaterWords(): Promise<AxiosResponse<AddLaterWordDto[]>> {
-        return axiosApi.get('/words/later');
+    getAllAddLaterWords(courseId: number): Promise<AxiosResponse<AddLaterWordDto[]>> {
+        return axiosApi.get(courseBase(courseId) + '/words/later');
     },
 
-    deleteWordFromAddLaterList(word: string): Promise<AxiosResponse<void>> {
-        return axiosApi.delete('/words/later/' + word);
+    deleteWordFromAddLaterList(courseId: number, word: string): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(courseBase(courseId) + '/words/later/' + word);
     },
 
-    getAddedWordsStatistics(): Promise<AxiosResponse<AddedWordsStatisticsDto>> {
-        return axiosApi.get('/words/statistics');
+    getAddedWordsStatistics(courseId: number): Promise<AxiosResponse<AddedWordsStatisticsDto>> {
+        return axiosApi.get(courseBase(courseId) + '/words/statistics');
     },
 
-    deleteWord(word: string): Promise<AxiosResponse<void>> {
-        return axiosApi.delete(`/words/${word}`);
+    deleteWord(courseId: number, word: string): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`${courseBase(courseId)}/words/${word}`);
     },
 
 
     // meanings
-    linkContext(meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {
-        return axiosApi.post('/meanings/' + meaningId + '/contexts', body);
+    linkContext(courseId: number, meaningId: number, body: WordMeaningContextDto): Promise<AxiosResponse<WordMeaningContextDto>> {
+        return axiosApi.post(courseBase(courseId) + '/meanings/' + meaningId + '/contexts', body);
     },
 
-    linkCollocation(meaningId: number, body: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
-        return axiosApi.post('/meanings/' + meaningId + '/collocations', body);
+    linkCollocation(courseId: number, meaningId: number, body: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
+        return axiosApi.post(courseBase(courseId) + '/meanings/' + meaningId + '/collocations', body);
     },
 
-    editVariants(meaningId: number, russian: string | null, english: string | null): Promise<AxiosResponse<void>> {
-        return axiosApi.patch('/meanings/' + meaningId + '/variants', { russian, english });
+    editTranslations(courseId: number, meaningId: number, translations: TranslationMap): Promise<AxiosResponse<void>> {
+        return axiosApi.patch(courseBase(courseId) + '/meanings/' + meaningId + '/translations', { translations });
     },
 
-    editDefinition(meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
-        return axiosApi.patch('/meanings/' + meaningId + '/definition', { newValue });
+    editDefinition(courseId: number, meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
+        return axiosApi.patch(courseBase(courseId) + '/meanings/' + meaningId + '/definition', { newValue });
     },
 
-    editImageUrl(meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
-        return axiosApi.patch('/meanings/' + meaningId + '/image', { newValue });
+    editImageUrl(courseId: number, meaningId: number, newValue: string): Promise<AxiosResponse<void>> {
+        return axiosApi.patch(courseBase(courseId) + '/meanings/' + meaningId + '/image', { newValue });
     },
 
-    editCollocation(meaningId: number, collocationId: number, request: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
-        return axiosApi.put('/meanings/' + meaningId + '/collocations/' + collocationId, request);
+    editCollocation(courseId: number, meaningId: number, collocationId: number, request: WordMeaningCollocationDto): Promise<AxiosResponse<WordMeaningCollocationDto>> {
+        return axiosApi.put(courseBase(courseId) + '/meanings/' + meaningId + '/collocations/' + collocationId, request);
     },
 
-    removeCollocation(meaningId: number, collocationId: number): Promise<AxiosResponse<void>> {
-        return axiosApi.delete('/meanings/' + meaningId + '/collocations/' + collocationId);
+    removeCollocation(courseId: number, meaningId: number, collocationId: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(courseBase(courseId) + '/meanings/' + meaningId + '/collocations/' + collocationId);
     },
 
-    getMeaningsStatistics(): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
-        return axiosApi.get('/meanings/statistics');
+    getMeaningsStatistics(courseId: number): Promise<AxiosResponse<PartOfSpeechStatisticsDto[]>> {
+        return axiosApi.get(courseBase(courseId) + '/meanings/statistics');
     },
 
 
     // lists
-    getAllLists(excludeSmart: boolean = false): Promise<AxiosResponse<VocabularyListDto[]>> {
+    getAllLists(courseId: number, excludeSmart: boolean = false): Promise<AxiosResponse<VocabularyListDto[]>> {
         const smartParamString = excludeSmart ? '?excludeSmart=true' : '';
-        return axiosApi.get('/lists' + smartParamString);
+        return axiosApi.get(courseBase(courseId) + '/lists' + smartParamString);
     },
 
-    addNewList(name: string): Promise<AxiosResponse<VocabularyListDto>> {
-        return axiosApi.post('/lists', { name });
+    addNewList(courseId: number, name: string): Promise<AxiosResponse<VocabularyListDto>> {
+        return axiosApi.post(courseBase(courseId) + '/lists', { name });
     },
 
-    getListById(id: number): Promise<AxiosResponse<VocabularyListDetailDto>> {
-        return axiosApi.get(`/lists/${id}`);
+    getListById(courseId: number, id: number): Promise<AxiosResponse<VocabularyListDetailDto>> {
+        return axiosApi.get(`${courseBase(courseId)}/lists/${id}`);
     },
 
-    getListByPos(pos: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
-        return axiosApi.get(`/lists/pos/${pos}`);
+    getListByPos(courseId: number, pos: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
+        return axiosApi.get(`${courseBase(courseId)}/lists/pos/${pos}`);
     },
 
-    getListByDate(date: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
-        return axiosApi.get(`/lists/date/${date}`);
+    getListByDate(courseId: number, date: string): Promise<AxiosResponse<VocabularyListDetailDto>> {
+        return axiosApi.get(`${courseBase(courseId)}/lists/date/${date}`);
     },
 
-    removeWordFromList(id: number, meaningId: number): Promise<AxiosResponse<void>> {
-        return axiosApi.delete(`/lists/${id}/words/${meaningId}`);
+    removeWordFromList(courseId: number, id: number, meaningId: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`${courseBase(courseId)}/lists/${id}/words/${meaningId}`);
     },
 
-    deleteList(id: number): Promise<AxiosResponse<void>> {
-        return axiosApi.delete(`/lists/${id}`);
+    deleteList(courseId: number, id: number): Promise<AxiosResponse<void>> {
+        return axiosApi.delete(`${courseBase(courseId)}/lists/${id}`);
     },
 
 
     // repetition
-    async getTotalWordsToRepeatToday(): Promise<number> {
-        const response = await axiosApi.get(`/repetition/today/total`);
+    async getTotalWordsToRepeatToday(courseId: number): Promise<number> {
+        const response = await axiosApi.get(`${courseBase(courseId)}/repetition/today/total`);
         return response.data.total;
     },
 
-    getPlannedRepetitionsSummaryGraph(): Promise<AxiosResponse<DateCountDto[]>> {
-        return axiosApi.get('/repetition/summary/graph');
+    getPlannedRepetitionsSummaryGraph(courseId: number): Promise<AxiosResponse<DateCountDto[]>> {
+        return axiosApi.get(courseBase(courseId) + '/repetition/summary/graph');
     },
 
-    getWordsToRepeatToday(): Promise<AxiosResponse<WordMeaningDto[]>> {
-        return axiosApi.get('/repetition/today');
+    getWordsToRepeatToday(courseId: number): Promise<AxiosResponse<WordMeaningDto[]>> {
+        return axiosApi.get(courseBase(courseId) + '/repetition/today');
     },
 
-    scoreWordMeaning(meaningId: number, newScore: number): Promise<AxiosResponse<void>> {
-        return axiosApi.put(`/repetition/meanings/${meaningId}?newScore=${newScore}`);
+    scoreWordMeaning(courseId: number, meaningId: number, newScore: number): Promise<AxiosResponse<void>> {
+        return axiosApi.put(`${courseBase(courseId)}/repetition/meanings/${meaningId}?newScore=${newScore}`);
     },
 
 

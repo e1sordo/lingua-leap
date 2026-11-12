@@ -16,29 +16,31 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/repetition")
+@RequestMapping("/api/courses/{courseId}/repetition")
 @RequiredArgsConstructor
 public class SpacedRepetitionController {
 
     private final SpacedRepetitionService service;
 
     @GetMapping("/today/total")
-    public Map<String, Integer> getTotalForToday() {
-        return Map.of("total", service.getTodayCount());
+    public Map<String, Integer> getTotalForToday(@PathVariable Long courseId) {
+        return Map.of("total", service.getTodayCount(courseId));
     }
 
     @GetMapping("/today")
-    public List<WordMeaningDto> getWordsToRepeatToday() {
-        return service.getTodayWords().stream().map(Mappings::mapToDto).toList();
+    public List<WordMeaningDto> getWordsToRepeatToday(@PathVariable Long courseId) {
+        return service.getTodayWords(courseId).stream().map(Mappings::mapToDto).toList();
     }
 
     @GetMapping("/summary/graph")
-    public List<CountDateDto> getSummaryGraph() {
-        return service.getSummaryGraph().entrySet().stream().map(Mappings::mapToDto).toList();
+    public List<CountDateDto> getSummaryGraph(@PathVariable Long courseId) {
+        return service.getSummaryGraph(courseId).entrySet().stream().map(Mappings::mapToDto).toList();
     }
 
     @PutMapping("/meanings/{meaningId}")
-    public void scoreMeaning(@PathVariable Long meaningId, @RequestParam Integer newScore) {
-        service.updateWordMeaningInfo(meaningId, newScore);
+    public void scoreMeaning(@PathVariable Long courseId,
+                             @PathVariable Long meaningId,
+                             @RequestParam Integer newScore) {
+        service.updateWordMeaningInfo(courseId, meaningId, newScore);
     }
 }

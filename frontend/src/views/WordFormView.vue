@@ -3,7 +3,7 @@
         <div class="container-md mb-5">
 
             <p>
-                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(form.word)"
+                <a v-for="(service, id) in dictionaryLinks" :key="id" :href="service.href"
                     class="btn btn-lg m-2" :class="`btn-outline-${service.color}`" target="_blank">
                     {{ service.name }}
                 </a>
@@ -15,9 +15,6 @@
                     <span class="input-group-text" id="inputGroup-sizing-lg">Слово</span>
                     <input v-model="form.word" id="word" type="text" required class="form-control fw-bolder"
                         aria-label="Word input" aria-describedby="inputGroup-sizing-lg" @input="updatePageTitle">
-                    <button class="btn btn-danger" type="button" id="button-addon-fill" @click="processWord">
-                        <i class="bi bi-stack-overflow"></i>
-                    </button>
                 </div>
 
                 <div v-for="(meaning, index) in form.meanings" :key="index" class="card text-start bg-transparent mb-4">
@@ -33,18 +30,16 @@
                         </div>
 
                         <div class="row g-3 mb-3">
-                            <div class="col-sm-6">
+                            <div v-for="(languageCode, langIndex) in translationLanguageCodes" :key="languageCode"
+                                class="col-sm-6">
                                 <div class="input-group">
-                                    <span class="input-group-text">🇷🇺</span>
-                                    <input v-model="meaning.russianVariant" id="russianVariant" type="text" required
-                                        class="form-control" placeholder="Перевод на русский">
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="input-group">
-                                    <span class="input-group-text">🇬🇧</span>
-                                    <input v-model="meaning.englishVariant" id="englishVariant" type="text" required
-                                        class="form-control" placeholder="Translation into English">
+                                    <span class="input-group-text">
+                                        {{ languageLabel(languageCode, languages) }}
+                                    </span>
+                                    <input v-model="meaning.translations[languageCode]"
+                                        :id="'translation-' + languageCode" type="text"
+                                        :required="langIndex === 0" class="form-control"
+                                        :placeholder="languageCode">
                                 </div>
                             </div>
                         </div>
@@ -127,23 +122,14 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div v-for="languageCode in translationLanguageCodes" :key="languageCode"
+                                    class="col-sm-4">
                                     <div class="form-floating">
-                                        <input v-model="collocation.translationRussian"
-                                            :id="'collocation-translate-russian-' + collocationIndex" type="text"
-                                            class="form-control" placeholder="Leave a russian translation here" />
-                                        <label :for="'collocation-translate-russian-' + collocationIndex">
-                                            🇷🇺 Перевод
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="form-floating">
-                                        <input v-model="collocation.translationEnglish"
-                                            :id="'collocation-translate-english-' + collocationIndex" type="text"
-                                            class="form-control" placeholder="Leave a english translation here" />
-                                        <label :for="'collocation-translate-english-' + collocationIndex">
-                                            🇺🇸 Перевод
+                                        <input v-model="collocation.translations[languageCode]"
+                                            :id="'collocation-translate-' + languageCode" type="text"
+                                            class="form-control" :placeholder="languageCode" />
+                                        <label :for="'collocation-translate-' + languageCode">
+                                            {{ languageLabel(languageCode, languages) }} ({{ languageCode }})
                                         </label>
                                     </div>
                                 </div>
@@ -230,45 +216,46 @@
 
 
 <script lang="ts">
-import backendApi, { AddNewWordRequestDto, VocabularyListDto } from '@/api/backend-api';
-import { dictionaryServices, partOfSpeechMeta } from '@/constants';
-import { defineComponent } from 'vue';
+import backendApi, { AddNewWordRequestDto, TranslationMap, VocabularyListDto, WordMeaningDto } from '@/api/backend-api';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
+import { languageLabel, normalizeTranslations } from '@/utils/translations';
+import { partOfSpeechMeta } from '@/constants';
+import { computed, defineComponent } from 'vue';
 import VueMultiselect from 'vue-multiselect';
 
 const sortedPosArray = Object.entries(partOfSpeechMeta)
     .map(([key, { label, printOrder }]) => ({ label, value: key, printOrder }))
     .sort((a, b) => a.printOrder - b.printOrder);
 
+function createEmptyMeaning(): WordMeaningDto {
+    return {
+        id: 0,
+        word: '',
+        pos: '',
+        gender: 'MASCULINE',
+        imageUrl: '',
+        translations: {} as TranslationMap,
+        definition: '',
+        frequency: 1,
+        learningStatus: 'NEW',
+        collocations: [{ id: 0, resolvedPattern: '', pattern: '', translations: {} }],
+        contexts: [{ id: 0, sentence: '', translation: '' }],
+        lists: [] as VocabularyListDto[]
+    };
+}
+
 export default defineComponent({
     components: {
         VueMultiselect
     },
-    data() {
-        return {
-            allVocabularyLists: [] as VocabularyListDto[],
-            form: {
-                word: '',
-                addedDate: new Date(),
-                meanings: [
-                    {
-                        id: 0,
-                        pos: '',
-                        gender: 'MASCULINE',
-                        imageUrl: '',
-                        russianVariant: '',
-                        englishVariant: '',
-                        definition: '',
-                        frequency: 1,
-                        learningStatus: 'NEW',
-                        collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
-                        contexts: [{ id: 0, sentence: '', translation: '' }],
-                        lists: [] as VocabularyListDto[]
-                    },
-                ],
-            } as AddNewWordRequestDto
-        }
-    },
     setup() {
+        const { activeCourseId, activeCourse, languages, loadLanguages, updateActiveCourseCounts } = useCourses();
+
+        const translationLanguageCodes = computed(() =>
+            activeCourse.value?.translationLanguageCodes || []
+        );
+
         const partOfSpeechList = sortedPosArray;
         const genderList = [
             { label: '🚹', value: 'MASCULINE' },
@@ -277,19 +264,61 @@ export default defineComponent({
             { label: 'Имя собственное', value: 'PROPER' },
         ];
 
-        return { partOfSpeechList, dictionaryServices, genderList };
+        return {
+            courseId: activeCourseId,
+            activeCourse,
+            languages,
+            loadLanguages,
+            updateActiveCourseCounts,
+            translationLanguageCodes,
+            partOfSpeechList,
+            genderList,
+            languageLabel
+        };
+    },
+    data() {
+        return {
+            allVocabularyLists: [] as VocabularyListDto[],
+            form: {
+                word: '',
+                addedDate: new Date(),
+                meanings: [createEmptyMeaning()],
+            } as AddNewWordRequestDto
+        }
     },
     mounted() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
+        this.loadLanguages();
         this.fetchAllVocabularyLists();
         this.form.word = this.$route.query.word as string || '';
         this.updatePageTitle();
     },
     methods: {
+        dictionaryLinks(): Array<{ name: string; color: string; href: string }> {
+            if (!this.activeCourse) {
+                return [];
+            }
+
+            const languageModule = getLanguageModule(this.activeCourse.targetLanguageCode);
+            const primaryTranslationLanguageCode = this.activeCourse.translationLanguageCodes[0] || '';
+
+            return languageModule.dictionaries
+                .map(service => ({
+                    name: service.name,
+                    color: service.color,
+                    href: service.link(this.form.word, primaryTranslationLanguageCode)
+                }))
+                .filter(service => service.href !== null) as Array<{ name: string; color: string; href: string }>;
+        },
+
         async fetchAllVocabularyLists() {
+            if (this.courseId === null) {
+                return;
+            }
+
             try {
-                const response = await backendApi.getAllLists(true);
+                const response = await backendApi.getAllLists(this.courseId, true);
                 const list = response.data;
 
                 this.allVocabularyLists = list;
@@ -299,41 +328,8 @@ export default defineComponent({
             }
         },
 
-        async processWord() {
-            try {
-                const response = await fetch('https://site.com');
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const testElement = doc.querySelector('.headline');
-                if (testElement) {
-                    this.form.meanings[0].russianVariant = testElement.textContent || '';
-                } else {
-                    this.form.meanings[0].russianVariant = 'Элемент с классом headline не найден';
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке и парсинге:', error);
-                this.form.meanings[0].russianVariant = 'Произошла ошибка при загрузке и парсинге страницы';
-            }
-        },
-
         addMeaning() {
-            this.form.meanings.push({
-                id: 0,
-                word: '',
-                pos: '',
-                gender: 'MASCULINE',
-                imageUrl: '',
-                russianVariant: '',
-                englishVariant: '',
-                definition: '',
-                frequency: 1,
-                learningStatus: 'NEW',
-                collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
-                contexts: [{ id: 0, sentence: '', translation: '' }],
-                lists: [],
-                addedDate: null
-            });
+            this.form.meanings.push(createEmptyMeaning());
         },
         removeMeaning(index: number) {
             if (this.form.meanings.length > 1) {
@@ -341,7 +337,7 @@ export default defineComponent({
             }
         },
         addCollocation(meaningIndex: number) {
-            this.form.meanings[meaningIndex].collocations.push({ id: 0, pattern: '', translationRussian: '', translationEnglish: '', resolvedPattern: '' });
+            this.form.meanings[meaningIndex].collocations.push({ id: 0, pattern: '', translations: {}, resolvedPattern: '' });
         },
         removeCollocation(meaningIndex: number, collocationIndex: number) {
             if (this.form.meanings[meaningIndex].collocations.length > 1) {
@@ -368,29 +364,16 @@ export default defineComponent({
         },
         resetForm() {
             this.form.word = '';
-            this.form.meanings = [
-                {
-                    id: 0,
-                    word: '',
-                    pos: '',
-                    gender: 'MASCULINE',
-                    imageUrl: '',
-                    russianVariant: '',
-                    englishVariant: '',
-                    definition: '',
-                    frequency: 1,
-                    learningStatus: 'NEW',
-                    collocations: [{ id: 0, resolvedPattern: '', pattern: '', translationRussian: '', translationEnglish: '' }],
-                    contexts: [{ id: 0, sentence: '', translation: '' }],
-                    lists: [],
-                    addedDate: null
-                },
-            ];
+            this.form.meanings = [createEmptyMeaning()];
             this.updatePageTitle();
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         submitForm() {
+            if (this.courseId === null) {
+                return;
+            }
+
             const requestDto = {
                 word: this.form.word,
                 addedDate: new Date(this.form.addedDate),
@@ -400,8 +383,7 @@ export default defineComponent({
                     pos: meaning.pos,
                     gender: meaning.gender,
                     imageUrl: meaning.imageUrl,
-                    russianVariant: meaning.russianVariant,
-                    englishVariant: meaning.englishVariant,
+                    translations: normalizeTranslations(meaning.translations),
                     definition: meaning.definition,
                     frequency: 1,
                     learningStatus: meaning.learningStatus,
@@ -409,8 +391,7 @@ export default defineComponent({
                         id: collocation.id,
                         resolvedPattern: collocation.resolvedPattern,
                         pattern: collocation.pattern,
-                        translationRussian: collocation.translationRussian,
-                        translationEnglish: collocation.translationEnglish
+                        translations: normalizeTranslations(collocation.translations)
                     })),
                     contexts: meaning.contexts.map((context) => ({
                         id: context.id,
@@ -418,16 +399,16 @@ export default defineComponent({
                         translation: context.translation,
                     })),
                     lists: meaning.lists,
-                    addedDate: null
                 })),
             };
 
             console.log(requestDto);
 
             try {
-                backendApi.addNewWord(requestDto)
+                backendApi.addNewWord(this.courseId, requestDto)
                     .then(() => {
                         this.increaseTotalWords();
+                        this.updateActiveCourseCounts((course) => ({ totalWords: course.totalWords + 1 }));
                         console.log("Word was added");
                         this.resetForm();
                     });

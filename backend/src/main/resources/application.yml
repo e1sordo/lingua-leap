@@ -3,11 +3,20 @@ server.port: 8098
 spring:
   datasource:
     url: jdbc:sqlite:${DB_PATH}
+    hikari:
+      # SQLite ships with busy_timeout=0: any lock conflict fails instantly with SQLITE_BUSY.
+      # Set it once per pooled connection so parallel reads/writes wait instead of erroring.
+      # Do NOT enable WAL: it persists in the database file and makes read-then-write
+      # transactions fail with SQLITE_BUSY_SNAPSHOT.
+      connection-init-sql: PRAGMA busy_timeout = 5000
   #  sql.init.mode: always
   jpa:
     #    defer-datasource-initialization: true
     database-platform: org.hibernate.community.dialect.SQLiteDialect
-    hibernate.ddl-auto: update
+    # Schema is owned by the versioned migration runner (db/migration). Hibernate validation
+    # cannot be used: IDENTITY id columns must be SQLite rowid aliases ("INTEGER PRIMARY KEY"),
+    # which Hibernate reports as a wrong column type for Long ids under SQLiteDialect.
+    hibernate.ddl-auto: none
   mvc:
     throw-exception-if-no-handler-found: true
   resources:

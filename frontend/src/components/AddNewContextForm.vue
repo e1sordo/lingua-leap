@@ -26,6 +26,7 @@
   
 <script lang="ts">
 import backendApi, { WordMeaningContextDto } from '@/api/backend-api';
+import { useCourses } from '@/composables/useCourses';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
@@ -38,6 +39,10 @@ export default defineComponent({
             type: Function as PropType<(item: WordMeaningContextDto) => void>,
             required: true,
         },
+    },
+    setup() {
+        const { activeCourseId } = useCourses();
+        return { courseId: activeCourseId };
     },
     data() {
         return {
@@ -61,8 +66,12 @@ export default defineComponent({
                 translation: this.translation
             } as WordMeaningContextDto;
 
+            if (this.courseId === null) {
+                return;
+            }
+
             try {
-                backendApi.linkContext(this.meaningId, newItem)
+                backendApi.linkContext(this.courseId, this.meaningId, newItem)
                     .then((resp) => {
                         this.onAddItem(resp.data);
                         console.log("Context was linked");

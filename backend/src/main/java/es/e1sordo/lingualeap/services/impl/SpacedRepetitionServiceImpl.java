@@ -5,16 +5,19 @@ import es.e1sordo.lingualeap.models.ForeignWord;
 import es.e1sordo.lingualeap.models.SM2WordMeaningMeta;
 import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.repositories.SM2WordMeaningMetaRepository;
+import es.e1sordo.lingualeap.services.NotFoundException;
 import es.e1sordo.lingualeap.services.SpacedRepetitionService;
 import es.e1sordo.lingualeap.services.VocabularyListsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -27,14 +30,14 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
     private final VocabularyListsService vocabularyListsService;
 
     @Override
-    public int getTodayCount() {
-        return repository.countByPlannedReviewLessThanEqual(LocalDate.now());
+    public int getTodayCount(final Long courseId) {
+        return repository.countByWordWordCourseIdAndPlannedReviewLessThanEqual(courseId, LocalDate.now());
     }
 
     @Override
-    public List<WordMeaning> getTodayWords() {
+    public List<WordMeaning> getTodayWords(final Long courseId) {
         final Supplier<Stream<SM2WordMeaningMeta>> allPlanedWordsStream = ()
-                -> repository.findByPlannedReviewLessThanEqual(LocalDate.now()).stream();
+                -> repository.findByWordWordCourseIdAndPlannedReviewLessThanEqual(courseId, LocalDate.now()).stream();
 
         var allPlanedWords = allPlanedWordsStream.get();
 
@@ -47,14 +50,14 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
     }
 
     @Override
-    public Map<LocalDate, Integer> getSummaryGraph() {
+    public Map<LocalDate, Integer> getSummaryGraph(final Long courseId) {
         final LocalDate today = LocalDate.now();
         final Map<LocalDate, Integer> summary = new HashMap<>();
 
-        final var repositoryResult = repository.getPlannedWordsStatistics(today.plusYears(1));
+        final var repositoryResult = repository.getPlannedWordsStatistics(today.plusYears(1), courseId);
         for (var result : repositoryResult) {
             if (result.date().isEqual(today)) {
-                summary.put(today, getTodayCount());
+                summary.put(today, getTodayCount(courseId));
             } else if (result.date().isAfter(today)) {
                 summary.put(result.date(), result.count().intValue());
             }
@@ -64,9 +67,15 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
     }
 
     @Override
-    public void updateWordMeaningInfo(final Long wordMeaningId, final int userGrade) {
+    @Transactional
+    public void updateWordMeaningInfo(final Long courseId, final Long wordMeaningId, final int userGrade) {
         log.info("Looking for meta by wordMeaningId {}", wordMeaningId);
-        final SM2WordMeaningMeta meta = repository.findByWordId(wordMeaningId).get();
+        final SM2WordMeaningMeta meta = repository.findByWordId(wordMeaningId)
+                .orElseThrow(() -> new NotFoundException("WordMeaning not found: " + wordMeaningId));
+
+        if (!Objects.equals(meta.getWord().getWord().getCourse().getId(), courseId)) {
+            throw new NotFoundException("WordMeaning not found: " + wordMeaningId);
+        }
 
         final ForeignWord word = meta.getWord().getWord();
         final String textWord = word.getWord();
@@ -84,12 +93,12 @@ public class SpacedRepetitionServiceImpl implements SpacedRepetitionService {
 
         if (userGrade <= 3 && previousGrade <= 3 || userGrade <= 2) {
             log.info("Word '{}' was rated less than 4 points two times in a row. Adding it to list of problem words", textWord);
-            meta.getWord().addList(vocabularyListsService.getSmartListOfProblemWords());
+            meta.getWord().addList(vocabularyListsService.getSmartListOfProblemWords(courseId));
         }
 
         if (word.getAdded().isBefore(LocalDate.now().minusDays(14)) && meta.getTotalRepetitions() >= 2) {
             log.info("Word '{}' was added more than 14 days ago. Removing it from list of recently added words", textWord);
-            meta.getWord().removeList(vocabularyListsService.getSmartListOfRecentlyAdded());
+            meta.getWord().removeList(vocabularyListsService.getSmartListOfRecentlyAdded(courseId));
         }
 
         repository.save(meta);

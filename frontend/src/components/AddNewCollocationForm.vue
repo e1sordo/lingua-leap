@@ -11,18 +11,14 @@
                         <label for="collocation-original">Паттерн</label>
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div v-for="languageCode in translationLanguageCodes" :key="languageCode" class="col-sm-4">
                     <div class="form-floating">
-                        <textarea v-model="translationRussian" id="collocation-translate-rus" type="text"
-                            class="form-control" style="height: 100px" placeholder="Leave a 🇷🇺 translation here" />
-                        <label for="collocation-translate-rus">🇷🇺 Перевод</label>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="form-floating">
-                        <textarea v-model="translationEnglish" id="collocation-translate-eng" type="text"
-                            class="form-control" style="height: 100px" placeholder="Leave a 🇺🇸 translation here" />
-                        <label for="collocation-translate-eng">🇺🇸 Перевод</label>
+                        <textarea v-model="translations[languageCode]"
+                            :id="'collocation-translate-' + languageCode" type="text" class="form-control"
+                            style="height: 100px" :placeholder="languageCode" />
+                        <label :for="'collocation-translate-' + languageCode">
+                            {{ languageLabel(languageCode, languages) }} ({{ languageCode }})
+                        </label>
                     </div>
                 </div>
             </div>
@@ -30,9 +26,11 @@
         </form>
     </div>
 </template>
-  
+
 <script lang="ts">
-import backendApi, { WordMeaningCollocationDto } from '@/api/backend-api';
+import api, { TranslationMap, WordMeaningCollocationDto } from '@/api/backend-api';
+import { useCourses } from '@/composables/useCourses';
+import { languageLabel, normalizeTranslations } from '@/utils/translations';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
@@ -50,9 +48,20 @@ export default defineComponent({
         return {
             modalVisible: false,
             pattern: '',
-            translationRussian: '',
-            translationEnglish: ''
+            translations: {} as TranslationMap,
         };
+    },
+    setup() {
+        const { activeCourseId, activeCourse, languages, loadLanguages } = useCourses();
+        return { courseId: activeCourseId, activeCourse, languages, loadLanguages, languageLabel };
+    },
+    computed: {
+        translationLanguageCodes(): string[] {
+            return this.activeCourse?.translationLanguageCodes || [];
+        }
+    },
+    mounted() {
+        this.loadLanguages();
     },
     methods: {
         showForm() {
@@ -61,18 +70,21 @@ export default defineComponent({
         resetForm() {
             this.modalVisible = false;
             this.pattern = '';
-            this.translationRussian = '';
-            this.translationEnglish = '';
+            this.translations = {};
         },
         submitForm() {
             const newItem = {
                 pattern: this.pattern,
-                translationRussian: this.translationRussian,
-                translationEnglish: this.translationEnglish
+                resolvedPattern: this.pattern,
+                translations: normalizeTranslations(this.translations)
             } as WordMeaningCollocationDto;
 
+            if (this.courseId === null) {
+                return;
+            }
+
             try {
-                backendApi.linkCollocation(this.meaningId, newItem)
+                api.linkCollocation(this.courseId, this.meaningId, newItem)
                     .then((resp) => {
                         this.onAddItem(resp.data);
                         console.log("Collocation was linked");

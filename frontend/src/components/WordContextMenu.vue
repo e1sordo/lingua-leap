@@ -23,33 +23,54 @@
                 </a>
             </li>
 
-            <li>
-                <hr class="dropdown-divider" />
-            </li>
-            <li>
-                <h6 class="dropdown-header">Tools</h6>
-            </li>
-            <li v-for="(service, id) in dictionaryServices" :key="id">
-                <a class="dropdown-item" :href="service.link(word!!)" target="_blank">
-                    {{ service.name }}
-                    <i class="bi bi-box-arrow-up-right text-primary"></i>
-                </a>
-            </li>
+            <template v-if="availableDictionaries.length > 0">
+                <li>
+                    <hr class="dropdown-divider" />
+                </li>
+                <li>
+                    <h6 class="dropdown-header">Tools</h6>
+                </li>
+                <li v-for="(service, id) in availableDictionaries" :key="id">
+                    <a class="dropdown-item" :href="service.link" target="_blank">
+                        {{ service.name }}
+                        <i class="bi bi-box-arrow-up-right text-primary"></i>
+                    </a>
+                </li>
+            </template>
         </ul>
     </div>
 </template>
 
 <script setup lang="ts">
-import { dictionaryServices } from '@/constants';
-import { PropType } from 'vue';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
+import { computed, PropType } from 'vue';
 
 interface CustomAction {
     name: string;
     link: string;
 }
 
-defineProps({
+const props = defineProps({
     word: String,
     customActions: Array as PropType<CustomAction[]>,
 })
+
+const { activeCourse } = useCourses();
+
+const availableDictionaries = computed(() => {
+    if (!props.word || !activeCourse.value) {
+        return [];
+    }
+
+    const languageModule = getLanguageModule(activeCourse.value.targetLanguageCode);
+    const primaryTranslationLanguageCode = activeCourse.value.translationLanguageCodes[0] || '';
+
+    return languageModule.dictionaries
+        .map(service => ({
+            name: service.name,
+            link: service.link(props.word as string, primaryTranslationLanguageCode)
+        }))
+        .filter(service => service.link !== null) as Array<{ name: string; link: string }>;
+});
 </script>

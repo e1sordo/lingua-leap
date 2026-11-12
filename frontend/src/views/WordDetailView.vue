@@ -3,7 +3,7 @@
         <div class="container-md mb-5">
 
             <p>
-                <a v-for="(service, id) in dictionaryServices" :key="id" :href="service.link(word!!)"
+                <a v-for="(service, id) in dictionaryLinks" :key="id" :href="service.href"
                     class="btn btn-lg m-2" :class="`btn-outline-${service.color}`" target="_blank">
                     {{ service.name }}
                 </a>
@@ -24,24 +24,17 @@
 
 
                     <div class="row g-3 py-3">
-                        <div class="col-sm-6">
+                        <div v-for="languageCode in translationLanguageCodes" :key="languageCode" class="col-sm-6">
                             <div class="input-group input-group-lg">
-                                <span class="input-group-text">🇷🇺</span>
-                                <input v-model="meaning.russianVariant" id="russianVariant" type="text" required
-                                    class="form-control" placeholder="Перевод на русский">
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon-rus"
-                                    @click="editVariants(index, meaning.russianVariant, null)">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-text">🇬🇧</span>
-                                <input v-model="meaning.englishVariant" id="englishVariant" type="text" required
-                                    class="form-control" placeholder="Translation into English">
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon-eng"
-                                    @click="editVariants(index, null, meaning.englishVariant)">
+                                <span class="input-group-text">
+                                    {{ languageLabel(languageCode, languages) }}
+                                </span>
+                                <input v-model="meaning.translations[languageCode]"
+                                    :id="'translation-' + languageCode" type="text" class="form-control"
+                                    :placeholder="languageCode">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    :id="'button-addon-' + languageCode"
+                                    @click="editTranslation(index)">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                             </div>
@@ -93,17 +86,14 @@
                                     <div class="card mb-1">
                                         <div class="card-body">
                                             <h5 class="card-title pb-2" v-html="collocation.resolvedPattern" />
-                                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                                🇷🇺 {{ collocation.translationRussian }}
-                                            </h6>
-                                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                                🇺🇸 {{ collocation.translationEnglish }}
+                                            <h6 v-for="entry in orderedTranslations(collocation, activeCourse)"
+                                                :key="entry.code" class="card-subtitle mb-2 text-body-secondary">
+                                                {{ languageLabel(entry.code, languages) }}: {{ entry.text }}
                                             </h6>
                                             <a href="#" class="card-link" data-bs-toggle="modal"
                                                 :data-bs-target="'#collocationEditModal' + collocation.id">
                                                 Edit
                                             </a>
-                                            <!-- <a href="#" class="card-link">Another link</a> -->
                                         </div>
                                     </div>
 
@@ -118,21 +108,15 @@
                                                     <input v-model="collocation.pattern" type="text"
                                                         class="form-control" id="collocation-pattern-text">
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label for="collocation-translation-rus-text"
+                                                <div v-for="languageCode in translationLanguageCodes" :key="languageCode"
+                                                    class="mb-3">
+                                                    <label :for="'collocation-translation-' + languageCode"
                                                         class="col-form-label">
-                                                        🇷🇺:
+                                                        {{ languageLabel(languageCode, languages) }}:
                                                     </label>
-                                                    <input v-model="collocation.translationRussian" type="text"
-                                                        class="form-control" id="collocation-translation-rus-text">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="collocation-translation-eng-text"
-                                                        class="col-form-label">
-                                                        🇺🇸:
-                                                    </label>
-                                                    <input v-model="collocation.translationEnglish" type="text"
-                                                        class="form-control" id="collocation-translation-eng-text">
+                                                    <input v-model="collocation.translations[languageCode]" type="text"
+                                                        class="form-control"
+                                                        :id="'collocation-translation-' + languageCode">
                                                 </div>
                                             </form>
                                         </div>
@@ -145,7 +129,7 @@
                                                 Delete
                                             </button>
                                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                                @click="editCollocation(index, colIndex, collocation.pattern, collocation.translationRussian, collocation.translationEnglish)">
+                                                @click="editCollocation(index, colIndex)">
                                                 Change
                                             </button>
                                         </div>
@@ -260,26 +244,55 @@
 
 <script setup lang="ts">
 import api, { WordMeaningCollocationDto, WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
-import { dictionaryServices } from '@/constants';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
+import { languageLabel, normalizeTranslations, orderedTranslations } from '@/utils/translations';
 import AddNewCollocationForm from '@/components/AddNewCollocationForm.vue';
 import AddNewContextForm from '@/components/AddNewContextForm.vue';
 import ActionModalWindow from '@/components/ActionModalWindow.vue';
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
 
+const { activeCourse, activeCourseId, languages, loadLanguages } = useCourses();
+
+const translationLanguageCodes = computed(() =>
+    activeCourse.value?.translationLanguageCodes || []
+);
+
 const word = ref('');
 const meanings = ref([] as WordMeaningDto[]);
 const addedDate = ref(new Date());
 
+const dictionaryLinks = computed(() => {
+    if (!word.value || !activeCourse.value) {
+        return [];
+    }
+
+    const languageModule = getLanguageModule(activeCourse.value.targetLanguageCode);
+    const primaryTranslationLanguageCode = activeCourse.value.translationLanguageCodes[0] || '';
+
+    return languageModule.dictionaries
+        .map(service => ({
+            name: service.name,
+            color: service.color,
+            href: service.link(word.value, primaryTranslationLanguageCode)
+        }))
+        .filter(service => service.href !== null) as Array<{ name: string; color: string; href: string }>;
+});
+
 const fetchDetails = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const response = await api.getByName(route.params.word as string);
+        const response = await api.getByName(activeCourseId.value, route.params.word as string);
         word.value = response.data.word;
         meanings.value = response.data.meanings;
-        addedDate.value = response.data.addedDate;
+        addedDate.value = response.data.addedDate as Date;
         document.title = document.title + ` ${word.value}`;
     } catch (error) {
         console.error(error);
@@ -287,6 +300,7 @@ const fetchDetails = async () => {
 };
 
 onMounted(() => {
+    loadLanguages();
     fetchDetails();
 });
 
@@ -300,52 +314,62 @@ const addContextLocally = async (meaningIndex: number, newContext: WordMeaningCo
     meanings.value[meaningIndex].contexts.push(newContext);
 };
 
-const editVariants = async (meaningIndex: number, russianVariant: string | null, englishVariant: string | null) => {
-    if (russianVariant) {
-        meanings.value[meaningIndex].russianVariant = russianVariant;
-    } else if (englishVariant) {
-        meanings.value[meaningIndex].englishVariant = englishVariant;
+const editTranslation = async (meaningIndex: number) => {
+    if (activeCourseId.value === null) {
+        return;
     }
 
-    const meaningId = meanings.value[meaningIndex].id;
+    const meaning = meanings.value[meaningIndex];
+    meaning.translations = normalizeTranslations(meaning.translations);
+
     try {
-        api.editVariants(meaningId, russianVariant, englishVariant);
+        api.editTranslations(activeCourseId.value, meaning.id, meaning.translations);
     } catch (error) {
         console.error(error);
     }
 };
 
 const editDefinition = async (meaningIndex: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     const newDefinition = meanings.value[meaningIndex].definition;
 
     const meaningId = meanings.value[meaningIndex].id;
     try {
-        api.editDefinition(meaningId, newDefinition || '');
+        api.editDefinition(activeCourseId.value, meaningId, newDefinition || '');
     } catch (error) {
         console.error(error);
     }
 };
 
 const editImageUrl = async (meaningIndex: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     const newImageUrl = meanings.value[meaningIndex].imageUrl;
 
     const meaningId = meanings.value[meaningIndex].id;
     try {
-        api.editImageUrl(meaningId, newImageUrl || '');
+        api.editImageUrl(activeCourseId.value, meaningId, newImageUrl || '');
     } catch (error) {
         console.error(error);
     }
 };
 
-const editCollocation = async (meaningIndex: number, collocationIndex: number, newPattern: string, newRusTranslation: string, newEngTranslation: string) => {
-    meanings.value[meaningIndex].collocations[collocationIndex].pattern = newPattern;
-    meanings.value[meaningIndex].collocations[collocationIndex].translationRussian = newRusTranslation;
-    meanings.value[meaningIndex].collocations[collocationIndex].translationEnglish = newEngTranslation;
+const editCollocation = async (meaningIndex: number, collocationIndex: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
 
     const meaningId = meanings.value[meaningIndex].id;
     const collocation = meanings.value[meaningIndex].collocations[collocationIndex];
+    collocation.translations = normalizeTranslations(collocation.translations);
+
     try {
-        api.editCollocation(meaningId, collocation.id, collocation)
+        api.editCollocation(activeCourseId.value, meaningId, collocation.id, collocation)
             .then((resp) => {
                 meanings.value[meaningIndex].collocations[collocationIndex].resolvedPattern = resp.data.resolvedPattern;
             });
@@ -355,10 +379,14 @@ const editCollocation = async (meaningIndex: number, collocationIndex: number, n
 };
 
 const removeCollocation = async (meaningIndex: number, collocationIndex: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     const meaningId = meanings.value[meaningIndex].id;
     const collocation = meanings.value[meaningIndex].collocations[collocationIndex];
     try {
-        api.removeCollocation(meaningId, collocation.id)
+        api.removeCollocation(activeCourseId.value, meaningId, collocation.id)
             .then(() => {
                 meanings.value[meaningIndex].collocations.splice(collocationIndex, 1);
             });
@@ -368,8 +396,12 @@ const removeCollocation = async (meaningIndex: number, collocationIndex: number)
 };
 
 const deleteWord = () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        api.deleteWord(word.value);
+        api.deleteWord(activeCourseId.value, word.value);
         router.push('/');
     } catch (ex) {
         console.log("Error", ex);

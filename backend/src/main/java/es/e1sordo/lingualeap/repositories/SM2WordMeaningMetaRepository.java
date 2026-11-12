@@ -13,15 +13,17 @@ import java.util.Optional;
 
 @Repository
 public interface SM2WordMeaningMetaRepository extends ListCrudRepository<SM2WordMeaningMeta, Long> {
-    Integer countByPlannedReviewLessThanEqual(LocalDate dateToCompare);
+
+    Integer countByWordWordCourseIdAndPlannedReviewLessThanEqual(Long courseId, LocalDate dateToCompare);
 
     @Query(value = "SELECT new es.e1sordo.lingualeap.repositories.projections.CustomGroupByQueryResult(m.plannedReview, COUNT(m)) " +
                    "FROM SM2WordMeaningMeta m " +
-                   "WHERE m.plannedReview <= :maxDate " +
+                   "WHERE m.word.word.course.id = :courseId AND m.plannedReview <= :maxDate " +
                    "GROUP BY m.plannedReview")
-    List<CustomGroupByQueryResult> getPlannedWordsStatistics(@Param("maxDate") LocalDate maxDate);
+    List<CustomGroupByQueryResult> getPlannedWordsStatistics(@Param("maxDate") LocalDate maxDate,
+                                                             @Param("courseId") Long courseId);
 
-    List<SM2WordMeaningMeta> findByPlannedReviewLessThanEqual(LocalDate dateToCompare);
+    List<SM2WordMeaningMeta> findByWordWordCourseIdAndPlannedReviewLessThanEqual(Long courseId, LocalDate dateToCompare);
 
     Optional<SM2WordMeaningMeta> findByWordId(Long wordId);
 }

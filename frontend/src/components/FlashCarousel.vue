@@ -10,9 +10,11 @@
 
             <template v-if="!showAnswer">
                 <div class="card-body">
-                    <h1 class="card-title">{{ meaning.russianVariant }}</h1>
-                    <h3 class="card-title" :class="{ 'spoiler': !showContexts }" @click="toggleSpoilers">
-                        {{ showContexts ? meaning.englishVariant : meaning.russianVariant }}
+                    <h1 class="card-title">{{ primaryTranslation(meaning, activeCourse) }}</h1>
+                    <h3 v-if="secondaryTranslations.length > 0" class="card-title"
+                        :class="{ 'spoiler': !showContexts }" @click="toggleSpoilers">
+                        {{ showContexts ? secondaryTranslations.join(' • ') :
+                            secondaryTranslations.map(() => '•••').join(' ') }}
                     </h3>
 
                     <hr v-if="meaning.collocations && meaning.collocations.length > 0"
@@ -20,7 +22,9 @@
                     <div>
                         <button v-for="collocation in meaning.collocations" :key="collocation.id" type="button"
                             class="btn btn-primary collocation-question-btn m-1">
-                            {{ showContexts ? collocation.translationEnglish : collocation.translationRussian }}
+                            {{ showContexts
+                                ? orderedTranslations(collocation, activeCourse).map(t => t.text).join(' • ')
+                                : primaryTranslation(collocation, activeCourse) }}
                         </button>
                     </div>
 
@@ -41,10 +45,9 @@
             <template v-else>
                 <div class="card-body">
                     <word-context-menu :word="meaning.word">
-                        <h1 class="card-title" @click="speak(meaning.word)">
-                            <small v-if="meaning.gender" class="fw-lighter fst-italic pe-2">
-                                <span v-if="meaning.gender == 'MASCULINE'">EL</span>
-                                <span v-if="meaning.gender == 'FEMININE'">LA</span>
+                        <h1 class="card-title" @click="speakWord(meaning.word)">
+                            <small v-if="nounArticle" class="fw-lighter fst-italic pe-2">
+                                {{ nounArticle }}
                             </small>
                             {{ meaning.word }}
                         </h1>
@@ -58,8 +61,11 @@
                         <small class="fw-lighter fst-italic">{{ meaning.pos }}</small>
                     </div>
 
-                    <h4 class="card-title py-1">🇷🇺 {{ meaning.russianVariant }} 🇷🇺</h4>
-                    <h4 class="card-title">🇬🇧 {{ meaning.englishVariant }} 🇬🇧</h4>
+                    <h4 v-for="entry in orderedTranslations(meaning, activeCourse)" :key="entry.code"
+                        class="card-title py-1">
+                        <small class="fw-lighter">{{ languageLabel(entry.code, languages) }}:</small>
+                        {{ entry.text }}
+                    </h4>
 
                     <hr v-if="meaning.definition" class="border border-primary border-3 opacity-75" />
                     <p v-if="meaning.definition" class="text-muted">{{ meaning.definition }}</p>
@@ -70,7 +76,7 @@
                         :key="collocationIndex">
                         <p class="user-select-all mb-1" v-html="collocation.resolvedPattern"></p>
                         <span class="text-muted user-select-all">
-                            🇬🇧 {{ collocation.translationEnglish }} (🇷🇺 {{ collocation.translationRussian }})
+                            {{ orderedTranslations(collocation, activeCourse).map(t => t.text).join(' • ') }}
                         </span>
                     </div>
 
@@ -121,9 +127,12 @@
 
 <script setup lang="ts">
 import api, { WordMeaningDto } from "@/api/backend-api";
-import WordContextMenu from '@/components/WordContextMenu.vue';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
+import { languageLabel, orderedTranslations, primaryTranslation } from '@/utils/translations';
 import { speak } from '@/utils/voice';
-import { PropType, inject, ref } from 'vue';
+import WordContextMenu from '@/components/WordContextMenu.vue';
+import { computed, PropType, inject, onMounted, ref } from 'vue';
 
 const props = defineProps({
     meaning: {
@@ -134,6 +143,30 @@ const props = defineProps({
         type: Object as PropType<() => void>,
         required: true
     }
+});
+
+const { activeCourse, activeCourseId, languages, loadLanguages } = useCourses();
+
+onMounted(() => {
+    loadLanguages();
+});
+
+const languageModule = computed(() =>
+    getLanguageModule(activeCourse.value?.targetLanguageCode || '')
+);
+
+const nounArticle = computed(() => {
+    if (!props.meaning.gender) {
+        return '';
+    }
+    return languageModule.value.nounArticles[props.meaning.gender as keyof typeof languageModule.value.nounArticles] || '';
+});
+
+const secondaryTranslations = computed(() => {
+    const codes = activeCourse.value?.translationLanguageCodes || [];
+    return orderedTranslations(props.meaning, activeCourse.value)
+        .filter(entry => entry.code !== codes[0])
+        .map(entry => entry.text);
 });
 
 const decreaseTotalWordsToRepeatToday = inject('decreaseTotalWordsToRepeatToday') as () => void;
@@ -157,14 +190,22 @@ const toggleSpoilers = () => {
     showContexts.value = !showContexts.value;
 };
 
+const speakWord = (text: string) => {
+    speak(text, languageModule.value, { courseId: activeCourseId.value ?? undefined });
+};
+
 const toggleCardAndShowAnswer = () => {
     showAnswer.value = true;
-    speak(props.meaning.word);
+    speakWord(props.meaning.word);
 };
 
 const submitAnswer = (score: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     buttonsDisabled.value = true;
-    api.scoreWordMeaning(props.meaning.id, score).then(() => {
+    api.scoreWordMeaning(activeCourseId.value, props.meaning.id, score).then(() => {
         showAnswer.value = false;
         showContexts.value = false;
 

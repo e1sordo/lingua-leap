@@ -1,6 +1,6 @@
 package es.e1sordo.lingualeap.controllers;
 
-import es.e1sordo.lingualeap.dto.EditWordMeaningVariantsDto;
+import es.e1sordo.lingualeap.dto.EditWordMeaningTranslationsDto;
 import es.e1sordo.lingualeap.dto.PatchEditOneFieldDto;
 import es.e1sordo.lingualeap.dto.WordMeaningCollocationDto;
 import es.e1sordo.lingualeap.dto.WordMeaningContextDto;
@@ -23,58 +23,71 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/meanings")
+@RequestMapping("/api/courses/{courseId}/meanings")
 @RequiredArgsConstructor
 public class WordMeaningsController {
 
     private final WordMeaningsService service;
 
     @PostMapping("/{meaningId}/contexts")
-    public WordMeaningContextDto linkContext(@PathVariable Long meaningId, @RequestBody WordMeaningContextDto request) {
-        log.info("Link new Context with existed Meaning {}", meaningId);
-        return Mappings.mapToDto(service.linkContext(meaningId, request));
+    public WordMeaningContextDto linkContext(@PathVariable Long courseId,
+                                             @PathVariable Long meaningId,
+                                             @RequestBody WordMeaningContextDto request) {
+        log.info("Link new Context with existed Meaning {} of course {}", meaningId, courseId);
+        return Mappings.mapToDto(service.linkContext(courseId, meaningId, request));
     }
 
     @PostMapping("/{meaningId}/collocations")
-    public WordMeaningCollocationDto linkCollocation(@PathVariable Long meaningId, @RequestBody WordMeaningCollocationDto request) {
-        log.info("Link new Collocation with existed Meaning {}", meaningId);
-        return Mappings.mapToDto(service.linkCollocation(meaningId, request));
+    public WordMeaningCollocationDto linkCollocation(@PathVariable Long courseId,
+                                                     @PathVariable Long meaningId,
+                                                     @RequestBody WordMeaningCollocationDto request) {
+        log.info("Link new Collocation with existed Meaning {} of course {}", meaningId, courseId);
+        return Mappings.mapToDto(service.linkCollocation(courseId, meaningId, request));
     }
 
-    @PatchMapping("/{meaningId}/variants")
-    public void editVariants(@PathVariable Long meaningId, @RequestBody EditWordMeaningVariantsDto request) {
-        log.info("Edit Variants of Meaning {}", meaningId);
-        service.editVariants(meaningId, request);
+    @PatchMapping("/{meaningId}/translations")
+    public void editTranslations(@PathVariable Long courseId,
+                                 @PathVariable Long meaningId,
+                                 @RequestBody EditWordMeaningTranslationsDto request) {
+        log.info("Edit Translations of Meaning {} of course {}", meaningId, courseId);
+        service.editTranslations(courseId, meaningId, request);
     }
 
     @PatchMapping("/{meaningId}/definition")
-    public void editDefinition(@PathVariable Long meaningId, @RequestBody PatchEditOneFieldDto request) {
-        log.info("Edit Definition of Meaning {}", meaningId);
-        service.editDefinition(meaningId, request.newValue());
+    public void editDefinition(@PathVariable Long courseId,
+                               @PathVariable Long meaningId,
+                               @RequestBody PatchEditOneFieldDto request) {
+        log.info("Edit Definition of Meaning {} of course {}", meaningId, courseId);
+        service.editDefinition(courseId, meaningId, request.newValue());
     }
 
     @PatchMapping("/{meaningId}/image")
-    public void editImageUrl(@PathVariable Long meaningId, @RequestBody PatchEditOneFieldDto request) {
-        log.info("Edit ImageUrl of Meaning {}", meaningId);
-        service.editImageUrl(meaningId, request.newValue());
+    public void editImageUrl(@PathVariable Long courseId,
+                             @PathVariable Long meaningId,
+                             @RequestBody PatchEditOneFieldDto request) {
+        log.info("Edit ImageUrl of Meaning {} of course {}", meaningId, courseId);
+        service.editImageUrl(courseId, meaningId, request.newValue());
     }
 
     @PutMapping("/{meaningId}/collocations/{collocationId}")
-    public WordMeaningCollocationDto editCollocation(@PathVariable Long meaningId,
+    public WordMeaningCollocationDto editCollocation(@PathVariable Long courseId,
+                                                     @PathVariable Long meaningId,
                                                      @PathVariable Long collocationId,
                                                      @RequestBody WordMeaningCollocationDto request) {
-        log.info("Edit Collocation {} of Meaning {}", collocationId, meaningId);
-        return Mappings.mapToDto(service.editCollocation(meaningId, collocationId, request));
+        log.info("Edit Collocation {} of Meaning {} of course {}", collocationId, meaningId, courseId);
+        return Mappings.mapToDto(service.editCollocation(courseId, meaningId, collocationId, request));
     }
 
     @DeleteMapping("/{meaningId}/collocations/{collocationId}")
-    public void deleteCollocation(@PathVariable Long meaningId, @PathVariable Long collocationId) {
-        log.info("Delete Collocation {} of Meaning {}", collocationId, meaningId);
-        service.deleteCollocation(meaningId, collocationId);
+    public void deleteCollocation(@PathVariable Long courseId,
+                                  @PathVariable Long meaningId,
+                                  @PathVariable Long collocationId) {
+        log.info("Delete Collocation {} of Meaning {} of course {}", collocationId, meaningId, courseId);
+        service.deleteCollocation(courseId, meaningId, collocationId);
     }
 
     @GetMapping("/statistics")
-    public List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech() {
-        return service.countMeaningsByPartOfSpeech();
+    public List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech(@PathVariable Long courseId) {
+        return service.countMeaningsByPartOfSpeech(courseId);
     }
 }

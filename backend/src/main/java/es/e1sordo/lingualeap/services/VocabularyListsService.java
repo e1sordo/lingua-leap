@@ -7,21 +7,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface VocabularyListsService {
-    List<VocabularyList> getAll();
+    List<VocabularyList> getAll(Long courseId);
 
-    VocabularyList getBy(Long id);
+    VocabularyList getBy(Long courseId, Long id);
 
-    VocabularyList getByPos(String pos);
+    VocabularyList getByPos(Long courseId, String pos);
 
-    VocabularyList getByDate(LocalDate date);
+    VocabularyList getByDate(Long courseId, LocalDate date);
 
-    VocabularyList getSmartListOfRecentlyAdded();
+    VocabularyList getSmartListOfRecentlyAdded(Long courseId);
 
-    VocabularyList getSmartListOfProblemWords();
+    VocabularyList getSmartListOfProblemWords(Long courseId);
 
-    VocabularyList upsertList(UpsertVocabularyListRequestDto request);
+    VocabularyList upsertList(Long courseId, UpsertVocabularyListRequestDto request);
 
-    void removeWordFromList(Long listId, Long wordMeaningId);
+    void removeWordFromList(Long courseId, Long listId, Long wordMeaningId);
 
-    void delete(Long id);
+    void delete(Long courseId, Long id);
 }

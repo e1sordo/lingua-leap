@@ -51,14 +51,21 @@
 <script setup lang="ts">
 import api, { VocabularyListDto } from "@/api/backend-api";
 import ActionModalWindow from '@/components/ActionModalWindow.vue';
+import { useCourses } from '@/composables/useCourses';
 import { onMounted, ref } from 'vue';
+
+const { activeCourseId } = useCourses();
 
 const lists = ref([] as VocabularyListDto[]);
 const newListName = ref('');
 
 const fetchLists = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const response = await api.getAllLists();
+        const response = await api.getAllLists(activeCourseId.value);
         const sortedLists = response.data.sort((a, b) => {
             if (a.smart && !b.smart) {
                 return -1;
@@ -76,8 +83,12 @@ onMounted(() => {
 });
 
 const submitForm = () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        api.addNewList(newListName.value)
+        api.addNewList(activeCourseId.value, newListName.value)
             .then((response) => {
                 console.log("List was added");
                 newListName.value = '';
@@ -89,8 +100,12 @@ const submitForm = () => {
 }
 
 const deleteList = async (listId: number) => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        await api.deleteList(listId);
+        await api.deleteList(activeCourseId.value, listId);
         lists.value = lists.value.filter(list => list.id !== listId);
     } catch (ex) {
         console.log("Error", ex);

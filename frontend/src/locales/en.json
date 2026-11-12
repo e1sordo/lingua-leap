@@ -7,6 +7,27 @@
         "settings": "Settings",
         "logout": "Log out"
     },
+    "course": {
+        "addLanguage": "+ Add language",
+        "createTitle": "Create new course",
+        "targetLanguage": "Language you study",
+        "selectLanguage": "Select language",
+        "primaryTranslationLanguage": "Primary translation language",
+        "secondaryTranslationLanguage": "Secondary translation language (optional)",
+        "none": "—",
+        "cancel": "Cancel",
+        "create": "Create"
+    },
+    "feed": {
+        "words": "words"
+    },
+    "study": {
+        "wordsForToday": "Words to repeat today",
+        "hideTable": "Hide the whole table",
+        "showTable": "Show the whole table",
+        "noAbbreviations": "No abbreviations in this course yet",
+        "numbersUnsupported": "Numbers training is not available for this language yet"
+    },
     "settings": {
         "language": {
             "title": "Language preferences"

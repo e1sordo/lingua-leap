@@ -13,10 +13,10 @@
                 <li class="nav-item">
                     <router-link to="/study/table" class="nav-link active">Words Table</router-link>
                 </li>
-                <li class="nav-item">
+                <li v-if="languageModule.supportsNumbers" class="nav-item">
                     <router-link to="/study/numbers" class="nav-link active">Numbers</router-link>
                 </li>
-                <li class="nav-item">
+                <li v-if="languageModule.supportsAbbreviations" class="nav-item">
                     <router-link to="/study/abbreviations" class="nav-link active">Abbreviations</router-link>
                 </li>
             </ul>
@@ -28,7 +28,7 @@
 
             <hr class="my-5" />
 
-            <p>Total de palabras de hoy: {{ todayWords.length }}</p>
+            <p>{{ $t("study.wordsForToday") }}: {{ todayWords.length }}</p>
 
             <div class="row justify-content-center">
                 <div class="col-lg-7">
@@ -36,7 +36,7 @@
                         <WordsTable :data="todayWords" :refresh="shuffleRefreshingBit" />
                     </div>
                     <button class="btn btn-primary mt-2" @click="toggleSpoiler">
-                        {{ isSpoilerVisible ? 'Ocultar' : 'Mostrar' }} toda la tabla
+                        {{ isSpoilerVisible ? $t("study.hideTable") : $t("study.showTable") }}
                     </button>
 
                     <hr class="my-5" />
@@ -68,7 +68,15 @@ import FlashCarousel from '@/components/FlashCarousel.vue';
 import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
 import WordsTable from '@/components/WordsTable.vue';
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
 import { computed, onMounted, ref } from 'vue';
+
+const { activeCourse, activeCourseId } = useCourses();
+
+const languageModule = computed(() =>
+    getLanguageModule(activeCourse.value?.targetLanguageCode || '')
+);
 
 const prefersDarkScheme = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
 
@@ -105,11 +113,15 @@ const updateCurrentWord = () => {
 };
 
 onMounted(async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const summaryResponse = await api.getPlannedRepetitionsSummaryGraph();
+        const summaryResponse = await api.getPlannedRepetitionsSummaryGraph(activeCourseId.value);
         summaryGraph.value = summaryResponse.data;
 
-        const wordsResponse = await api.getWordsToRepeatToday();
+        const wordsResponse = await api.getWordsToRepeatToday(activeCourseId.value);
         todayWords.value = wordsResponse.data;
         shuffledTodayWords.value = shuffleArray(wordsResponse.data);
         updateCurrentWord();

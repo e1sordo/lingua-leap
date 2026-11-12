@@ -35,27 +35,28 @@ import static java.util.Optional.ofNullable;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/words")
+@RequestMapping("/api/courses/{courseId}/words")
 @RequiredArgsConstructor
 public class ForeignWordsController {
 
     private final ForeignWordsService service;
 
     @PostMapping
-    public void create(@RequestBody CreateWordRequestDto request) {
-        log.info("Create new Word Request");
-        service.createWord(request);
+    public void create(@PathVariable Long courseId, @RequestBody CreateWordRequestDto request) {
+        log.info("Create new Word Request for course {}", courseId);
+        service.createWord(courseId, request);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public RecentlyAddedForeignWordsPageDto getRecentlyAdded(
+            @PathVariable Long courseId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int pageSize,
             @RequestParam(defaultValue = "-1") long startsFromId,
             @RequestParam(defaultValue = "false") boolean rollOut
     ) {
-        log.info("Get all recently added words. Page: {}, pageSize: {}, rollOut: {}", page, pageSize, rollOut);
-        final Page<ForeignWord> pageOfWords = service.getRecentlyAdded(page, pageSize);
+        log.info("Get all recently added words. Course: {}, Page: {}, pageSize: {}, rollOut: {}", courseId, page, pageSize, rollOut);
+        final Page<ForeignWord> pageOfWords = service.getRecentlyAdded(courseId, page, pageSize);
         if (pageOfWords.isLast()) {
             log.info("No more words -- last page");
         }
@@ -70,8 +71,7 @@ public class ForeignWordsController {
                         .map(meaning -> new ForeignWordDto(
                                 meaning.getId(),
                                 word,
-                                meaning.getRussianVariant(),
-                                meaning.getEnglishVariant(),
+                                Mappings.mapTranslations(meaning),
                                 ofNullable(meaning.getPos()).orElse(PartOfSpeech.PHRASE),
                                 meaning.getImageUrl(),
                                 meaning.getGender(),
@@ -85,8 +85,7 @@ public class ForeignWordsController {
                 return new ForeignWordDto(
                         entity.getId(),
                         entity.getWord(),
-                        firstMeaning.getRussianVariant(),
-                        firstMeaning.getEnglishVariant(),
+                        Mappings.mapTranslations(firstMeaning),
                         ofNullable(firstMeaning.getPos()).orElse(PartOfSpeech.PHRASE),
                         firstMeaning.getImageUrl(),
                         firstMeaning.getGender(),
@@ -107,64 +106,64 @@ public class ForeignWordsController {
     }
 
     @GetMapping(value = "/autosuggestions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<String> getAutoSuggestions(@RequestParam String word) {
-        log.info("Get auto suggestions for '{}'", word);
-        return service.getAutoSuggestions(word).stream().map(ForeignWord::getWord).toList();
+    public List<String> getAutoSuggestions(@PathVariable Long courseId, @RequestParam String word) {
+        log.info("Get auto suggestions for '{}' in course {}", word, courseId);
+        return service.getAutoSuggestions(courseId, word).stream().map(ForeignWord::getWord).toList();
     }
 
     @GetMapping(value = "/{word}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ForeignWordDetailDto getWordDetail(@PathVariable String word) {
-        log.info("Get word '{}'", word);
-        return Mappings.mapToDto(service.getBy(word));
+    public ForeignWordDetailDto getWordDetail(@PathVariable Long courseId, @PathVariable String word) {
+        log.info("Get word '{}' in course {}", word, courseId);
+        return Mappings.mapToDto(service.getBy(courseId, word));
     }
 
     @DeleteMapping(value = "/{word}")
-    public void deleteWord(@PathVariable String word) {
-        log.info("Delete word '{}'", word);
-        service.delete(word);
+    public void deleteWord(@PathVariable Long courseId, @PathVariable String word) {
+        log.info("Delete word '{}' in course {}", word, courseId);
+        service.delete(courseId, word);
     }
 
     @GetMapping(value = "/total", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Long> getTotalNumber() {
-        log.info("Get total number of words");
-        return Map.of("total", service.getTotalNumber());
+    public Map<String, Long> getTotalNumber(@PathVariable Long courseId) {
+        log.info("Get total number of words in course {}", courseId);
+        return Map.of("total", service.getTotalNumber(courseId));
     }
 
     @GetMapping(value = "/check", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Boolean> checkIfExist(@RequestParam String word) {
-        log.info("Check if word '{}' exists in DB", word);
-        return Map.of("exist", service.checkIfExist(word));
+    public Map<String, Boolean> checkIfExist(@PathVariable Long courseId, @RequestParam String word) {
+        log.info("Check if word '{}' exists in DB of course {}", word, courseId);
+        return Map.of("exist", service.checkIfExist(courseId, word));
     }
 
     @PostMapping(value = "/later/{word}")
-    public void createWordToAddLater(@PathVariable String word) {
-        log.info("Create new Word To Add Later Request");
-        service.createWordToAddLater(word);
+    public void createWordToAddLater(@PathVariable Long courseId, @PathVariable String word) {
+        log.info("Create new Word To Add Later Request in course {}", courseId);
+        service.createWordToAddLater(courseId, word);
     }
 
     @GetMapping(value = "/later")
-    public List<WordToAddLaterDto> getAllWordsToAddLater() {
-        log.info("Get all words to add later");
-        return service.getAllWordsToAddLater().stream()
+    public List<WordToAddLaterDto> getAllWordsToAddLater(@PathVariable Long courseId) {
+        log.info("Get all words to add later in course {}", courseId);
+        return service.getAllWordsToAddLater(courseId).stream()
                 .map(Mappings::mapToDto)
                 .toList();
     }
 
     @DeleteMapping(value = "/later/{word}")
-    public void deleteWordToAddLater(@PathVariable String word) {
-        log.info("Delete word to add later");
-        service.deleteWordsToAddLater(word);
+    public void deleteWordToAddLater(@PathVariable Long courseId, @PathVariable String word) {
+        log.info("Delete word to add later in course {}", courseId);
+        service.deleteWordsToAddLater(courseId, word);
     }
 
     @GetMapping("/statistics")
-    public AddedWordsStatisticsDto getStatistics() {
-        log.info("Get added words statistics");
+    public AddedWordsStatisticsDto getStatistics(@PathVariable Long courseId) {
+        log.info("Get added words statistics in course {}", courseId);
         final AtomicInteger addedThisWeek = new AtomicInteger();
         final AtomicInteger addedPreviousWeek = new AtomicInteger();
         final AtomicInteger addedThisMonth = new AtomicInteger();
         final AtomicInteger addedPreviousMonth = new AtomicInteger();
 
-        final List<CountDateDto> data = service.getSummaryGraph().entrySet().stream()
+        final List<CountDateDto> data = service.getSummaryGraph(courseId).entrySet().stream()
                 .map(Mappings::mapToDto)
                 .peek(dto -> {
                     final LocalDate date = dto.date();

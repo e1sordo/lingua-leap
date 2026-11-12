@@ -22,7 +22,10 @@
 
 <script setup lang="ts">
 import api from "@/api/backend-api";
+import { useCourses } from '@/composables/useCourses';
 import { ref, watch } from 'vue';
+
+const { activeCourseId } = useCourses();
 
 const searchQuery = ref('');
 const showAutocomplete = ref(false);
@@ -37,12 +40,12 @@ watch(searchQuery, async (newValue: string) => {
     }
 
     timer = setTimeout(async () => {
-        if (newValue.trim().length === 0) {
+        if (newValue.trim().length === 0 || activeCourseId.value === null) {
             showAutocomplete.value = false;
             return;
         }
         try {
-            const response = await api.getAutocompleteSuggestions(newValue);
+            const response = await api.getAutocompleteSuggestions(activeCourseId.value, newValue);
             autocompleteSuggestions.value = response.data;
 
             if (autocompleteSuggestions.value.length > 0) {

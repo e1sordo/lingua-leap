@@ -3,5 +3,11 @@ spring:
     user:
       name: testuser
       password: password
-  datasource.url: jdbc:h2:mem:test
-  jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+  datasource:
+    url: jdbc:h2:mem:test
+    hikari:
+      # H2 does not understand SQLite pragmas from the main datasource config
+      connection-init-sql:
+  jpa:
+    hibernate.ddl-auto: create-drop
+    properties.hibernate.dialect: org.hibernate.dialect.H2Dialect

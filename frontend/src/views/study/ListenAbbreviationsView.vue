@@ -4,14 +4,18 @@
             <div class="row justify-content-center">
                 <div class="col-lg-4 text-start">
 
-                    <div v-if="!trainingCompleted">
+                    <div v-if="abbreviations.length === 0" class="alert alert-info mt-3">
+                        {{ $t("study.noAbbreviations") }}
+                    </div>
+
+                    <div v-else-if="!trainingCompleted">
                         <div v-if="!trainingStarted">
                             <!-- Форма настроек -->
                             <form @submit.prevent="startTraining">
                                 <div class="mb-3">
                                     <label for="totalVariants" class="form-label">Всего аббревиатур</label>
                                     <input type="number" v-model="totalVariants" id="totalVariants" class="form-control"
-                                        required />
+                                        required min="1" :max="abbreviations.length" />
                                 </div>
 
                                 <div class="mb-3">
@@ -98,7 +102,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import api from '@/api/backend-api';
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
+import { getVoices, onVoicesChanged, speak } from '@/utils/voice';
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 
 interface Result {
     original: string;
@@ -106,16 +114,37 @@ interface Result {
     correct: boolean;
 }
 
-const items = [
-    "JDK", // Java Development Kit
-    "JPA", // Java Persistence API
-    "SMI", // Salario Mínimo Interprofesional
-];
-
 export default defineComponent({
     name: 'ListenAbbreviationsView',
+    setup() {
+        const { activeCourse, activeCourseId } = useCourses();
+
+        const languageModule = computed(() =>
+            getLanguageModule(activeCourse.value?.targetLanguageCode || '')
+        );
+
+        const voiceList = ref([] as SpeechSynthesisVoice[]);
+        let unsubscribeVoicesChanged: (() => void) | null = null;
+
+        const refreshVoices = () => {
+            voiceList.value = getVoices(languageModule.value);
+        };
+
+        onMounted(() => {
+            refreshVoices();
+            unsubscribeVoicesChanged = onVoicesChanged(refreshVoices);
+        });
+
+        onUnmounted(() => {
+            unsubscribeVoicesChanged?.();
+        });
+
+        return { activeCourse, courseId: activeCourseId, languageModule, voiceList };
+    },
     data() {
         return {
+            abbreviations: [] as string[],
+
             trainingStarted: false,
             trainingCompleted: false,
             totalVariants: 20,
@@ -131,15 +160,25 @@ export default defineComponent({
             trainingResults: [] as Result[],
 
             selectedVoice: 0,
-            synth: window.speechSynthesis,
-            voiceList: [] as SpeechSynthesisVoice[],
-            speech: new window.SpeechSynthesisUtterance()
         };
     },
     mounted() {
-        this.voiceList = this.synth.getVoices().filter(voice => voice.lang.startsWith('es-'));
+        this.fetchAbbreviations();
     },
     methods: {
+        async fetchAbbreviations() {
+            if (this.courseId === null) {
+                return;
+            }
+
+            try {
+                const response = await api.getListByPos(this.courseId, 'ABBREVIATION');
+                this.abbreviations = response.data.words.map(word => word.word);
+                this.totalVariants = Math.min(this.totalVariants, Math.max(this.abbreviations.length, 1));
+            } catch (error) {
+                console.error(error);
+            }
+        },
         startTraining() {
             this.trainingStarted = true;
             this.generateRandomAbbreviation();
@@ -152,9 +191,13 @@ export default defineComponent({
         generateRandomAbbreviation() {
             this.previousAbbreviation = this.currentAbbreviation + '';
 
-            this.currentAbbreviation = items[items.length * Math.random() | 0];
-            while (this.currentAbbreviation === this.previousAbbreviation) {
-                this.currentAbbreviation = items[items.length * Math.random() | 0];
+            if (this.abbreviations.length === 1) {
+                this.currentAbbreviation = this.abbreviations[0];
+            } else {
+                this.currentAbbreviation = this.abbreviations[this.abbreviations.length * Math.random() | 0];
+                while (this.currentAbbreviation === this.previousAbbreviation) {
+                    this.currentAbbreviation = this.abbreviations[this.abbreviations.length * Math.random() | 0];
+                }
             }
 
             if (this.trainingMode === 'audio') {
@@ -191,11 +234,11 @@ export default defineComponent({
             }
         },
         speak(num: number | string) {
-            this.speech.text = num.toString();
-            this.speech.voice = this.voiceList[this.selectedVoice];
-            this.speech.pitch = Math.random() * (1.5 - 0.7) + 0.7;
-            this.speech.rate = Math.random() * (1.3 - 0.9) + 0.9;
-            this.synth.speak(this.speech);
+            speak(num, this.languageModule, {
+                voiceIndex: this.selectedVoice,
+                voiceModificationCheck: true,
+                courseId: this.courseId ?? undefined
+            });
         }
     }
 });

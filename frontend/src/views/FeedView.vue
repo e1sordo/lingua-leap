@@ -53,7 +53,7 @@
                 <p class="mt-5">
                     <router-link :to="`/lists/date/${dateStatistics.date}`" class="text-reset text-decoration-none">
                         {{ convertDateToSinceString(dateStatistics.date) }}
-                        (<strong>{{ dateStatistics.totalWords }}</strong> palabras)
+                        (<strong>{{ dateStatistics.totalWords }}</strong> {{ $t("feed.words") }})
                     </router-link>
                 </p>
                 <RecentlyAddedWords :data="wordsByDate(dateStatistics.date)" />
@@ -67,8 +67,11 @@
 import api, { DateCountDto, ForeignWordDto, AddLaterWordDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
 import CalendarHeatmap from '@/components/heatmap/CalendarHeatmap.vue';
+import { useCourses } from '@/composables/useCourses';
 import { convertDateToSinceString } from '@/utils/convertDateToSinceString';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+const { activeCourseId } = useCourses();
 
 class DateStatistics {
     date: Date;
@@ -103,14 +106,14 @@ const lastLoadedWordId = ref(-1);
 const addLaterWords = ref([] as AddLaterWordDto[]);
 
 const fetchLatestWords = async () => {
-    if (isLoading.value) {
+    if (isLoading.value || activeCourseId.value === null) {
         return;
     }
 
     isLoading.value = true;
     try {
         const page = currentPage.value;
-        const response = await api.getAllRecentlyAddedWords(page, batchSize.value, lastLoadedWordId.value);
+        const response = await api.getAllRecentlyAddedWords(activeCourseId.value, page, batchSize.value, lastLoadedWordId.value);
         const responseDto = response.data;
         const newList = responseDto.data;
         if (newList.length === 0) {
@@ -135,8 +138,12 @@ const fetchLatestWords = async () => {
 };
 
 const fetchSummaryGraph = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const response = await api.getAddedWordsStatistics();
+        const response = await api.getAddedWordsStatistics(activeCourseId.value);
         const dto = response.data;
         summaryGraph.value = dto.summary;
         addedThisWeek.value = dto.addedThisWeek;
@@ -149,8 +156,12 @@ const fetchSummaryGraph = async () => {
 };
 
 const fetchWordsToAddLater = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const response = await api.getAllAddLaterWords();
+        const response = await api.getAllAddLaterWords(activeCourseId.value);
         addLaterWords.value = response.data;
     } catch (error) {
         console.error(error);
@@ -193,7 +204,11 @@ const datesStatistics = computed(() => {
 });
 
 const deleteWordFromAddLater = (word: string) => {
-    api.deleteWordFromAddLaterList(word).then(() => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
+    api.deleteWordFromAddLaterList(activeCourseId.value, word).then(() => {
         addLaterWords.value = addLaterWords.value.filter(w => w.word !== word);
     });
 };

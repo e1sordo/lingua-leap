@@ -22,54 +22,57 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/lists")
+@RequestMapping("/api/courses/{courseId}/lists")
 @RequiredArgsConstructor
 public class VocabularyListsController {
 
     private final VocabularyListsService service;
 
     @PostMapping
-    public VocabularyListDto create(@RequestBody UpsertVocabularyListRequestDto request) {
-        log.info("Upsert List Request");
-        return Mappings.mapToDto(service.upsertList(request));
+    public VocabularyListDto create(@PathVariable Long courseId, @RequestBody UpsertVocabularyListRequestDto request) {
+        log.info("Upsert List Request in course {}", courseId);
+        return Mappings.mapToDto(service.upsertList(courseId, request));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<VocabularyListDto> getAll(@RequestParam(required = false) Boolean excludeSmart) {
-        log.info("Get all added lists (exclude smart: {})", excludeSmart);
-        return service.getAll().stream()
+    public List<VocabularyListDto> getAll(@PathVariable Long courseId,
+                                          @RequestParam(required = false) Boolean excludeSmart) {
+        log.info("Get all added lists of course {} (exclude smart: {})", courseId, excludeSmart);
+        return service.getAll(courseId).stream()
                 .filter(list -> excludeSmart == null || !list.isSmart())
                 .map(Mappings::mapToDto)
                 .toList();
     }
 
     @GetMapping(value = "/{listId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VocabularyListDetailDto getListDetail(@PathVariable Long listId) {
-        log.info("Get list by id '{}'", listId);
-        return Mappings.mapToDetailDto(service.getBy(listId));
+    public VocabularyListDetailDto getListDetail(@PathVariable Long courseId, @PathVariable Long listId) {
+        log.info("Get list by id '{}' of course {}", listId, courseId);
+        return Mappings.mapToDetailDto(service.getBy(courseId, listId));
     }
 
     @GetMapping(value = "/pos/{pos}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VocabularyListDetailDto getListDetailByPos(@PathVariable String pos) {
-        log.info("Get list by pos '{}'", pos);
-        return Mappings.mapToDetailDto(service.getByPos(pos));
+    public VocabularyListDetailDto getListDetailByPos(@PathVariable Long courseId, @PathVariable String pos) {
+        log.info("Get list by pos '{}' of course {}", pos, courseId);
+        return Mappings.mapToDetailDto(service.getByPos(courseId, pos));
     }
 
     @GetMapping(value = "/date/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VocabularyListDetailDto getListDetailByDate(@PathVariable LocalDate date) {
-        log.info("Get list by date '{}'", date);
-        return Mappings.mapToDetailDto(service.getByDate(date));
+    public VocabularyListDetailDto getListDetailByDate(@PathVariable Long courseId, @PathVariable LocalDate date) {
+        log.info("Get list by date '{}' of course {}", date, courseId);
+        return Mappings.mapToDetailDto(service.getByDate(courseId, date));
     }
 
     @DeleteMapping(value = "/{listId}/words/{wordMeaningId}")
-    public void removeWordFromList(@PathVariable Long listId, @PathVariable Long wordMeaningId) {
-        log.info("Remove word '{}' from list by id '{}'", wordMeaningId, listId);
-        service.removeWordFromList(listId, wordMeaningId);
+    public void removeWordFromList(@PathVariable Long courseId,
+                                   @PathVariable Long listId,
+                                   @PathVariable Long wordMeaningId) {
+        log.info("Remove word '{}' from list by id '{}' of course {}", wordMeaningId, listId, courseId);
+        service.removeWordFromList(courseId, listId, wordMeaningId);
     }
 
     @DeleteMapping(value = "/{listId}")
-    public void deleteList(@PathVariable Long listId) {
-        log.info("Delete list by id '{}'", listId);
-        service.delete(listId);
+    public void deleteList(@PathVariable Long courseId, @PathVariable Long listId) {
+        log.info("Delete list by id '{}' of course {}", listId, courseId);
+        service.delete(courseId, listId);
     }
 }

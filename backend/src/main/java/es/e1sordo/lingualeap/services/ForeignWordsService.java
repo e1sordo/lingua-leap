@@ -10,25 +10,25 @@ import java.util.List;
 import java.util.Map;
 
 public interface ForeignWordsService {
-    void createWord(CreateWordRequestDto upsertWordRequestDto);
+    void createWord(Long courseId, CreateWordRequestDto upsertWordRequestDto);
 
-    Page<ForeignWord> getRecentlyAdded(int page, int pageSize);
+    Page<ForeignWord> getRecentlyAdded(Long courseId, int page, int pageSize);
 
-    List<ForeignWord> getAutoSuggestions(String query);
+    List<ForeignWord> getAutoSuggestions(Long courseId, String query);
 
-    ForeignWord getBy(String word);
+    ForeignWord getBy(Long courseId, String word);
 
-    boolean checkIfExist(String word);
+    boolean checkIfExist(Long courseId, String word);
 
-    long getTotalNumber();
+    long getTotalNumber(Long courseId);
 
-    void createWordToAddLater(String word);
+    void createWordToAddLater(Long courseId, String word);
 
-    List<WordToAddLater> getAllWordsToAddLater();
+    List<WordToAddLater> getAllWordsToAddLater(Long courseId);
 
-    void deleteWordsToAddLater(String word);
+    void deleteWordsToAddLater(Long courseId, String word);
 
-    Map<LocalDate, Integer> getSummaryGraph();
+    Map<LocalDate, Integer> getSummaryGraph(Long courseId);
 
-    void delete(String word);
+    void delete(Long courseId, String word);
 }

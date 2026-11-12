@@ -40,18 +40,21 @@
                             </router-link>
                         </li>
                     </ul>
+                    <div class="me-3">
+                        <CourseSwitcher v-if="hasCourses" />
+                    </div>
                     <word-search-form />
                 </div>
             </div>
         </nav>
     </div>
 
-    <div class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
+    <div v-if="activeCourseId !== null" class="py-3" style="background-color: rgba(187, 187, 187, 0.12);">
         <div v-for="(meaningStatistics, index) in meaningsStatistics" :key="index" class="d-inline m-2 text-nowrap">
             <router-link :to="`/lists/pos/${meaningStatistics.pos}`" class="text-reset text-decoration-none">
                 <span data-bs-toggle="tooltip" :data-bs-title="partOfSpeechMeta[meaningStatistics.pos].label"
                     data-bs-placement="bottom">
-                    {{ partOfSpeechMeta[meaningStatistics.pos].labelEsp }}:
+                    {{ partOfSpeechMeta[meaningStatistics.pos].label }}:
                 </span>
                 <span class="badge text-bg-secondary pl-2">{{ meaningStatistics.count }}</span>
             </router-link>
@@ -60,18 +63,26 @@
 
     <div style="height: 40px;"></div>
 
-    <router-view :key="$route.fullPath" @updateTotalWords="updateTotalWords" />
+    <router-view v-if="activeCourseId !== null" :key="`${activeCourseId}:${$route.fullPath}`"
+        @updateTotalWords="updateTotalWords" />
+
+    <CourseCreateModal />
 
     <div style="height: 100px;"></div>
 </template>
 
 <script setup lang="ts">
 import api, { PartOfSpeechStatisticsDto } from "@/api/backend-api";
+import CourseCreateModal from '@/components/CourseCreateModal.vue';
+import CourseSwitcher from '@/components/CourseSwitcher.vue';
 import WordSearchForm from '@/components/WordSearchForm.vue';
+import { useCourses } from '@/composables/useCourses';
 import LightRope from "./components/LightRope.vue";
 import { partOfSpeechMeta } from '@/constants';
-import { Tooltip } from 'bootstrap';
-import { onMounted, provide, ref } from 'vue';
+import { Modal, Tooltip } from 'bootstrap';
+import { onMounted, provide, ref, watch } from 'vue';
+
+const { activeCourseId, hasCourses, loadCourses } = useCourses();
 
 const totalWords = ref(0);
 const totalWordsToRepeatToday = ref(0);
@@ -79,28 +90,43 @@ const meaningsStatistics = ref([] as PartOfSpeechStatisticsDto[]);
 const isWinter = ref(false);
 
 const fetchTotalAddedWordsNumber = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
     try {
-        totalWords.value = await api.getTotalAddedWords();
+        totalWords.value = await api.getTotalAddedWords(activeCourseId.value);
     } catch (error) {
         console.error(error);
     }
 };
 
 const fetchTotalWordsToRepeatToday = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
     try {
-        totalWordsToRepeatToday.value = await api.getTotalWordsToRepeatToday();
+        totalWordsToRepeatToday.value = await api.getTotalWordsToRepeatToday(activeCourseId.value);
     } catch (error) {
         console.error(error);
     }
 };
 
 const fetchMeaningsStatistics = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
     try {
-        const response = await api.getMeaningsStatistics();
+        const response = await api.getMeaningsStatistics(activeCourseId.value);
         meaningsStatistics.value = response.data.sort((a, b) => b.count - a.count);
     } catch (error) {
         console.error(error);
     }
+};
+
+const refetchCourseData = () => {
+    fetchTotalAddedWordsNumber();
+    fetchTotalWordsToRepeatToday();
+    fetchMeaningsStatistics();
 };
 
 const isWinterDay = () => {
@@ -123,15 +149,24 @@ const isWinterDay = () => {
     return false;
 }
 
-onMounted(() => {
-    fetchTotalAddedWordsNumber();
-    fetchTotalWordsToRepeatToday();
-    fetchMeaningsStatistics();
+watch(activeCourseId, () => {
+    refetchCourseData();
+});
+
+onMounted(async () => {
     isWinter.value = isWinterDay();
 
     new Tooltip(document.body, {
         selector: "[data-bs-toggle='tooltip']",
     });
+
+    await loadCourses();
+
+    if (!hasCourses.value) {
+        Modal.getOrCreateInstance(document.getElementById('courseCreateModal')!).show();
+    } else {
+        refetchCourseData();
+    }
 });
 
 const updateTotalWords = (updateFunction: (currentValue: number) => number) => {

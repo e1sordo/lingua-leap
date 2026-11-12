@@ -3,8 +3,30 @@
         "home": "Главная",
         "add": "Новое слово",
         "study": "Учеба",
+        "lists": "Списки",
         "settings": "Настройки",
         "logout": "Выйти"
+    },
+    "course": {
+        "addLanguage": "+ Добавить язык",
+        "createTitle": "Создание нового курса",
+        "targetLanguage": "Изучаемый язык",
+        "selectLanguage": "Выберите язык",
+        "primaryTranslationLanguage": "Основной язык перевода",
+        "secondaryTranslationLanguage": "Дополнительный язык перевода (необязательно)",
+        "none": "—",
+        "cancel": "Отмена",
+        "create": "Создать"
+    },
+    "feed": {
+        "words": "слов"
+    },
+    "study": {
+        "wordsForToday": "Слов на повторение сегодня",
+        "hideTable": "Скрыть всю таблицу",
+        "showTable": "Показать всю таблицу",
+        "noAbbreviations": "В этом курсе пока нет аббревиатур",
+        "numbersUnsupported": "Тренировка числительных пока недоступна для этого языка"
     },
     "settings": {
         "language": {

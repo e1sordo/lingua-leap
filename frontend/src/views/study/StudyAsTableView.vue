@@ -16,14 +16,21 @@
 <script setup lang="ts">
 import api, { ForeignWordDto } from "@/api/backend-api";
 import WordsTable from '@/components/WordsTable.vue';
+import { useCourses } from '@/composables/useCourses';
 import { onMounted, ref } from 'vue';
+
+const { activeCourseId } = useCourses();
 
 const shuffleRefreshingBit = ref(true);
 const latestWords = ref([] as ForeignWordDto[]);
 
 const fetchLatestWords = async () => {
+    if (activeCourseId.value === null) {
+        return;
+    }
+
     try {
-        const response = await api.getAllRecentlyAddedWords(0, 100, -1, true);
+        const response = await api.getAllRecentlyAddedWords(activeCourseId.value, 0, 100, -1, true);
         latestWords.value = response.data.data;
     } catch (error) {
         console.error(error);

@@ -4,7 +4,12 @@
             <div class="row justify-content-center">
                 <div class="col-lg-4 text-start">
 
-                    <div v-if="!trainingCompleted">
+                    <div v-if="!languageModule.supportsNumbers" class="alert alert-info mt-3">
+                        {{ $t("study.numbersUnsupported") }}
+                    </div>
+
+                    <template v-else>
+                        <div v-if="!trainingCompleted">
                         <div v-if="!trainingStarted">
                             <!-- Форма настроек -->
                             <form @submit.prevent="startTraining">
@@ -133,6 +138,7 @@
 
                         <button class="btn btn-primary" @click="backToMenu">Вернуться</button>
                     </div>
+                    </template>
 
                 </div>
             </div>
@@ -141,9 +147,35 @@
 </template>
 
 <script setup lang="ts">
+import { useCourses } from '@/composables/useCourses';
+import { getLanguageModule } from '@/languages';
 import { numberToWords } from '@/utils/numberToWords';
-import { speak, voiceList } from '@/utils/voice';
-import { ref } from 'vue';
+import { getSavedVoiceIndex, getVoices, onVoicesChanged, saveVoicePreference, speak } from '@/utils/voice';
+import { computed, onMounted, ref, watch } from 'vue';
+
+const { activeCourse, activeCourseId } = useCourses();
+
+const languageModule = computed(() =>
+    getLanguageModule(activeCourse.value?.targetLanguageCode || '')
+);
+
+const voiceList = ref([] as SpeechSynthesisVoice[]);
+
+const refreshVoices = () => {
+    voiceList.value = getVoices(languageModule.value);
+
+    if (activeCourseId.value !== null) {
+        const savedIndex = getSavedVoiceIndex(activeCourseId.value, voiceList.value);
+        if (savedIndex >= 0) {
+            selectedVoice.value = savedIndex;
+        }
+    }
+};
+
+onMounted(() => {
+    refreshVoices();
+    onVoicesChanged(refreshVoices);
+});
 
 interface Result {
     original: string;
@@ -174,6 +206,12 @@ const userInputField = ref(null);
 
 const selectedVoice = ref(0);
 const voiceModificationCheck = ref(false);
+
+watch(selectedVoice, () => {
+    if (activeCourseId.value !== null && voiceList.value[selectedVoice.value]) {
+        saveVoicePreference(activeCourseId.value, voiceList.value[selectedVoice.value]);
+    }
+});
 
 const startTraining = () => {
     trainingStarted.value = true;
@@ -266,6 +304,10 @@ const nextNumber = () => {
 
 const speakNumber = (number: number | string) => {
     const input = numericType.value == 'ordinal' ? number + 'º' : number;
-    speak(input, selectedVoice.value, voiceModificationCheck.value);
+    speak(input, languageModule.value, {
+        voiceIndex: selectedVoice.value,
+        voiceModificationCheck: voiceModificationCheck.value,
+        courseId: activeCourseId.value ?? undefined
+    });
 }
 </script>

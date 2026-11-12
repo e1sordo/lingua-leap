@@ -1,51 +1,11 @@
 import i18n from '@/i18n';
 
-interface DictionaryService {
-    name: string;
-    link: (word: string) => string;
-    color: string;
-}
-
-export const dictionaryServices: DictionaryService[] = [
-    {
-        name: 'PROMT.One',
-        link: (word: string) => `https://www.translate.ru/перевод/испанский-русский/${word}`,
-        color: 'success'
-    },
-    {
-        name: 'Span¡shD!ctionary',
-        link: (word: string) => `https://www.spanishdict.com/translate/${word}`,
-        color: 'primary'
-    },
-    {
-        name: 'YouGlish',
-        link: (word: string) => `https://youglish.com/pronounce/${word}/spanish`,
-        color: 'success'
-    },
-    {
-        name: 'RAE',
-        link: (word: string) => `https://dle.rae.es/${word}`,
-        color: 'primary'
-    },
-    {
-        name: 'bab.la',
-        link: (word: string) => `https://es.bab.la/diccionario/espanol/${word}`,
-        color: 'primary'
-    },
-    {
-        name: 'linguatools.de',
-        link: (word: string) => `https://www.linguatools.de/kollokationen-es/bolls/search?utf8=✓&query=${word}&commit=Search+Collocations%21`,
-        color: 'warning'
-    }
-];
-
 interface PartOfSpeechMeta {
     [key: string]: PartOfSpeechMetaItem
 }
 
 interface PartOfSpeechMetaItem {
     label: string;
-    labelEsp: string;
     definition: string;
     printOrder: number;
     bgClass: string;
@@ -55,7 +15,6 @@ interface PartOfSpeechMetaItem {
 export const partOfSpeechMeta: PartOfSpeechMeta = {
     NOUN: {
         label: 'Существительное',
-        labelEsp: 'Sustantivo',
         definition: '',
         printOrder: 3,
         bgClass: '',
@@ -63,7 +22,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     VERB: {
         label: 'Глагол',
-        labelEsp: 'Verbo',
         definition: '',
         printOrder: 2,
         bgClass: '',
@@ -71,7 +29,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     ADJECTIVE: {
         label: 'Прилагательное',
-        labelEsp: 'Adjetivo',
         definition: '',
         printOrder: 4,
         bgClass: '',
@@ -79,7 +36,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     ADVERB: {
         label: 'Наречие',
-        labelEsp: 'Adverbio',
         definition: '',
         printOrder: 5,
         bgClass: '',
@@ -87,7 +43,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     PRONOUN: {
         label: 'Местоимение',
-        labelEsp: 'Pronombre',
         definition: '',
         printOrder: 6,
         bgClass: '',
@@ -95,7 +50,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     PREPOSITION: {
         label: 'Предлог',
-        labelEsp: 'Preposición',
         definition: '',
         printOrder: 7,
         bgClass: '',
@@ -103,7 +57,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     CONJUNCTION: {
         label: 'Союз',
-        labelEsp: 'Conjunción',
         definition: '',
         printOrder: 8,
         bgClass: '',
@@ -111,7 +64,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     INTERJECTION: {
         label: 'Междометие',
-        labelEsp: 'Interjección',
         definition: '',
         printOrder: 9,
         bgClass: '',
@@ -119,7 +71,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     DETERMINER: {
         label: 'Определитель',
-        labelEsp: 'Определитель',
         definition: '',
         printOrder: 10,
         bgClass: '',
@@ -127,7 +78,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     PHRASE: {
         label: 'Фраза',
-        labelEsp: 'Locución',
         definition: '',
         printOrder: 1,
         bgClass: '',
@@ -135,7 +85,6 @@ export const partOfSpeechMeta: PartOfSpeechMeta = {
     },
     ABBREVIATION: {
         label: 'Аббревиатура',
-        labelEsp: 'Abreviación',
         definition: '',
         printOrder: 11,
         bgClass: '',

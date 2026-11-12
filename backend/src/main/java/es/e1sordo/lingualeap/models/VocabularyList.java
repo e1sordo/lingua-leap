@@ -1,11 +1,16 @@
 package es.e1sordo.lingualeap.models;
 
-import jakarta.persistence.Column;
+import es.e1sordo.lingualeap.enums.SmartListType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,12 +34,20 @@ public class VocabularyList {
     static final String TABLE_NAME = "vocabulary_lists";
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
     private boolean smart;
+
+    @Enumerated(value = EnumType.STRING)
+    private SmartListType smartType;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id")
+    @ToString.Exclude
+    private LanguageCourse course;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "listsContaining")
     @ToString.Exclude

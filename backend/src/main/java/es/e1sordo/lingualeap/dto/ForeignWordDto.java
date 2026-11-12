@@ -5,11 +5,11 @@ import es.e1sordo.lingualeap.enums.LearningStatus;
 import es.e1sordo.lingualeap.enums.PartOfSpeech;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 public record ForeignWordDto(long id,
                              String word,
-                             String russianVariant,
-                             String englishVariant,
+                             Map<String, String> translations,
                              PartOfSpeech pos,
                              String imageUrl,
                              GrammaticalGender gender,

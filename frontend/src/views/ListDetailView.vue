@@ -56,12 +56,17 @@
 import api, { VocabularyListDetailDto, WordMeaningContextDto, WordMeaningDto } from "@/api/backend-api";
 import RecentlyAddedWords from '@/components/RecentlyAddedWords.vue';
 import WordsTable from '@/components/WordsTable.vue';
+import { useCourses } from '@/composables/useCourses';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'ListDetailView',
     components: {
         RecentlyAddedWords, WordsTable
+    },
+    setup() {
+        const { activeCourseId } = useCourses();
+        return { courseId: activeCourseId };
     },
     data() {
         return {
@@ -76,15 +81,19 @@ export default defineComponent({
     },
     methods: {
         async fetchDetails() {
+            if (this.courseId === null) {
+                return;
+            }
+
             try {
                 let response;
 
                 if (this.$route.path.includes('/pos/')) {
-                    response = await api.getListByPos(this.$route.params.pos as string);
+                    response = await api.getListByPos(this.courseId, this.$route.params.pos as string);
                 } else if (this.$route.path.includes('/date/')) {
-                    response = await api.getListByDate(this.$route.params.date as string);
+                    response = await api.getListByDate(this.courseId, this.$route.params.date as string);
                 } else {
-                    response = await api.getListById(parseInt(this.$route.params.id as string));
+                    response = await api.getListById(this.courseId, parseInt(this.$route.params.id as string));
                 }
 
                 this.listDetail = response.data;
@@ -103,7 +112,11 @@ export default defineComponent({
             this.shuffleRefreshingBit = !this.shuffleRefreshingBit;
         },
         removeFromList(word: WordMeaningDto) {
-            api.removeWordFromList(this.listDetail.id, word.id).then(() => {
+            if (this.courseId === null) {
+                return;
+            }
+
+            api.removeWordFromList(this.courseId, this.listDetail.id, word.id).then(() => {
                 this.listDetail.words = this.listDetail.words.filter(w => w.id !== word.id);
                 this.listCount = this.listDetail.words.length;
             });

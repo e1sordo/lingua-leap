@@ -3,9 +3,30 @@
         "home": "Inicio",
         "add": "Añadir",
         "study": "Estudiar",
-        "lists": "My Lists",
+        "lists": "Mis listas",
         "settings": "Configuración",
         "logout": "Cerrar sesión"
+    },
+    "course": {
+        "addLanguage": "+ Añadir idioma",
+        "createTitle": "Crear nuevo curso",
+        "targetLanguage": "Idioma que estudias",
+        "selectLanguage": "Selecciona el idioma",
+        "primaryTranslationLanguage": "Idioma principal de traducción",
+        "secondaryTranslationLanguage": "Idioma secundario de traducción (opcional)",
+        "none": "—",
+        "cancel": "Cancelar",
+        "create": "Crear"
+    },
+    "feed": {
+        "words": "palabras"
+    },
+    "study": {
+        "wordsForToday": "Palabras para repetir hoy",
+        "hideTable": "Ocultar toda la tabla",
+        "showTable": "Mostrar toda la tabla",
+        "noAbbreviations": "Aún no hay abreviaturas en este curso",
+        "numbersUnsupported": "El entrenamiento de números aún no está disponible para este idioma"
     },
     "settings": {
         "language": {

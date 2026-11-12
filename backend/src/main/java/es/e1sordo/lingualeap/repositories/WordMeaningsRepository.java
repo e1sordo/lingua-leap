@@ -5,6 +5,7 @@ import es.e1sordo.lingualeap.models.WordMeaning;
 import es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -16,16 +17,17 @@ public interface WordMeaningsRepository extends ListCrudRepository<WordMeaning, 
     @Query("""
             SELECT new es.e1sordo.lingualeap.models.projections.PartOfSpeechStatistics(m.pos, COUNT(m))
             FROM WordMeaning m
+            WHERE m.word.course.id = :courseId
             GROUP BY m.pos
             """)
-    List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech();
+    List<PartOfSpeechStatistics> countMeaningsByPartOfSpeech(@Param("courseId") Long courseId);
 
-    List<WordMeaning> findAllByPos(PartOfSpeech pos);
+    List<WordMeaning> findAllByWordCourseIdAndPos(Long courseId, PartOfSpeech pos);
 
     @Query("""
             SELECT m
             FROM WordMeaning m
-            WHERE m.word.added = :date
+            WHERE m.word.course.id = :courseId AND m.word.added = :date
             """)
-    List<WordMeaning> findAllByDate(LocalDate date);
+    List<WordMeaning> findAllByDate(@Param("courseId") Long courseId, LocalDate date);
 }

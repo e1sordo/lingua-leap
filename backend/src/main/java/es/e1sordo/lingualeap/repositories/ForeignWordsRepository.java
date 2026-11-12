@@ -18,17 +18,20 @@ public interface ForeignWordsRepository extends ListCrudRepository<ForeignWord, 
 
     @Query(value = "SELECT new es.e1sordo.lingualeap.repositories.projections.CustomGroupByQueryResult(w.added, COUNT(w)) " +
                    "FROM ForeignWord w " +
-                   "WHERE w.added >= :minDate " +
+                   "WHERE w.course.id = :courseId AND w.added >= :minDate " +
                    "GROUP BY w.added")
-    List<CustomGroupByQueryResult> getAddedWordsStatistics(@Param("minDate") LocalDate minDate);
+    List<CustomGroupByQueryResult> getAddedWordsStatistics(@Param("minDate") LocalDate minDate,
+                                                           @Param("courseId") Long courseId);
 
-    Page<ForeignWord> findByOrderByAddedDesc(Pageable pageable);
+    Page<ForeignWord> findByCourseIdOrderByAddedDesc(Long courseId, Pageable pageable);
 
-    List<ForeignWord> findFirst10ByWordContaining(String word);
+    List<ForeignWord> findFirst10ByCourseIdAndWordContaining(Long courseId, String word);
 
-    Optional<ForeignWord> findByWord(String word);
+    Optional<ForeignWord> findByCourseIdAndWord(Long courseId, String word);
 
-    Optional<ForeignWord> findByWordIgnoreCase(String word);
+    Optional<ForeignWord> findByCourseIdAndWordIgnoreCase(Long courseId, String word);
 
-    boolean existsByWord(String word);
+    boolean existsByCourseIdAndWord(Long courseId, String word);
+
+    long countByCourseId(Long courseId);
 }

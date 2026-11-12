@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -39,7 +40,7 @@ public class WordMeaning {
     static final String TABLE_NAME = "meanings";
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -53,8 +54,11 @@ public class WordMeaning {
     private GrammaticalGender gender;
 
     private String imageUrl;
-    private String russianVariant;
-    private String englishVariant;
+
+    @OneToMany(mappedBy = "meaning", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<WordMeaningTranslation> translations = new ArrayList<>();
+
     private String definition;
     private Integer frequency;
 
@@ -92,5 +96,28 @@ public class WordMeaning {
 
     public void removeList(VocabularyList list) {
         this.listsContaining.remove(list);
+    }
+
+    public String getTranslation(final String languageCode) {
+        return translations.stream()
+                .filter(translation -> translation.getLanguage().getCode().equals(languageCode))
+                .map(WordMeaningTranslation::getText)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void putTranslation(final Language language, final String text) {
+        final var existing = translations.stream()
+                .filter(translation -> translation.getLanguage().getCode().equals(language.getCode()))
+                .findFirst();
+        if (existing.isPresent()) {
+            existing.get().setText(text);
+        } else {
+            translations.add(new WordMeaningTranslation(this, language, text));
+        }
+    }
+
+    public boolean removeTranslation(final String languageCode) {
+        return translations.removeIf(translation -> translation.getLanguage().getCode().equals(languageCode));
     }
 }

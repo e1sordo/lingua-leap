@@ -1,8 +1,9 @@
 package es.e1sordo.lingualeap.dto;
 
+import java.util.Map;
+
 public record WordMeaningCollocationDto(Long id,
                                         String pattern,
                                         String resolvedPattern,
-                                        String translationRussian,
-                                        String translationEnglish) {
+                                        Map<String, String> translations) {
 }
