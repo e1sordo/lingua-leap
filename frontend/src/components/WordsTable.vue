@@ -36,7 +36,9 @@
                         <span v-if="invertSpoilers && spoilers[index]" class="spoiler pe-auto">
                             {{ word.fakeWord }}
                         </span>
-                        <span v-else>{{ meaningValue ? word.englishVariant : word.russianVariant }}</span>
+                        <span v-else :title="meaningValue ? word.russianVariant : word.englishVariant">
+                            {{ meaningValue ? word.englishVariant : word.russianVariant }}
+                        </span>
                     </th>
                     <th>
                         <word-context-menu :word="word.word">

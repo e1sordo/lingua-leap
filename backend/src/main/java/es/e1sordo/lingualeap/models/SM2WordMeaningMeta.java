@@ -56,7 +56,16 @@ public class SM2WordMeaningMeta {
     private LocalDate plannedReview;
 
     public int getInterRepetitionInterval() {
-        return (int) DAYS.between(previousReview, plannedReview);
+        final long plannedInterval = DAYS.between(previousReview, plannedReview);
+
+        // Below is my own modification of this method, in case we are overdue for the current review (i.e. previousReview)
+        final var now = LocalDate.now();
+        if (now.isEqual(previousReview)) { // i.e. today, just in time
+            return (int) plannedInterval;
+        }
+
+        final long realInterval = DAYS.between(LocalDate.now(), plannedReview);
+        return (int) (realInterval + plannedInterval) / 2;
     }
 
     private void updatePlannedReview(int interval) {

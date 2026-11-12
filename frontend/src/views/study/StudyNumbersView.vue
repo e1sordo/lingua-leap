@@ -30,7 +30,8 @@
 
                                 <div class="mb-3">
                                     <label for="rangeEnd" class="form-label">Конечное значение</label>
-                                    <input type="number" v-model="rangeEnd" id="rangeEnd" class="form-control" required />
+                                    <input type="number" v-model="rangeEnd" id="rangeEnd" class="form-control"
+                                        required />
                                 </div>
 
                                 <div class="mb-3">
@@ -45,8 +46,8 @@
                                     <div class="form-group" v-if="trainingMode === 'audio' && voiceList.length">
                                         <label for="voices" class="form-label">Выберите голос</label>
                                         <select id="voices" v-model="selectedVoice" class="form-control">
-                                            <option v-for="(voice, index) in voiceList" :key="index" :data-lang="voice.lang"
-                                                :value="index">
+                                            <option v-for="(voice, index) in voiceList" :key="index"
+                                                :data-lang="voice.lang" :value="index">
                                                 {{ voice.name }} ({{ voice.lang }})
                                             </option>
                                         </select>
@@ -77,8 +78,9 @@
                                     </template>
                                     <template v-else>
                                         Введите это число:<br />
-                                        <span class="fs-5">{{ numberToWords(currentNumber, numericType == 'ordinal')
-                                        }}</span>
+                                        <span class="fs-5">
+                                            {{ numberToWords(currentNumber, numericType == 'ordinal') }}
+                                        </span>
                                     </template>
                                 </p>
 
@@ -124,7 +126,12 @@
                             </tbody>
                         </table>
 
-                        <button class="btn btn-primary" @click="finishTraining">Вернуться</button>
+                        <div class="my-3">
+                            <p>Total time taken: {{ avgTimePerAnswer * trainingResults.length }} seconds</p>
+                            <p>Average time for answer: {{ avgTimePerAnswer }} seconds</p>
+                        </div>
+
+                        <button class="btn btn-primary" @click="backToMenu">Вернуться</button>
                     </div>
 
                 </div>
@@ -159,6 +166,10 @@ const showResult = ref(false);
 // const resultMessage = ref('');
 const trainingResults = ref([] as Result[]);
 
+// New variables to measure time
+const trainingStartTime = ref(0);
+const avgTimePerAnswer = ref(0);
+
 const userInputField = ref(null);
 
 const selectedVoice = ref(0);
@@ -166,10 +177,16 @@ const voiceModificationCheck = ref(false);
 
 const startTraining = () => {
     trainingStarted.value = true;
+    trainingStartTime.value = new Date().getTime();
     prepareNextNumber();
 };
 
 const finishTraining = () => {
+    trainingCompleted.value = true;
+    avgTimePerAnswer.value = (new Date().getTime() - trainingStartTime.value) / 1000; // in seconds
+};
+
+const backToMenu = () => {
     trainingStarted.value = false;
     trainingCompleted.value = false;
     trainingResults.value = [];
@@ -237,7 +254,7 @@ const checkAnswerAndNextNumber = () => {
 
 const nextNumber = () => {
     if (Object.keys(trainingResults.value).length === totalVariants.value) {
-        trainingCompleted.value = true;
+        finishTraining();
     } else {
         prepareNextNumber();
         const userInputRef = userInputField.value;

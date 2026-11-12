@@ -15,6 +15,9 @@
                     <span class="input-group-text" id="inputGroup-sizing-lg">Слово</span>
                     <input v-model="form.word" id="word" type="text" required class="form-control fw-bolder"
                         aria-label="Word input" aria-describedby="inputGroup-sizing-lg" @input="updatePageTitle">
+                    <button class="btn btn-danger" type="button" id="button-addon-fill" @click="processWord">
+                        <i class="bi bi-stack-overflow"></i>
+                    </button>
                 </div>
 
                 <div v-for="(meaning, index) in form.meanings" :key="index" class="card text-start bg-transparent mb-4">
@@ -293,6 +296,24 @@ export default defineComponent({
 
             } catch (error) {
                 console.error(error);
+            }
+        },
+
+        async processWord() {
+            try {
+                const response = await fetch('https://site.com');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const testElement = doc.querySelector('.headline');
+                if (testElement) {
+                    this.form.meanings[0].russianVariant = testElement.textContent || '';
+                } else {
+                    this.form.meanings[0].russianVariant = 'Элемент с классом headline не найден';
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке и парсинге:', error);
+                this.form.meanings[0].russianVariant = 'Произошла ошибка при загрузке и парсинге страницы';
             }
         },
 
